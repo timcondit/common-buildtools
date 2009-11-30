@@ -1,0 +1,346 @@
+<?xml version="1.0"?>
+
+<!-- ===================================================================== -->
+<!-- C2C build file  make_c#calltagger  make_c#apicommon  make_autotagger  -->
+<!-- ===================================================================== -->
+<project name="BuildC++" default="" basedir=".">
+
+    <!-- ================================================================= -->
+    <!-- Source the contents of build.properties                           -->
+    <!-- ================================================================= -->
+    <!-- Note: There should not be any references to this property anywhere in
+    the rest of the script.  It is read at this point, the property values are
+    set, and that's the end of it. -->
+    <property file="build.properties" />
+
+    <!-- ================================================================= -->
+    <!-- Build C++ debug project                                           -->
+    <!-- ================================================================= -->
+    <target name="build-cpp-debug"
+        depends="make-RO_debug,
+        make-Serializable_LIB_debug,
+        make-Generated_debug,
+        make-RegUtils_debug,
+        make-SharedResources_debug,
+        make-Shared_LIB_debug,
+        make-UserTree_LIB_debug,
+        make-XFloorWnd_debug,
+        make-QualityMonitoring_debug,
+        make-SmartAgentErrs_debug,
+        make-WebControls_OCX_debug,
+        make-NotificationWindow_LIB_debug,
+        make-NativeServiceWin32_debug,
+        make-AgentSupport_debug,
+        make-AgentX_OCX_debug,
+        make-ContactSourceUtilities_LIB_debug,
+        make-NetMergeLoader_debug,
+        make-NetMerge_debug,
+        make-CiscoICM_debug,
+        make-SourceRunner_debug,
+        make-JavaContactSource_debug,
+        make-ChannelManager_debug,
+        make-C2CReportingControls_OCX_debug,
+        make-TSAPI_debug,
+        make-DialogicChannel60_debug,
+        make-AgentAutomation_debug,
+		make-AgentAdherence_OCX_debug,
+		make-AgentSchedule_OCX_debug
+        "/>
+
+    <!-- ================================================================= -->
+    <!-- Make TSAPI                                                        -->
+    <!-- ================================================================= -->
+    <target name="make-TSAPI_debug" description="Makes tsapi using devenv.exe">
+        <exec dir="${dir.build}" executable="${compiler.cpp}" vmlauncher="false" failonerror="true">
+            <arg line="/build Debug ${dir.src}/contactsources/tsapi/Tsapi.vcproj
+                /out ${dir.build}/BuildLog.txt"/>
+        </exec>
+    </target>
+
+    <!-- ================================================================= -->
+    <!--  Make ctcLoader6.0                                                -->
+    <!-- ================================================================= -->
+    <target name="make-ctcLoader6.0_debug" description="Makes ctcLoader6.0 using devenv.exe">
+        <exec dir="${dir.build}" executable="${compiler.cpp}" vmlauncher="false"
+            failonerror="true">
+            <arg line="/build Debug ${dir.src}/contactsources/netmerge/ctcLoader_6_0/ctcLoader_6_0.vcproj
+                /out ${dir.build}/BuildLog.txt"/>
+        </exec>
+    </target>
+
+    <!-- ================================================================= -->
+    <!--  Make CiscoICM                                                    -->
+    <!-- ================================================================= -->
+    <target name="make-CiscoICM_debug" description="Makes CiscoICM.dll using devenv.exe">
+        <exec dir="${dir.build}" executable="${compiler.cpp}" vmlauncher="false" failonerror="true">
+            <arg line="/build Debug ${dir.src}/contactsources/Ciscoicm.sln
+                /out ${dir.build}/BuildLog.txt"/>
+        </exec>
+    </target>
+
+    <!-- ================================================================= -->
+    <!-- Make RegUtils                                                     -->
+    <!-- ================================================================= -->
+    <target name="make-RegUtils_debug" description="Makes RegUtils.lib using devenv.exe">
+        <exec dir="${dir.build}" executable="${compiler.cpp}" vmlauncher="false" failonerror="true">
+            <arg line="/build Debug ${dir.src}/clients/quality/regutils/regutils.vcproj
+                /out ${dir.build}/BuildLog.txt"/>
+        </exec>
+    </target>
+
+    <!-- ================================================================= -->
+    <!--  Make SmartAgentErrs                                              -->
+    <!-- ================================================================= -->
+    <target name="make-SmartAgentErrs_debug" description="Makes SmartAgentErrs.dll using devenv.exe">
+        <exec dir="${dir.src}/clients/quality/agentsupport/smartagenterrs"
+            executable="${compiler.message}" vmlauncher="false" failonerror="true">
+            <arg line="-v -c -s -h ..\ -r .\ -x .\ -U smartagenterrs.mc" />
+        </exec>
+        <exec dir="${dir.build}" executable="${compiler.cpp}" vmlauncher="false" failonerror="true">
+            <arg line="/build Debug ${dir.src}/clients/quality/agentsupport/SmartAgentErrs/SmartAgentErrs.vcproj
+                /out ${dir.build}/BuildLog.txt" />
+        </exec>
+    </target>
+
+    <!-- ================================================================= -->
+    <!--  Make AgentSupport                                                -->
+    <!-- ================================================================= -->
+    <target name="make-AgentSupport_debug" description="Makes agentsupport using devenv.exe">
+        <exec dir="${dir.build}" executable="${compiler.cpp}" vmlauncher="false" failonerror="true">
+            <arg line="/build Debug ${dir.src}/clients/quality/agentsupport/AgentSupport.vcproj /out ${dir.build}/BuildLog.txt"/>
+        </exec>
+    </target>
+
+    <!-- ================================================================= -->
+    <!--  Make Quality Monitoring                                          -->
+    <!-- ================================================================= -->
+    <target name="make-QualityMonitoring_debug" description="Makes QM using devenv.exe">
+        <exec dir="${dir.build}" executable="${compiler.cpp}" vmlauncher="false" failonerror="true">
+            <arg line="/build Debug ${dir.src}/clients/quality/qm/qm.vcproj /out ${dir.build}/BuildLog.txt"/>
+        </exec>
+    </target>
+
+    <!-- ================================================================= -->
+    <!--  Make RO                                                          -->
+    <!-- ================================================================= -->
+    <target name="make-RO_debug" description="Makes ro_vcproj using devenv.exe">
+        <exec dir="${dir.build}"  executable="${compiler.cpp}" vmlauncher="false" failonerror="true">
+            <arg line="/build Debug ${dir.src}/server/ro/cpp/ro.vcproj /out ${dir.build}/BuildLog.txt" />
+        </exec>
+    </target>
+
+    <!-- ================================================================= -->
+    <!-- Make NativeServiceWin32                                           -->
+    <!-- ================================================================= -->
+    <target name="make-NativeServiceWin32_debug" description="Make EnvisionServer.exe devenv.exe">
+        <exec dir="${dir.build}" executable="${compiler.cpp}" vmlauncher="false" failonerror="false">
+            <arg line="/build Debug ${dir.src}/server/nativeservicewin32/nativeServiceWin32.vcproj
+                /out ${dir.build}/BuildLog.txt"/>
+        </exec>
+    </target>
+
+    <!-- ================================================================= -->
+    <!-- Make XFloorWnd.ocx                                                -->
+    <!-- ================================================================= -->
+    <target name="make-XFloorWnd_debug" description="Makes XFloorWnd.ocx using devenv.exe">
+        <exec dir="${dir.build}" executable="${compiler.cpp}" vmlauncher="false" failonerror="true">
+            <arg line="/build Debug ${dir.src}/clients/quality/xfloorwnd/XFloorWnd.vcproj
+                /out ${dir.build}/BuildLog.txt"/>
+        </exec>
+    </target>
+
+    <!-- ================================================================= -->
+    <!--  Make Agent Automation                                            -->
+    <!-- ================================================================= -->
+    <target name="make-AgentAutomation_debug" description="Makes AgentAutomation.dll using devenv.exe">
+        <exec dir="${dir.build}" executable="${compiler.cpp}" vmlauncher="false"
+            failonerror="false">
+            <arg line="/build Debug ${dir.src}/apis/automationapi/AgentAutomation.vcproj
+                /out ${dir.build}/BuildLog.txt"/>
+        </exec>
+    </target>
+
+    <!-- ================================================================= -->
+    <!--  Make SharedResources DLL                                         -->
+    <!-- ================================================================= -->
+    <!-- TODO do all languages in debug? -->
+    <target name="make-SharedResources_debug" description="Makes sharedresources.dll using devenv.exe">
+        <exec dir="${dir.build}" executable="${compiler.cpp}" vmlauncher="false" failonerror="false">
+            <arg line="/build Debug ${dir.src}/clients/quality/sharedresources/SharedResources.vcproj
+                /out ${dir.build}/BuildLog.txt"/>
+        </exec>
+    </target>
+
+    <!-- ================================================================= -->
+    <!--  Make and sign AgentX.ocx                                         -->
+    <!-- ================================================================= -->
+    <target name="make-AgentX_OCX_debug" description="Makes AgentX.ocx using devenv.exe">
+        <exec dir="${dir.build}" executable="${compiler.cpp}" vmlauncher="false" failonerror="false">
+            <arg line="/build Debug ${dir.src}/clients/quality/agentdesktop/AgentX.vcproj
+                /out ${dir.build}/BuildLog.txt"/>
+        </exec>
+    </target>
+
+    <!-- ================================================================= -->
+    <!--  Make and sign AgentAdherence.ocx                                 -->
+    <!-- ================================================================= -->
+    <target name="make-AgentAdherence_OCX_debug" description="Makes AgentAdherence using devenv.exe">
+        <exec dir="${dir.build}" executable="${compiler.cpp}" vmlauncher="false" failonerror="true">
+            <arg line="/build Debug ${dir.src}/clients/wfm/agentadherence/AgentAdherence.vcproj /out ${dir.build}/BuildLog.txt"/>
+        </exec>
+    </target>
+
+    <!-- ================================================================= -->
+    <!--  Make and AgentSchedule.ocx                                  -->
+    <!-- ================================================================= -->
+    <target name="make-AgentSchedule_OCX_debug" description="Makes AgentSchedule .ocx using devenv.exe">
+        <exec dir="${dir.build}" executable="${compiler.cpp}" vmlauncher="false" failonerror="true">
+            <arg line="/build Debug ${dir.src}/clients/wfm/agentschedule/AgentSchedule.vcproj
+                /out ${dir.build}/BuildLog.txt"/>
+        </exec>
+    </target>
+
+    <!-- ================================================================= -->
+    <!--  Make and sign C2CReportingControls.ocx                           -->
+    <!-- ================================================================= -->
+    <target name="make-C2CReportingControls_OCX_debug" description="Makes C2CReportingcontrols.ocx using devenv.exe">
+        <exec dir="${dir.build}" executable="${compiler.cpp}" vmlauncher="false" failonerror="false">
+            <arg line="/build debug
+                ${dir.src}/clients/reporting/C2CReportingControls/C2CReportingControls.vcproj
+                /out ${dir.build}/BuildLog.txt"/>
+        </exec>
+    </target>
+
+    <!-- ================================================================= -->
+    <!-- Make and sign WebControls.ocx                                     -->
+    <!-- ================================================================= -->
+    <target name="make-WebControls_OCX_debug" description="Makes WebControls.ocx using devenv.exe">
+        <exec dir="${dir.build}" executable="${compiler.cpp}" vmlauncher="false" failonerror="true">
+            <arg line="/build Debug ${dir.src}/clients/reporting/controls/Webcontrols.vcproj
+                /out ${dir.build}/BuildLog.txt"/>
+        </exec>
+    </target>
+
+    <!-- ================================================================= -->
+    <!-- Make Shared.Lib                                                   -->
+    <!-- ================================================================= -->
+    <target name="make-Shared_LIB_debug" description="Makes Shared Lib using devenv.exe">
+        <exec dir="${dir.build}" executable="${compiler.cpp}" vmlauncher="false" failonerror="true">
+            <arg line="/build Debug ${dir.src}/clients/quality/shared/Shared.vcproj
+                /out ${dir.build}/BuildLog.txt"/>
+        </exec>
+    </target>
+
+    <!-- ================================================================= -->
+    <!-- Make SourceRunnerService.exe                                      -->
+    <!-- ================================================================= -->
+    <target name="make-SourceRunner_debug" description="Makes SourceRunnerService.exe using devenv.exe">
+        <exec dir="${dir.build}" executable="${compiler.cpp}" vmlauncher="false" failonerror="true">
+            <arg line="/build Debug ${dir.src}/winservices/SourceRunnerService.sln
+                /out ${dir.build}/BuildLog.txt"/>
+        </exec>
+    </target>
+
+    <!-- ================================================================= -->
+    <!-- Make JavaContactSource.dll                                        -->
+    <!-- ================================================================= -->
+    <target name="make-JavaContactSource_debug" description="Makes javacontactsource.dll using devenv.exe">
+        <exec dir="${dir.build}" executable="${compiler.cpp}" vmlauncher="false" failonerror="true">
+            <arg line="/build Debug ${dir.src}/contactsources/javacontactsource/JavaContactSource.vcproj
+                /out ${dir.build}/BuildLog.txt"/>
+        </exec>
+    </target>
+
+    <!-- ================================================================= -->
+    <!-- Make NotificationWindow.lib                                       -->
+    <!-- ================================================================= -->
+    <target name="make-NotificationWindow_LIB_debug" description="Makes notificationwindow.lib using devenv.exe">
+        <exec dir="${dir.build}" executable="${compiler.cpp}" vmlauncher="false" failonerror="true">
+            <arg line="/build Debug ${dir.src}/clients/quality/notificationwindow/NotificationWindow.vcproj
+                /out ${dir.build}/BuildLog.txt"/>
+        </exec>
+    </target>
+
+    <!-- ================================================================= -->
+    <!-- Make NetMerge.dll                                                 -->
+    <!-- ================================================================= -->
+    <target name="make-NetMerge_debug" description="Makes NetMerge.dll using devenv.exe">
+        <echo file="${dir.build}\ProjectThatErrored.txt" message="NetMerge.dll"/>
+        <exec dir="${dir.build}" executable="${compiler.cpp}" vmlauncher="false" failonerror="true">
+            <arg line="/Build Debug ${dir.src}/contactsources/NetMerge/NetMerge.vcproj
+                /out ${dir.build}/BuildLog.txt"/>
+        </exec>
+    </target>
+
+    <!-- ================================================================= -->
+    <!-- Make NetMergeLoader.dll                                           -->
+    <!-- ================================================================= -->
+    <target name="make-NetMergeLoader_debug" description="Makes NetMergeLoader.dll using devenv.exe">
+        <echo file="${dir.build}\ProjectThatErrored.txt" message="NetMergeLoader.dll"/>
+        <exec dir="${dir.build}" executable="${compiler.cpp}" vmlauncher="false" failonerror="true">
+            <arg line="/Build Debug ${dir.src}/contactsources/NetMerge/ctcLoader_6_0/ctcLoader_6_0.vcproj
+                /out ${dir.build}/BuildLog.txt"/>
+        </exec>
+    </target>
+
+    <!-- ================================================================= -->
+    <!-- Make ContactSourceUtilities.lib                                   -->
+    <!-- ================================================================= -->
+    <target name="make-ContactSourceUtilities_LIB_debug" description="Makes ContactSourceUtils.lib using devenv.exe">
+        <exec dir="${dir.build}" executable="${compiler.cpp}" vmlauncher="false" failonerror="true">
+            <arg line="/build Debug ${dir.src}/contactsources/contactsourceutilities/ContactSourceUtils.vcproj
+                /out ${dir.build}/BuildLog.txt"/>
+        </exec>
+    </target>
+
+    <!-- ================================================================= -->
+    <!-- Make Serializable                                                 -->
+    <!-- ================================================================= -->
+    <target name="make-Serializable_LIB_debug" description="Makes serializable devenv.exe">
+        <exec dir="${dir.build}" executable="${compiler.cpp}" vmlauncher="false" failonerror="true">
+            <arg line="/build Debug ${dir.src}/serializable/serializable.vcproj
+                /out ${dir.build}/BuildLog.txt"/>
+        </exec>
+    </target>
+
+    <!-- ================================================================= -->
+    <!-- Make Generated                                                    -->
+    <!-- ================================================================= -->
+    <target name="make-Generated_debug" description="Makes generated devenv.exe">
+        <exec dir="${dir.build}" executable="${compiler.cpp}" vmlauncher="false" failonerror="true">
+            <arg line="/build Debug ${dir.src}/generated/generated.vcproj
+                /out ${dir.build}/BuildLog.txt"/>
+        </exec>
+    </target>
+
+    <!-- ================================================================= -->
+    <!-- Make UserTree                                                     -->
+    <!-- ================================================================= -->
+    <target name="make-UserTree_LIB_debug" description="Makes usertree devenv.exe">
+        <exec dir="${dir.build}" executable="${compiler.cpp}" vmlauncher="false" failonerror="true">
+            <arg line="/build Debug ${dir.src}/clients/quality/usertree/usertree.vcproj
+                /out ${dir.build}/BuildLog.txt"/>
+        </exec>
+    </target>
+
+    <!-- ================================================================= -->
+    <!--  Make Channel Manager                                             -->
+    <!-- ================================================================= -->
+    <target name="make-ChannelManager_debug" description="Makes channelmanager devenv.exe">
+        <exec dir="${dir.build}" executable="${compiler.cpp}" vmlauncher="false" failonerror="true">
+            <arg line="/build Debug ${dir.src}/winservices/ChannelManager.sln /out ${dir.build}/BuildLog.txt"/>
+        </exec>
+    </target>
+
+    <!-- ================================================================= -->
+    <!-- Make DialogicChannel60                                            -->
+    <!-- ================================================================= -->
+    <target name="make-DialogicChannel60_debug" description="Makes DialogicChannel60 devenv.exe">
+        <exec dir="${dir.build}" executable="${compiler.cpp}" vmlauncher="false" failonerror="true">
+            <arg line="/build DebugSR60
+                ${dir.src}/winservices/chanmgr/hosts/DialogicChannel/DialogicChannel.vcproj
+                /out ${dir.build}/BuildLog.txt"/>
+        </exec>
+    </target>
+
+</project>

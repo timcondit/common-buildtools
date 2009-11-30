@@ -1,0 +1,1306 @@
+<?xml version="1.0" ?>
+<!-- ===================================================================== -->
+<!-- Envision build file                                                   -->
+<!-- ===================================================================== -->
+<project name="EPS" default="official-build" basedir="." xmlns:ac="antlib:net.sf.antcontrib">
+<!-- <project name="EPS" default="help" basedir="."> -->
+    <!-- TODO I'll need to do more work to use this as the default target.  It
+    breaks my build runner. -->
+    <target name="help" description="Tell user how to get help.">
+        <echo message="Please specify at least one target"/>
+        <echo message="To run a full build, use 'ant official-build'"/>
+        <echo message="Type 'ant -projecthelp' for the full list of public targets"/>
+    </target>
+
+    <!-- This is build.xml from 9.6.  I'm adding to it, but not using anything
+    else in here.  timc, 10/03/08 -->
+    <!--
+    <target name="make-war">
+        <war destfile="${dir.build}/Envision.war"
+            webxml="C:\temp\prn19086-Sprint2\sources\servlets-TEST\servlet_03\web.xml">
+            <classes dir="C:\temp\prn19086-Sprint2\sources\servlets-TEST\servlet_03\classes"/>
+            <lib dir="${dir.release}">
+                <include name="Envision.jar"/>
+                -->
+                <!-- add log4j jar -->
+                <!--
+            </lib>
+        </war>
+    </target>
+    -->
+
+    <!-- ================================================================= -->
+    <!-- Make environment variables accessible in build.properties         -->
+    <!-- ================================================================= -->
+    <!-- http://forums.sun.com/thread.jspa?messageID=4257700 -->
+    <property environment="env"/>
+
+    <!-- ================================================================= -->
+    <!-- Source the contents of build.properties                           -->
+    <!-- ================================================================= -->
+    <!-- Note: There should be no reference to this property anywhere in the
+    rest of the script.  It is read at this point, the property values are
+    set, and that's the end of it. -->
+    <!-- TODO consider loadproperties task instead. -timc 5/28/2009 -->
+    <property file="build.properties"/>
+
+    <!-- TESTING ... -->
+    <!--
+    <echo message="MSIDIFF dir (dd) is ${dd}"/>
+    <echo message="ANT_HOME is ${env.ANT_HOME}"/>
+    -->
+
+    <!-- ================================================================= -->
+    <!-- taskdef ant-contrib                                               -->
+    <!-- ================================================================= -->
+    <!-- Be sure and spell the name of the jar file right (esp. watch the
+    version). -->
+    <taskdef resource="net/sf/antcontrib/antcontrib.properties">
+        <classpath>
+            <pathelement location="lib/ant-contrib-1.0b3.jar"/>
+        </classpath>
+    </taskdef>
+
+    <!-- ================================================================= -->
+    <!-- test ant-contrib                                                  -->
+    <!-- ================================================================= -->
+    <!-- TEMP DEBUG target -->
+    <target name="test-if">
+        <if>
+            <equals arg1="${update-on-rebuild}" arg2="true"/>
+            <then>
+                <echo message="The value of property update-on-rebuild is true"/>
+            </then>
+            <else>
+                <echo message="The value of property update-on-rebuild is not true"/>
+            </else>
+        </if>
+    </target>
+
+    <!-- ================================================================= -->
+    <!-- TODO does this replace the antcontrib taskdef ??                  -->
+    <!-- ================================================================= -->
+    <!-- TODO collect these things into a common location.  I'm probably going
+    to have to consolidate the build scripts into a single file (or two). -->
+    <!-- http://marc.info/?l=ant-user&m=117052469400299&w=2 -->
+    <target name="define-ac">
+        <typedef resource="net/sf/antcontrib/antlib.xml"
+            uri="antlib:net.sf.antcontrib"
+            classpath="lib/ant-contrib-1.0b3.jar"/>
+        <!-- The logic conditions are not in antlib.xml ?? -->
+        <typedef name="isgreaterthan"
+            classname="net.sf.antcontrib.logic.condition.IsGreaterThan"
+            uri="antlib:net.sf.antcontrib"
+            classpath="lib/ant-contrib-1.0b3.jar"/>
+        <typedef name="islessthan"
+            classname="net.sf.antcontrib.logic.condition.IsLessThan"
+            uri="antlib:net.sf.antcontrib"
+            classpath="lib/ant-contrib-1.0b3.jar"/>
+    </target>
+
+    <!-- ================================================================= -->
+    <!-- Set conditional properties                                        -->
+    <!-- ================================================================= -->
+    <target name="set-conditional-properties" depends="define-ac">
+        <!-- Use tasks from ant-contrib to figure out what kind of build we're
+        doing.  It does decimal comparisons where appropriate, which is not
+        everywhere.  In particular, 9.10 and higher need special treatment.
+        Version numbers are not decimals, so we can't do decimal comparisons
+        with them, e.g., 9.6 is greater than 9.10, 9.11, 9.5999, etc. -->
+
+        <!-- This is a cascade, like switch statements without breaks.  It
+        works because Ant's properties are immutable once set.  For instance,
+        if the version is 9.9, the compiler is set to VS2008 when the 9.8.x if
+        statement is encountered and found to be true.  The 9.6.x if statement
+        is also encountered and is also true, but the property is already set,
+        and is not reset. -->
+
+        <!-- This target implicitly depends on not having big changes in
+        service packs.  If that changes, I'll subdivide it further.  -->
+
+        <!-- short-circuit sanity check -->
+        <ac:if>
+            <or>
+                <and>
+                    <ac:equals arg1="${MAJOR}" arg2="9"/>
+                    <ac:islessthan arg1="${MINOR}" arg2="6"/>
+                </and>
+                <and>
+                    <ac:islessthan arg1="${MAJOR}" arg2="9"/>
+                </and>
+            </or>
+            <then>
+                <fail message="common-buildtools are only for product version 9.6 and later"/>
+            </then>
+        </ac:if>
+
+        <!-- Part 1 of 2: set properties based on build version -->
+        <!-- 10.0 -->
+        <ac:if>
+            <or>
+                <ac:isgreaterthan arg1="${MAJOR}.${MINOR}" arg2="10.0"/>
+                <ac:equals arg1="${MAJOR}.${MINOR}" arg2="10.0"/>
+            </or>
+            <then>
+                <echo message="INFO setting 10.0 properties (if any)"/>
+                <!--
+                <property name="version.range" value="10.0.or.higher"/>
+                -->
+            </then>
+        </ac:if>
+
+        <!-- 9.10 -->
+        <ac:if>
+            <or>
+                <and>
+                    <ac:equals arg1="${MAJOR}" arg2="9"/>
+                    <ac:isgreaterthan arg1="${MINOR}" arg2="10"/>
+                </and>
+                <and>
+                    <ac:equals arg1="${MAJOR}" arg2="9"/>
+                    <ac:equals arg1="${MINOR}" arg2="10"/>
+                </and>
+            </or>
+            <then>
+                <echo message="INFO setting 9.10 properties (if any)"/>
+                <!--
+                <property name="version.range" value="9.10.to.10.0"/>
+                -->
+            </then>
+        </ac:if>
+
+        <!-- 9.9 -->
+        <ac:if>
+            <or>
+                <and>
+                    <ac:equals arg1="${MAJOR}" arg2="9"/>
+                    <ac:isgreaterthan arg1="${MINOR}" arg2="9"/>
+                </and>
+                <and>
+                    <ac:equals arg1="${MAJOR}" arg2="9"/>
+                    <ac:equals arg1="${MINOR}" arg2="9"/>
+                </and>
+            </or>
+            <then>
+                <echo message="INFO setting 9.9 properties (if any)"/>
+                <!--
+                <property name="version.range" value="9.9.to.9.10"/>
+                -->
+            </then>
+        </ac:if>
+
+        <!-- 9.8 -->
+        <ac:if>
+            <or>
+                <and>
+                    <ac:equals arg1="${MAJOR}" arg2="9"/>
+                    <ac:isgreaterthan arg1="${MINOR}" arg2="8"/>
+                </and>
+                <and>
+                    <ac:equals arg1="${MAJOR}" arg2="9"/>
+                    <ac:equals arg1="${MINOR}" arg2="8"/>
+                </and>
+            </or>
+            <then>
+                <echo message="INFO setting 9.8 properties (if any)"/>
+                <!--
+                <property name="version.range" value="9.8.to.9.9"/>
+                -->
+                <property name="compiler.cpp" value="${vs90_devenv}"/>
+                <property name="compiler.message" value="${vs90_mc}"/>
+                <property name="vscommontools" value="${env.VS90COMNTOOLS}"/>
+            </then>
+        </ac:if>
+
+        <!-- 9.7 -->
+        <ac:if>
+            <or>
+                <and>
+                    <ac:equals arg1="${MAJOR}" arg2="9"/>
+                    <ac:isgreaterthan arg1="${MINOR}" arg2="7"/>
+                </and>
+                <and>
+                    <ac:equals arg1="${MAJOR}" arg2="9"/>
+                    <ac:equals arg1="${MINOR}" arg2="7"/>
+                </and>
+            </or>
+            <then>
+                <echo message="INFO setting 9.7 properties (if any)"/>
+                <!--
+                <property name="version.range" value="9.7.to.9.8"/>
+                -->
+                <property name="file.pfx" value="${cert.envision}"/>
+                <property name="signtool.password" value="${signtool.envisionpass}"/>
+            </then>
+        </ac:if>
+
+        <!-- 9.6 -->
+        <ac:if>
+            <or>
+                <and>
+                    <ac:equals arg1="${MAJOR}" arg2="9"/>
+                    <ac:isgreaterthan arg1="${MINOR}" arg2="6"/>
+                </and>
+                <and>
+                    <ac:equals arg1="${MAJOR}" arg2="9"/>
+                    <ac:equals arg1="${MINOR}" arg2="6"/>
+                </and>
+            </or>
+            <then>
+                <echo message="INFO setting 9.6 properties (if any)"/>
+                <!--
+                <property name="version.range" value="9.6.to.9.7"/>
+                -->
+                <property name="compiler.cpp" value="${vs80_devenv}"/>
+                <property name="compiler.message" value="${vs80_mc}"/>
+                <property name="vscommontools" value="${env.VS80COMNTOOLS}"/>
+                <property name="file.pfx" value="${cert.private}"/>
+                <!-- <property name="signtool.password" value="${signtool.privatepass}"/> -->
+                <property name="signtool.password" value="${signtool.envisionpass}"/>
+                <!-- <property name="javac.source" value="1.6"/> -->
+            </then>
+        </ac:if>
+
+        <!-- Part 2 of 2: Check for resources that we need in order to move
+        on.  If property is not set, fail fast.  This still leaves open the
+        possibility that we've assigned the wrong value to the property.
+        Reference: http://ant.apache.org/manual/CoreTasks/conditions.html -->
+        <ac:if>
+            <not>
+                <and>
+                    <isset property="compiler.cpp"/>
+                    <available file="${compiler.cpp}"/>
+                </and>
+            </not>
+            <then>
+                <fail message="property compiler.cpp is unset or unavailable"/>
+            </then>
+        </ac:if>
+
+        <ac:if>
+            <not>
+                <and>
+                    <isset property="compiler.message"/>
+                    <available file="${compiler.message}"/>
+                </and>
+            </not>
+            <then>
+                <fail message="property compiler.message is unset or unavailable"/>
+            </then>
+        </ac:if>
+
+        <ac:if>
+            <not>
+                <and>
+                    <isset property="vscommontools"/>
+                    <available file="${vscommontools}"/>
+                </and>
+            </not>
+            <then>
+                <fail message="property vscommontools is unset or unavailable"/>
+            </then>
+        </ac:if>
+
+        <ac:if>
+            <not>
+                <and>
+                    <isset property="file.pfx"/>
+                    <!-- This is only available after we fetch the source.
+                    That makes it either a good test, or a bad one.  I'm not
+                    sure which. -->
+                    <available file="${file.pfx}"/>
+                </and>
+            </not>
+            <then>
+                <fail message="property file.pfx is unset or unavailable"/>
+            </then>
+        </ac:if>
+
+        <ac:if>
+            <not>
+                <and>
+                    <isset property="signtool.password"/>
+                    <!-- Cannot verify if this is available -->
+                </and>
+            </not>
+            <then>
+                <fail message="property signtool.password is unset or unavailable"/>
+            </then>
+        </ac:if>
+
+        <!-- If we get here, display the current settings. -->
+        <echo message="C++ compiler: ${compiler.cpp}"/>
+        <echo message="message compiler: ${compiler.message}"/>
+        <echo message="VS common tools: ${vscommontools}"/>
+        <echo message="certificate file: ${file.pfx}"/>
+        <echo message="signtool password: ${signtool.password}"/>
+    </target>
+
+    <!-- ================================================================= -->
+    <!-- Create the svn task                                               -->
+    <!-- ================================================================= -->
+    <taskdef name="svn" classname="org.tigris.subversion.svnant.SvnTask">
+        <classpath>
+            <fileset dir="${dir.lib}" includes="**/svn*.jar"/>
+        </classpath>
+    </taskdef>
+
+    <!-- ================================================================= -->
+    <!-- Common classpath                                                  -->
+    <!-- ================================================================= -->
+    <!-- The same classpath is in buildJars.xml!  Which one to keep? -->
+    <path id="project-classpath">
+        <fileset dir="${dir.sdk}/Java">
+            <include name="**/*.jar"/>
+            <!-- keep this include until the Wise Server installer is gone,
+            and these files are removed permanently -->
+            <exclude name="Jakarta-Tomcat/**/*.jar"/>
+        </fileset>
+        <fileset dir="${dir.sdk}/cti_libs">
+            <include name="**/*.jar"/>
+        </fileset>
+        <pathelement location="${dir.sdk}/Genesys/TLibrary7.1/genji.jar"/>
+        <pathelement location="${dir.src}/Envision.jar"/>
+        <pathelement location="${dir.src}/license.jar"/>
+        <pathelement location="${dir.src}/tools/genstubskel"/>
+    </path>
+
+    <!-- ================================================================= -->
+    <!-- pimpin'                                                           -->
+    <!-- ================================================================= -->
+    <target name="do-test">
+        <ant antfile="buildC#CPP.xml" dir="." target="make-SharedResources"/>
+    </target>
+
+    <!-- ================================================================= -->
+    <!-- Begin build tasks                                                 -->
+    <!-- ================================================================= -->
+    <target name="begin">
+        <!-- See Java's SimpleDateFormat for formatting details -->
+        <tstamp>
+            <format property="time.start" pattern="yyyy-MM-dd',' HH:mm:ss" locale="en_US"/>
+        </tstamp>
+        <echo>[${env.COMPUTERNAME}] Build started: ${time.start}</echo>
+        <!-- Stop virus protection to speed up the build -->
+        <exec dir="${dir.bin}" executable="cmd.exe" vmlauncher="false" failonerror="false">
+            <arg line="/c stopsym.bat"/>
+        </exec>
+    </target>
+
+    <!-- ================================================================= -->
+    <!-- End build tasks                                                   -->
+    <!-- ================================================================= -->
+    <target name="end">
+        <!-- TODO Check if the semaphore file already exists.  This could
+        indicate trouble.  (But isn't it too late by this point?) -->
+        <!-- See the 'after' method of runbuild.py for details about this. -->
+        <echo file="${dir.build}/../${version.product}_SUCCESS"/>
+        <!-- restart virus protection -->
+        <exec dir="${dir.bin}" executable="cmd.exe" vmlauncher="false" failonerror="false">
+            <arg line="/c startsym.bat"/>
+        </exec>
+        <!-- See Java's SimpleDateFormat for formatting details -->
+        <tstamp>
+            <format property="time.end" pattern="yyyy-MM-dd',' HH:mm:ss" locale="en_US"/>
+        </tstamp>
+        <echo>[${env.COMPUTERNAME}] Build completed: ${time.end}</echo>
+    </target>
+
+    <!-- ================================================================= -->
+    <!-- Clean up the working directory, if any                            -->
+    <!-- ================================================================= -->
+    <target name="nuke-workdir"
+        description="CAUTION: Deletes the current build working directory">
+        <delete includeemptydirs="true" dir="${dir.build}" failonerror="true"/>
+    </target>
+
+    <!-- ================================================================= -->
+    <!-- Fetch source from SVN repository (svn co)                         -->
+    <!-- ================================================================= -->
+    <!-- TODO add ability to specify revision? -->
+    <target name="fetch-source" description="Get source from Subversion">
+        <svn>
+            <checkout url="${url.src}" destPath="${dir.build}"/>
+        </svn>
+    </target>
+
+    <!-- ================================================================= -->
+    <!-- Update source from SVN repository (svn up)                        -->
+    <!-- ================================================================= -->
+    <target name="svn-up" description="Update source from Subversion">
+        <svn>
+            <update dir="${dir.build}"/>
+        </svn>
+    </target>
+
+    <!-- ================================================================= -->
+    <!-- Get the SVN revision for the entire working copy                  -->
+    <!-- ================================================================= -->
+    <target name="get-head-revision"
+        description="Get the HEAD revision for the working copy">
+        <svn>
+            <status path="${dir.build}" revisionProperty="repository.revision"/>
+        </svn>
+        <echo>repository.revision=${repository.revision}</echo>
+    </target>
+
+    <!-- ================================================================= -->
+    <!-- Tag the latest build                                              -->
+    <!-- ================================================================= -->
+    <!-- Note 1: This target tags the source revision that was originally
+    fetched from SVN, and does NOT include the latest version header and
+    project file commits by default.  I've decided to be conservative and use
+    the checkout revision for build notifications and for the tag.  This
+    avoids the potential problem of other commits in the interim, although the
+    version headers and the project files are not up to date - too bad I
+    guess. -->
+    <!-- Note 2: Be sure to use URLs for source and destination.  Tagging with
+    a URL source and WC destination took 16 minutes, but tagging with URLs for
+    source and destination took 3 seconds. -->
+    <!-- Note 3: THIS TARGET FAILS if the parent directories are not already
+    present.  svnant does not provide a way to get at the 'parents' option, so
+    beware. -->
+    <target name="tag-build" depends="get-head-revision"
+        description="Tag nightly build with version header and project file commits">
+        <tstamp>
+            <format property="datestamp" pattern="yyMMdd" locale="en_US"/>
+        </tstamp>
+        <property name="url.tag"
+            value="${url.tags}/${datestamp}-${version.product}-r${repository.revision}"/>
+        <echo message="tag-build: ${url.tag}"/>
+        <svn username="buildmgr" password="buildmgr">
+            <!-- repository.revision should be redundant here, but it doesn't
+            hurt (AFAIK) -->
+            <copy message="00000: Creating tag for build ${version.product}"
+                srcUrl="${url.src}" destUrl="${url.tag}"
+                revision="${repository.revision}"/>
+        </svn>
+    </target>
+
+    <!-- ================================================================= -->
+    <!-- Move working copy directory to make way for upcoming build        -->
+    <!-- ================================================================= -->
+    <!-- I was keeping the working directory around for use and then nuking it at
+    the start of the build/setup/release cycle.  The problem was that way too
+    often, I'd leave a file or a command window open and the build would be
+    unable to nuke the workdir, effectively killing the build - and blocking
+    QA.
+    .
+    Now the whole working copy is moved right at the end of the
+    build/setup/release cycle to ensure that there are no resources holding
+    the directory hostage.
+    .
+    Side note: the move task fails with a useless error (example follows), so
+    now I use cmd.
+    .
+    C:\Source\buildtools\branches\9.6\Initial\base\build.xml:241: Failed to copy
+    C:\Source\9.6\Initial\base\path\to\file.xml to
+    C:\Source\9.6\Initial\base-2008.08.15_13:58\path\to\file.xml due to
+    C:\Source\9.6\Initial\base-2008.08.15_13:58\path\to\file.xml (The filename,
+    directory name, or volume label syntax is incorrect)
+    .
+    -timc 8/18/2008
+    -->
+    <!-- TODO rewrite this and get rid of dir.build.present - set
+    set-conditional-properties for ideas -timc 11/21/2009 -->
+    <target name="move-workdir-postbuild" depends="get-head-revision"
+        description="Move working directory after build completes">
+        <property name="dir.postbuild"
+            value="${dir.build}-${version.product}-r${repository.revision}"/>
+        <available type="dir" file="${dir.build}" property="dir.build.present"/>
+        <if>
+            <equals arg1="${dir.build.present}" arg2="true"/>
+            <then>
+                <echo message="moving ${dir.build} to ${dir.postbuild}"/>
+                <exec dir="${basedir}" executable="cmd.exe" vmlauncher="false" failonerror="true">
+                    <arg line="/c move ${dir.build} ${dir.postbuild}"/>
+                </exec>
+            </then>
+            <else>
+                <echo message="not moving ${dir.build} to ${dir.postbuild}"/>
+            </else>
+        </if>
+    </target>
+
+    <!-- TODO move this down (alphabetical?) -->
+    <!-- ================================================================= -->
+    <!-- Delete Stubs & Skels (rebuild only)                               -->
+    <!-- ================================================================= -->
+    <target name="del-stubskel">
+        <!-- Adding verbose option on a trial basis.  -timc 4/17/09 -->
+        <delete verbose="true">
+            <fileset dir="${dir.build}" includes="**/*_Skel.* **/*_Stub.* **/*_Dist.*"/>
+        </delete>
+    </target>
+
+    <!-- ================================================================= -->
+    <!-- Create the release directory                                      -->
+    <!-- ================================================================= -->
+    <!-- TODO can we get rid of all of this?  -timc 1/2/2009 -->
+    <target name="create-release-dir" description="Creates Release directories">
+        <!-- timc: This call to delete should no longer be needed, since we're
+        using a clean working directory each time.  That's the idea, anyway.
+        The reality is that we may sometimes run a build from an existing
+        workdir.  So it's probably better to leave it in. -->
+        <delete quiet="true" failonerror="false" includeEmptyDirs="true" dir="${dir.build}/Release"/>
+        <mkdir dir="${dir.release}"/>
+        <mkdir dir="${dir.release}/Admin"/>
+        <mkdir dir="${dir.release}/Common"/>
+    </target>
+
+    <!-- =========================================================== -->
+    <!-- Run the installer software and release the installers       -->
+    <!-- =========================================================== -->
+    <target name="setup-installers"
+        description="Create and deploy the installers">
+        <ant antfile="buildSetup.xml" dir="." target="release-installers"/>
+    </target>
+
+    <!-- ================================================================= -->
+    <!-- e-mail build results                                              -->
+    <!-- ================================================================= -->
+    <!-- TODO This is supposed to be a temporary target, used only until we
+    can go back to using MailLogger ... after there are fewer warnings -->
+
+    <!-- The format of the echo message below looks a little odd, but it has
+    to be formatted that way to get "normal" looking newlines.
+    .
+    In case it gets messed up, it's echo plus attributes, newline, then the
+    message at column 0 on the following line, then close-echo directly
+    following the end of the message. -->
+
+    <!-- \\Bigfoot\Engineering\Projects -->
+    <pathconvert targetos="windows" property="dir.projects.converted">
+        <path path="${dir.projects}"/>
+    </pathconvert>
+
+    <!-- \\Bigfoot\Engineering\ProductBuilds -->
+    <pathconvert targetos="windows" property="dir.products.converted">
+        <path path="${dir.products}"/>
+    </pathconvert>
+
+    <target name="email-build-complete" depends="get-head-revision">
+        <!-- TODO add tolist to runbuild.py -timc 11/21/2009 -->
+        <mail from="buildmgr@envisioninc.com"
+            tolist="engineering@envisioninc.com,timc@envisioninc.com"
+            mailhost="corpserv04.acme.envisiontelephony.com"
+            subject="${version.servicepack} build ${version.product} (r${repository.revision}) results"
+            encoding="plain">
+            <message>
+Build is here: ${dir.products.converted}\${version.product}
+Log file is here: ${dir.projects.converted}\logs\build_${version.product}.xml
+
+
+Compiled from source revision ${repository.revision}
+            </message>
+        </mail>
+    </target>
+
+    <!-- ================================================================= -->
+    <!-- Update all version files                                          -->
+    <!-- ================================================================= -->
+    <!-- TODO get rid of insert.exe - replace it with my insert.py or some
+    other tool that does regular expression matching. -->
+    <target name="change-version" description="Update all version files">
+        <antcall target="chver-CPP"/>
+        <antcall target="chver-CSharp"/>
+        <antcall target="chver-Java"/>
+        <!-- AVPlayer.csproj (Centricity web application #1) -->
+        <antcall target="chver-AVPlayer"/>
+        <!-- RecordingDownloadTool.csproj (Centricity web application #2) -->
+        <antcall target="chver-RecordingDownloadTool"/>
+        <!-- EnvisionControls.inf -->
+        <antcall target="chver-EnvisionControls_INF"/>
+    </target>
+
+    <!-- ================================================================= -->
+    <!-- Commit all version and installer project files                    -->
+    <!-- ================================================================= -->
+    <!-- depends="change-version,setup-installers" -->
+    <!-- TODO need a dependency here?  It's tricky, because at least
+    setup-installers will rebuild all the installers, whether they're up to
+    date or not. -->
+    <target name="commit-all" description="Commit all version and installer project files">
+        <svn username="buildmgr" password="buildmgr">
+            <commit message="00000: Version header and installer file commit for build ${version.product}">
+                <fileset
+                    dir="${dir.build}"
+                    includes="
+                    src/**/*.csproj
+                    src/**/*.cs
+                    src/**/*.h
+                    src/**/*.java
+                    setup/**/*.inf
+                    setup/installs/**/*.aip"/>
+            </commit>
+        </svn>
+    </target>
+
+    <!-- ================================================================= -->
+    <!-- Commit version files [batch version]                              -->
+    <!-- ================================================================= -->
+    <!-- TODO remove description to make this "private"? -->
+    <target name="commit-version-files" depends="change-version"
+        description="Commit all changed src files [intended to pick up only version files]">
+        <svn username="buildmgr" password="buildmgr">
+            <commit message="00000: Version file checkin for build ${version.product}">
+                <!-- fileset needs to include the extensions of all version files -->
+                <fileset
+                    dir="${dir.build}"
+                    includes="**/*.csproj,**/*.cs,**/*.h,**/*.java,**/*.inf"/>
+            </commit>
+        </svn>
+    </target>
+
+    <!-- ================================================================= -->
+    <!-- Commit installer project files                                    -->
+    <!-- ================================================================= -->
+    <!-- TODO think about adding setup/Signature (or maybe just use setup)
+    here to pick up the new EnvisionControls.cab and contents.  And then
+    reconsider: why would I want to commit a cab?  Regardless,
+    EnvisionControls.inf DOES need to be committed, but not here.  It goes in
+    up above with the version file commits.  -->
+    <target name="commit-installers" depends="setup-installers">
+        <svn username="buildmgr" password="buildmgr">
+            <commit dir="${dir.installs}"
+                message="00000: Installer project file checkin for build ${version.product}"/>
+        </svn>
+    </target>
+
+    <!-- ================================================================= -->
+    <!-- Commit project files without recompiling the installers           -->
+    <!-- ================================================================= -->
+    <target name="commit-installers-no-depends">
+        <svn username="buildmgr" password="buildmgr">
+            <commit dir="${dir.installs}"
+                message="00000: Installer project file checkin for build ${version.product}"/>
+        </svn>
+    </target>
+
+    <!-- ================================================================= -->
+    <!-- Change C++ product versions                                       -->
+    <!-- ================================================================= -->
+    <!-- TODO Consider adding description to make target public -->
+    <!-- #define _PRODUCT_VERSION 9,0,0300,4 -->
+    <!-- #define _PRODUCT_VER_STR "9.0.0300.4\0" -->
+    <!-- #define _PRODUCT_VER_LOGIN_STR "9.0.0300.4\0" -->
+    <!-- #define _PRODUCT_ABOUT "Version 9.0.0300.4\0" -->
+    <target name="chver-CPP">
+        <property name="version_info_h" value="${dir.src}/include/version_info.h"/>
+        <exec dir="${dir.bin}" executable="insert.exe" vmlauncher="false">
+            <arg line="-c40
+                -s:x20_PRODUCT_VERSION:x20${p_MAJOR}:x2C${p_MINOR}:x2C${p_RELEASE}:x2C${p_BUILD}
+                -r:x20_PRODUCT_VERSION:x20${MAJOR}:x2C${MINOR}:x2C${RELEASE}:x2C${BUILD}
+                -o ${version_info_h}"/>
+        </exec>
+        <exec dir="${dir.bin}" executable="insert.exe" vmlauncher="false">
+            <arg line="-c40
+                -s:x20_PRODUCT_VER_STR:x20:x22${p_MAJOR}.${p_MINOR}.${p_RELEASE}.${p_BUILD}
+                -r:x20_PRODUCT_VER_STR:x20:x22${version.product}
+                -o ${version_info_h}"/>
+        </exec>
+        <exec dir="${dir.bin}" executable="insert.exe" vmlauncher="false">
+            <arg line="-c40
+                -s:x20_PRODUCT_VER_LOGIN_STR:x20:x22${p_MAJOR}.${p_MINOR}.${p_RELEASE}.${p_BUILD}
+                -r:x20_PRODUCT_VER_LOGIN_STR:x20:x22${version.product}
+                -o ${version_info_h}"/>
+        </exec>
+        <exec dir="${dir.bin}" executable="insert.exe" vmlauncher="false">
+            <arg line="-c40
+                -s:x20_PRODUCT_ABOUT:x20:x22Version:x20${p_MAJOR}.${p_MINOR}.${p_RELEASE}.${p_BUILD}
+                -r:x20_PRODUCT_ABOUT:x20:x22Version:x20${version.product}
+                -o ${version_info_h}"/>
+        </exec>
+    </target>
+
+    <!-- ================================================================= -->
+    <!-- Change C# product versions                                        -->
+    <!-- ================================================================= -->
+    <!-- TODO Consider adding description to make target public -->
+    <!-- public const string MAJOR = "9"; -->
+    <!-- public const string MINOR = "0"; -->
+    <!-- public const string RELEASE = "0300"; -->
+    <!-- public const string BUILD = "4"; -->
+    <target name="chver-CSharp">
+        <property name="version_info_cs"
+            value="${dir.src}/server/com/et/versioninfo/VersionInfo.cs"/>
+        <exec dir="${dir.bin}" executable="insert.exe" vmlauncher="false">
+            <arg line="-c30
+                -s:x20MAJOR:x20=:x20:x22${p_MAJOR}:x22;
+                -r:x20MAJOR:x20=:x20:x22${MAJOR}:x22;
+                -o ${version_info_cs}"/>
+        </exec>
+        <exec dir="${dir.bin}" executable="insert.exe" vmlauncher="false">
+            <arg line="-c30
+                -s:x20MINOR:x20=:x20:x22${p_MINOR}:x22;
+                -r:x20MINOR:x20=:x20:x22${MINOR}:x22;
+                -o ${version_info_cs}"/>
+        </exec>
+        <!-- prn20765: this is incompatible with VersionInfo.cs, and probably
+        broken.  I just opened the PRN, so we'll see what comes of it.  WFM
+        and BI use this file. -->
+        <exec dir="${dir.bin}" executable="insert.exe" vmlauncher="false">
+            <arg line="-c30
+                -s:x20RELEASE:x20=:x20:x22${p_RELEASE}:x22;
+                -r:x20RELEASE:x20=:x20:x22${RELEASE}:x22;
+                -o ${version_info_cs}"/>
+        </exec>
+        <exec dir="${dir.bin}" executable="insert.exe" vmlauncher="false">
+            <arg line="-c30
+                -s:x20BUILD:x20=:x20:x22${p_BUILD}:x22;
+                -r:x20BUILD:x20=:x20:x22${BUILD}:x22;
+                -o ${version_info_cs}"/>
+        </exec>
+
+        <!-- prn18732 (in 9.0.4) hopefully temporary workaround -->
+        <property name="daisy_version_cs_SERVER"
+            value="${dir.src}/server/com/et/wfm/daisy/DaisyVersion.cs"/>
+        <!-- clients/wfm/WFMClient/com/et/daisy/DaisyVersion.cs -->
+        <exec dir="${dir.bin}" executable="insert.exe" vmlauncher="false">
+            <arg line="-c30
+                -s:x20MAJOR:x20=:x20${p_MAJOR};
+                -r:x20MAJOR:x20=:x20${MAJOR};
+                -o ${daisy_version_cs_SERVER}"/>
+        </exec>
+        <exec dir="${dir.bin}" executable="insert.exe" vmlauncher="false">
+            <arg line="-c30
+                -s:x20MINOR:x20=:x20${p_MINOR};
+                -r:x20MINOR:x20=:x20${MINOR};
+                -o ${daisy_version_cs_SERVER}"/>
+        </exec>
+        <exec dir="${dir.bin}" executable="insert.exe" vmlauncher="false">
+            <arg line="-c30
+                -s:x20RELEASE:x20=:x20${p_RELEASE};
+                -r:x20RELEASE:x20=:x20${RELEASE};
+                -o ${daisy_version_cs_SERVER}"/>
+        </exec>
+        <exec dir="${dir.bin}" executable="insert.exe" vmlauncher="false">
+            <arg line="-c30
+                -s:x20BUILD:x20=:x20${p_BUILD};
+                -r:x20BUILD:x20=:x20${BUILD};
+                -o ${daisy_version_cs_SERVER}"/>
+        </exec>
+
+        <!-- prn18732 (in 9.0.4) hopefully temporary workaround -->
+        <property name="daisy_version_cs_CLIENT"
+            value="${dir.src}/clients/wfm/WFMClient/com/et/daisy/DaisyVersion.cs"/>
+        <exec dir="${dir.bin}" executable="insert.exe" vmlauncher="false">
+            <arg line="-c30
+                -s:x20MAJOR:x20=:x20${p_MAJOR};
+                -r:x20MAJOR:x20=:x20${MAJOR};
+                -o ${daisy_version_cs_CLIENT}"/>
+        </exec>
+        <exec dir="${dir.bin}" executable="insert.exe" vmlauncher="false">
+            <arg line="-c30
+                -s:x20MINOR:x20=:x20${p_MINOR};
+                -r:x20MINOR:x20=:x20${MINOR};
+                -o ${daisy_version_cs_CLIENT}"/>
+        </exec>
+        <exec dir="${dir.bin}" executable="insert.exe" vmlauncher="false">
+            <arg line="-c30
+                -s:x20RELEASE:x20=:x20${p_RELEASE};
+                -r:x20RELEASE:x20=:x20${RELEASE};
+                -o ${daisy_version_cs_CLIENT}"/>
+        </exec>
+        <exec dir="${dir.bin}" executable="insert.exe" vmlauncher="false">
+            <arg line="-c30
+                -s:x20BUILD:x20=:x20${p_BUILD};
+                -r:x20BUILD:x20=:x20${BUILD};
+                -o ${daisy_version_cs_CLIENT}"/>
+        </exec>
+    </target>
+
+    <!-- ================================================================= -->
+    <!-- Change Java product versions                                      -->
+    <!-- ================================================================= -->
+    <!-- TODO Consider adding description to make target public -->
+    <!-- Note: prn18358 Only RELEASE was changed to a String -->
+    <!-- public static final int MAJOR = 9; -->
+    <!-- public static final int MINOR = 0; -->
+    <!-- public static final String RELEASE = "0300"; -->
+    <!-- public static final int BUILD = 4; -->
+    <target name="chver-Java">
+        <property name="ProductVersion_java" value="${dir.src}/server/com/et/startup/ProductVersion.java"/>
+        <exec dir="${dir.bin}" executable="insert.exe" vmlauncher="false">
+            <arg line="-c30
+                -s:x20MAJOR:x20=:x20${p_MAJOR};
+                -r:x20MAJOR:x20=:x20${MAJOR};
+                -o ${ProductVersion_java}"/>
+        </exec>
+        <exec dir="${dir.bin}" executable="insert.exe" vmlauncher="false">
+            <arg line="-c30
+                -s:x20MINOR:x20=:x20${p_MINOR};
+                -r:x20MINOR:x20=:x20${MINOR};
+                -o ${ProductVersion_java}"/>
+        </exec>
+        <exec dir="${dir.bin}" executable="insert.exe" vmlauncher="false">
+            <arg line="-c30
+                -s:x20RELEASE:x20=:x20:x22${p_RELEASE}:x22;
+                -r:x20RELEASE:x20=:x20:x22${RELEASE}:x22;
+                -o ${ProductVersion_java}"/>
+        </exec>
+        <exec dir="${dir.bin}" executable="insert.exe" vmlauncher="false">
+            <arg line="-c30
+                -s:x20BUILD:x20=:x20${p_BUILD};
+                -r:x20BUILD:x20=:x20${BUILD};
+                -o ${ProductVersion_java}"/>
+        </exec>
+    </target>
+
+    <!-- ================================================================= -->
+    <!-- Change AVPlayer product version                                   -->
+    <!-- ================================================================= -->
+    <!-- example: all on one line
+        "C:\Source\buildtools\branches\9.4\base\bin\Insert.exe" -x80
+        -s":x3cApplicationVersion:x3e9.4.0000.0:x3c:x2fApplicationVersion:x3e"
+        -r":x3cApplicationVersion:x3e9.4.0000.1:x3c:x2fApplicationVersion:x3e"
+        -o AVPlayer.csproj -->
+    <!-- this is Centricity web application #1 -->
+    <target name="chver-AVPlayer">
+        <property name="AVPlayer_csproj"
+            value="${dir.src}/clients/AVPlayer/AVPlayer.csproj"/>
+        <exec dir="${dir.bin}" executable="insert.exe" vmlauncher="false">
+            <arg line="-c80
+                -s:x3cApplicationVersion:x3e${version.previous}:x3c:x2fApplicationVersion:x3e
+                -r:x3cApplicationVersion:x3e${version.product}:x3c:x2fApplicationVersion:x3e
+                -o ${AVPlayer_csproj}"/>
+        </exec>
+    </target>
+
+    <!-- ================================================================= -->
+    <!-- Change RecordingDownloadTool product version                      -->
+    <!-- ================================================================= -->
+    <!-- this is Centricity web application #2 -->
+    <target name="chver-RecordingDownloadTool">
+        <property name="RecordingDownloadTool_csproj"
+            value="${dir.src}/clients/RecordingDownloadTool/RecordingDownloadTool.csproj"/>
+        <exec dir="${dir.bin}" executable="insert.exe" vmlauncher="false">
+            <arg line="-c80
+                -s:x3cApplicationVersion:x3e${version.previous}:x3c:x2fApplicationVersion:x3e
+                -r:x3cApplicationVersion:x3e${version.product}:x3c:x2fApplicationVersion:x3e
+                -o ${RecordingDownloadTool_csproj}"/>
+        </exec>
+    </target>
+
+    <!-- ================================================================= -->
+    <!-- Change EnvisionControls.inf product version                       -->
+    <!-- ================================================================= -->
+    <target name="chver-EnvisionControls_INF">
+        <!-- FileVersion=9,0,0,504 -->
+        <property name="EnvisionControls_INF"
+            value="${dir.build}/setup/Signature/EnvisionControls.inf"/>
+        <exec dir="${dir.bin}" executable="insert.exe" vmlauncher="false">
+            <arg line="-c80
+                -sFileVersion:x3d${p_MAJOR},${p_MINOR},${p_RELEASE},${p_BUILD}
+                -rFileVersion:x3d${MAJOR},${MINOR},${RELEASE},${BUILD}
+                -o ${EnvisionControls_INF}"/>
+        </exec>
+    </target>
+
+    <!-- ================================================================= -->
+    <!-- Generate database schemas                                         -->
+    <!-- ================================================================= -->
+    <!-- TODO Do something about this. -timc 1/2/2009 -->
+    <target name="generate-dbschemas"
+        description="Generates Envision database schemas">
+
+        <echo>workdir=${dir.workdir}</echo>
+        <exec dir="${dir.workdir}" executable="cmd.exe" vmlauncher="false" failonerror="true">
+            <arg line="/c GenDBSchemas.bat"/>
+        </exec>
+
+        <!-- TODO Fix this.  It's a rewrite of .\workdir\GenDBSchemas.bat -->
+        <!--
+        <path id="dbschema.classpath">
+            <pathelement path="${dir.src}"/>
+            <pathelement path="${dir.src}/tools"/>
+            <pathelement location="${dir.build}/sdk/java/jdom.jar"/>
+            <pathelement location="${dir.build}/sdk/java/commons-cli-1.0.jar"/>
+        </path>
+
+        <java classname="genDBSchema.GenDBSchemaFromFiles" dir="${dir.build}"
+            fork="true" classpathref="dbschema.classpath">
+            <arg value="-inputDir src\server\db\central"/>
+            <arg value="-outputSchemaPath config\server\envision_schema_central.xml"/>
+            <arg value="-schemaName CentralDB"/>
+        </java>
+        -->
+
+        <!--
+SET INPUT_DIR=src/server/db/central
+SET OUTPUT_XML=config/server/envision_schema_central.xml
+java -cp %CP% genDBSchema.GenDBSchemaFromFiles -inputDir %INPUT_DIR% -outputSchemaPath %OUTPUT_XML% -schemaName CentralDB > GenDBSchemas.log 2>&1
+
+SET INPUT_DIR=src/server/db/wfm
+SET OUTPUT_XML=config/server/envision_schema_wfm.xml
+java -cp %CP% genDBSchema.GenDBSchemaFromFiles -inputDir %INPUT_DIR% -outputSchemaPath %OUTPUT_XML% -schemaName WFManagementDB >> GenDBSchemas.log 2>&1
+
+SET INPUT_DIR=src/server/db/local
+SET OUTPUT_XML=config/server/envision_schema.xml
+java -cp %CP% genDBSchema.GenDBSchemaFromFiles -inputDir %INPUT_DIR% -outputSchemaPath %OUTPUT_XML% -schemaName LocalDB >> GenDBSchemas.log 2>&1
+        -->
+
+    </target>
+
+    <!-- ================================================================= -->
+    <!-- Generate database schemas                                         -->
+    <!-- ================================================================= -->
+    <!--
+    <target name="generate-dbschemas">
+        <ant antfile="buildJars.xml" dir="." target="generate-dbschemas"/>
+    </target>
+    -->
+
+    <!-- ================================================================= -->
+    <!-- Make Jars                                                         -->
+    <!-- ================================================================= -->
+    <target name="build-jars">
+        <ant antfile="buildJars.xml" dir="." target="build-Envision_JAR"/>
+    </target>
+
+    <!-- ================================================================= -->
+    <!-- Copy Jar resources                                                -->
+    <!-- ================================================================= -->
+    <target name="copy-jar-resources">
+        <ant antfile="buildJars.xml" dir="." target="copy-jar-resources"/>
+    </target>
+
+    <!-- ================================================================= -->
+    <!-- Make C# and C++ files                                             -->
+    <!-- ================================================================= -->
+    <target name="make-CPP">
+        <ant antfile="buildC#CPP.xml" dir="." target="build-CPP"/>
+        <!-- Acme (9.0) only
+        <ant antfile="buildC#CPP.xml" dir="." target="build-CPP_debug"/> -->
+        <ant antfile="buildC#CPP.xml" dir="." target="build-CSharp"/>
+        <ant antfile="buildC#CPP.xml" dir="." target="build-Loaders"/>
+    </target>
+
+    <!-- ================================================================= -->
+    <!-- Touch source files                                                -->
+    <!-- ================================================================= -->
+    <target name="touch-build">
+        <touch>
+            <fileset dir="${dir.build}"/>
+        </touch>
+    </target>
+
+    <!-- =================================================================== -->
+    <!-- compile-genstubskel-jar                                             -->
+    <!-- =================================================================== -->
+    <target name="compile-genstubskel-jar" description="Compiles genstubskel">
+        <javac srcdir="${dir.src}/tools/genstubskel"
+            destdir="${dir.src}/tools/genstubskel"
+            debug="${javac.debug}"
+            deprecation="${javac.deprecation}"
+            source="${javac.source}"
+            optimize="on">
+            <classpath refid="project-classpath" />
+        </javac>
+    </target>
+
+    <!-- ================================================================= -->
+    <!-- GenStubSkel Suite                                                 -->
+    <!-- ================================================================= -->
+    <target name="genstubskel-suite" description="genstubskel suite">
+        <java classname="genstubskel.GenStubSkel" dir="${dir.build}"
+            fork="true" args="GenStubSkel.xml">
+            <classpath refid="project-classpath" />
+        </java>
+    </target>
+
+    <!-- TODO add dependencies on sign_WebControls_OCX and
+    sign_C2CReportingControls_OCX in buildC#CPP.xml.  Might be able to use
+    make-CPP as an example of how to do it.
+    .
+    <target name="make-CPP">
+        <ant antfile="buildC#CPP.xml" dir="." target="build-cpp"/>
+        <ant antfile="buildC#CPP.xml" dir="." target="build-csharp"/>
+        <ant antfile="buildC#CPP.xml" dir="." target="build-loaders"/>
+    </target>
+    -->
+
+    <!-- ================================================================= -->
+    <!--  Make and sign Envision CAB files                                 -->
+    <!-- ================================================================= -->
+    <!-- TODO clean this up -->
+    <!-- TODO defmacro? -timc 1/2/2009 -->
+    <!-- TODO depends? -timc 4/17/2009 -->
+
+    <target name="make-EnvisionControls_CAB" depends="set-conditional-properties">
+        <antcall target="make-EnvisionControls_CAB_EN"/>
+        <!-- localized in 9.7.x or later -->
+        <ac:if>
+            <or>
+                <ac:isgreaterthan arg1="${MAJOR}.${MINOR}.${RELEASE}" arg2="9.7.0000"/>
+                <ac:equals arg1="${MAJOR}.${MINOR}.${RELEASE}" arg2="9.7.0000"/>
+            </or>
+            <then>
+                <antcall target="make-EnvisionControls_CAB_DE"/>
+                <antcall target="make-EnvisionControls_CAB_ES"/>
+            </then>
+        </ac:if>
+    </target>
+
+    <target name="sign-EnvisionControls_CAB" depends="set-conditional-properties">
+        <antcall target="sign-EnvisionControls_CAB_EN"/>
+        <!-- localized in 9.7.x or later -->
+        <ac:if>
+            <or>
+                <and>
+                    <ac:equals arg1="${MAJOR}" arg2="9"/>
+                    <ac:equals arg1="${MINOR}" arg2="7"/>
+                </and>
+                <and>
+                    <ac:equals arg1="${MAJOR}" arg2="9"/>
+                    <ac:isgreaterthan arg1="${MINOR}" arg2="7"/>
+                </and>
+            </or>
+            <then>
+                <antcall target="sign-EnvisionControls_CAB_DE"/>
+                <antcall target="sign-EnvisionControls_CAB_ES"/>
+            </then>
+        </ac:if>
+    </target>
+
+    <!-- English -->
+    <target name="make-EnvisionControls_CAB_EN"
+        description="Makes EnvisionControls.cab (English) using CabArc">
+        <property name="dir.toCab_EN" value="${dir.build}/setup/Signature/EN/toCab"/>
+
+        <!-- these files are common to all CABs -->
+        <copy file="${dir.workdir}/WFM/AgentAdherence.ocx"
+            tofile="${dir.toCab_EN}/AgentAdherence.ocx"/>
+        <copy file="${dir.workdir}/WFM/AgentSchedule.ocx"
+            tofile="${dir.toCab_EN}/AgentSchedule.ocx"/>
+        <copy file="${dir.build}/setup/Signature/EnvisionControls.inf"
+            tofile="${dir.toCab_EN}/EnvisionControls.inf"/>
+        <copy file="${dir.sdk}/ISource/_ISource.dll"
+            tofile="${dir.toCab_EN}/_ISource.dll"/>
+        <copy file="${dir.sdk}/MS/mfc80.dll"
+            tofile="${dir.toCab_EN}/mfc80.dll"/>
+
+        <!-- specific to this CAB -->
+        <copy file="${dir.workdir}/Quality/AgentX.ocx"
+            tofile="${dir.toCab_EN}/AgentX.ocx"/>
+        <copy file="${dir.src}/clients/reporting/C2CReportingControls/Release/C2CReportingControls.ocx"
+            tofile="${dir.toCab_EN}/C2CReportingControls.ocx"/>
+        <copy file="${dir.workdir}/agentdesktop/WebControls.ocx"
+            tofile="${dir.toCab_EN}/WebControls.ocx"/>
+        <!-- NB: ReleaseEnglish only works for ... -->
+        <!-- Note the "logic": first we figure out if it's 9.6 or earlier.  Those
+        are not localized, so they get English only.  Then we check if it's
+        between 9.7.0 up to but not including 9.10.0.  Those use ReleaseEnglish
+        for English; German and Spanish are not affected.  Finally, if it's
+        9.10.0 or later, we switch back and use Release for English. -->
+        <ac:if>
+            <!-- 9.7.0 thru 9.9.x, localization with ReleaseEnglish -->
+            <and>
+                <or>
+                    <ac:equals arg1="${MAJOR}.${MINOR}.${RELEASE}" arg2="9.7.0000"/>
+                    <ac:isgreaterthan arg1="${MAJOR}.${MINOR}.${RELEASE}" arg2="9.7.0000"/>
+                </or>
+                <or>
+                    <!-- Can't use 9.10.0000, seems to be a string compare issue -->
+                    <ac:equals arg1="${MAJOR}.${MINOR}.${RELEASE}" arg2="9.9.9999"/>
+                    <ac:islessthan arg1="${MAJOR}.${MINOR}.${RELEASE}" arg2="9.9.9999"/>
+                </or>
+            </and>
+            <then>
+                <copy file="${dir.src}/clients/quality/sharedresources/ReleaseEnglish/SharedResources.dll"
+                    tofile="${dir.toCab_EN}/SharedResources.dll"/>
+            </then>
+            <else>
+                <copy file="${dir.workdir}/quality/SharedResources.dll"
+                    tofile="${dir.toCab_EN}/SharedResources.dll"/>
+            </else>
+        </ac:if>
+
+        <!-- NB: CabArc.exe must be in the path or this will fail -->
+        <cab cabfile="${dir.build}/setup/Signature/EN/EnvisionControls.cab"
+            basedir="${dir.toCab_EN}"
+            options="-s 6144"
+            includes="AgentAdherence.ocx, AgentSchedule.ocx, AgentX.ocx,
+            C2CReportingControls.ocx, WebControls.ocx, EnvisionControls.inf,
+            _ISource.dll,mfc80.dll,SharedResources.dll"
+            verbose="yes"/>
+    </target>
+
+    <!-- German -->
+    <target name="make-EnvisionControls_CAB_DE"
+        description="Makes EnvisionControls.cab (German) using CabArc">
+        <property name="dir.toCab_DE" value="${dir.build}/setup/Signature/DE/toCab"/>
+
+        <!-- these files are common to all CABs -->
+        <copy file="${dir.workdir}/WFM/AgentAdherence.ocx"
+            tofile="${dir.toCab_DE}/AgentAdherence.ocx"/>
+        <copy file="${dir.workdir}/WFM/AgentSchedule.ocx"
+            tofile="${dir.toCab_DE}/AgentSchedule.ocx"/>
+        <copy file="${dir.build}/setup/Signature/EnvisionControls.inf"
+            tofile="${dir.toCab_DE}/EnvisionControls.inf"/>
+        <copy file="${dir.sdk}/ISource/_ISource.dll"
+            tofile="${dir.toCab_DE}/_ISource.dll"/>
+        <copy file="${dir.sdk}/MS/mfc80.dll"
+            tofile="${dir.toCab_DE}/mfc80.dll"/>
+
+        <!-- specific to this CAB -->
+        <copy file="${dir.src}/clients/Quality/agentdesktop/ReleaseGerman/AgentX.ocx"
+            tofile="${dir.toCab_DE}/AgentX.ocx"/>
+        <copy file="${dir.src}/clients/reporting/C2CReportingControls/ReleaseGerman/C2CReportingControls.ocx"
+            tofile="${dir.toCab_DE}/C2CReportingControls.ocx"/>
+        <copy file="${dir.src}/clients/reporting/controls/ReleaseGerman/WebControls.ocx"
+            tofile="${dir.toCab_DE}/WebControls.ocx"/>
+        <copy file="${dir.src}/clients/quality/sharedresources/ReleaseGerman/SharedResources.dll"
+            tofile="${dir.toCab_DE}/SharedResources.dll"/>
+
+        <!-- NB: CabArc.exe must be in the path or this will fail -->
+        <cab cabfile="${dir.build}/setup/Signature/DE/EnvisionControls.cab"
+            basedir="${dir.toCab_DE}"
+            options="-s 6144"
+            includes="AgentAdherence.ocx, AgentSchedule.ocx, AgentX.ocx,
+            C2CReportingControls.ocx, WebControls.ocx, EnvisionControls.inf,
+            _ISource.dll,mfc80.dll,SharedResources.dll"
+            verbose="yes"/>
+    </target>
+
+    <!-- Spanish -->
+    <target name="make-EnvisionControls_CAB_ES"
+        description="Makes EnvisionControls.cab (Spanish) using CabArc">
+        <property name="dir.toCab_ES" value="${dir.build}/setup/Signature/ES/toCab"/>
+
+        <!-- these files are common to all CABs -->
+        <copy file="${dir.workdir}/WFM/AgentAdherence.ocx"
+            tofile="${dir.toCab_ES}/AgentAdherence.ocx"/>
+        <copy file="${dir.workdir}/WFM/AgentSchedule.ocx"
+            tofile="${dir.toCab_ES}/AgentSchedule.ocx"/>
+        <copy file="${dir.build}/setup/Signature/EnvisionControls.inf"
+            tofile="${dir.toCab_ES}/EnvisionControls.inf"/>
+        <copy file="${dir.sdk}/ISource/_ISource.dll"
+            tofile="${dir.toCab_ES}/_ISource.dll"/>
+        <copy file="${dir.sdk}/MS/mfc80.dll"
+            tofile="${dir.toCab_ES}/mfc80.dll"/>
+
+        <!-- specific to this CAB -->
+        <copy file="${dir.src}/clients/Quality/agentdesktop/ReleaseSpanish/AgentX.ocx"
+            tofile="${dir.toCab_ES}/AgentX.ocx"/>
+        <copy file="${dir.src}/clients/reporting/C2CReportingControls/ReleaseSpanish/C2CReportingControls.ocx"
+            tofile="${dir.toCab_ES}/C2CReportingControls.ocx"/>
+        <copy file="${dir.src}/clients/reporting/controls/ReleaseSpanish/WebControls.ocx"
+            tofile="${dir.toCab_ES}/WebControls.ocx"/>
+        <copy file="${dir.src}/clients/quality/sharedresources/ReleaseSpanish/SharedResources.dll"
+            tofile="${dir.toCab_ES}/SharedResources.dll"/>
+
+        <!-- NB: CabArc.exe must be in the path or this will fail -->
+        <cab cabfile="${dir.build}/setup/Signature/ES/EnvisionControls.cab"
+            basedir="${dir.toCab_ES}"
+            options="-s 6144"
+            includes="AgentAdherence.ocx, AgentSchedule.ocx, AgentX.ocx,
+            C2CReportingControls.ocx, WebControls.ocx, EnvisionControls.inf,
+            _ISource.dll,mfc80.dll,SharedResources.dll"
+            verbose="yes"/>
+    </target>
+
+
+    <!-- English -->
+    <target name="sign-EnvisionControls_CAB_EN"
+        depends="set-conditional-properties, make-EnvisionControls_CAB_EN"
+        description="Signs EnvisionControls.cab (English) using signtool">
+        <exec dir="${dir.build}" executable="${basedir}/${signtool}"
+            vmlauncher="false" failonerror="true">
+            <arg line="sign /a
+                /f ${file.pfx}
+                /p ${signtool.password}
+                /t ${signtool.timestampurl}
+                ${dir.build}/setup/Signature/EN/EnvisionControls.cab"/>
+        </exec>
+    </target>
+    <!-- German -->
+    <target name="sign-EnvisionControls_CAB_DE"
+        depends="set-conditional-properties, make-EnvisionControls_CAB_DE"
+        description="Signs EnvisionControls.cab (German) using signtool">
+        <exec dir="${dir.build}" executable="${basedir}/${signtool}"
+            vmlauncher="false" failonerror="true">
+            <arg line="sign /a
+                /f ${file.pfx}
+                /p ${signtool.password}
+                /t ${signtool.timestampurl}
+                ${dir.build}/setup/Signature/DE/EnvisionControls.cab"/>
+        </exec>
+    </target>
+    <!-- Spanish -->
+    <target name="sign-EnvisionControls_CAB_ES"
+        depends="set-conditional-properties, make-EnvisionControls_CAB_ES"
+        description="Signs EnvisionControls.cab (Spanish) using signtool">
+        <exec dir="${dir.build}" executable="${basedir}/${signtool}"
+            vmlauncher="false" failonerror="true">
+            <arg line="sign /a
+                /f ${file.pfx}
+                /p ${signtool.password}
+                /t ${signtool.timestampurl}
+                ${dir.build}/setup/Signature/ES/EnvisionControls.cab"/>
+        </exec>
+    </target>
+
+    <!-- ================================================================= -->
+    <!-- official-build target                                             -->
+    <!-- ================================================================= -->
+    <!-- TODO maybe this should be a target with a long list of dependencies.
+    The problem with that idea is that if something breaks, we've got to start
+    over from the beginning, since it's indivisible.  Me no like.  But it
+    might be good to aggregate it into bigger chunks.  I don't know what that
+    would look like yet. -->
+    <target name="official-build">
+        <antcall target="begin"/>
+        <antcall target="nuke-workdir"/>
+        <antcall target="fetch-source"/>
+        <antcall target="change-version"/>
+        <antcall target="create-release-dir"/>
+        <antcall target="build-jars"/>
+        <antcall target="compile-genstubskel-jar"/>
+        <antcall target="genstubskel-suite"/>
+        <antcall target="copy-jar-resources"/>
+        <antcall target="build-jars"/>
+        <antcall target="generate-dbschemas"/>
+        <!-- TODO set here at least temporarily -->
+        <antcall target="set-conditional-properties"/>
+        <antcall target="make-CPP"/>
+        <!-- TODO move this to buildC#CPP.xml -->
+        <antcall target="sign-EnvisionControls_CAB"/>
+        <antcall target="touch-build"/>
+        <!-- TODO break this out into setup and publish targets -->
+        <antcall target="setup-installers"/>
+        <antcall target="commit-all"/>
+        <antcall target="email-build-complete"/>
+        <antcall target="tag-build"/>
+        <antcall target="move-workdir-postbuild"/>
+        <antcall target="end"/>
+    </target>
+
+    <!-- ================================================================= -->
+    <!-- Rebuild Project                                                   -->
+    <!-- ================================================================= -->
+    <!-- Rebuild Project without getting source-->
+    <!-- timc: Keep this one for Ed. -->
+    <target name="rebuild">
+        <!-- <antcall target="svn-up" if="update-on-rebuild"/> -->
+        <!--
+        <antcall target="svn-up">
+            <condition>
+                <istrue>property="update-on-rebuild"</istrue>
+            </condition>
+        </antcall>
+        -->
+        <antcall target="del-stubskel"/>
+        <antcall target="create-release-dir"/>
+        <antcall target="build-jars"/>
+        <antcall target="compile-genstubskel-jar"/>
+        <antcall target="genstubskel-suite"/>
+        <antcall target="copy-jar-resources"/>
+        <antcall target="build-jars"/>
+        <antcall target="generate-dbschemas"/>
+        <!-- TODO set here at least temporarily -->
+        <antcall target="set-conditional-properties"/>
+        <antcall target="make-CPP"/>
+    </target>
+</project>
+

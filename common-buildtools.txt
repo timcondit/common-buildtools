@@ -1,0 +1,64 @@
+
+============================================
+== common-buildtools: future enhancements ==
+============================================
+
+* separate identifiers for SVN source, working copy path and publish path
+
+* I need a generic configuration tool for setting and retrieving path and
+  source data
+
+* set-conditional-properties should identify missing resources precisely
+
+* set-conditional-properties should do all version comparisons individually,
+  e.g. for 9.10 compare 9 and 10 separately.
+
+* set-conditional-properties should set a property for each release that
+  matters, and use that everywhere else.  The alternative, doing the
+  comparison everywhere it's needed, is too awful to contemplate.
+
+  The property could be either a long integer, e.g., 1000000 -> 10.0.0000,
+  09060100 -> 9.6.0100, but that just blows. I don't know yet what it should
+  be.  Maybe 960, 961, 970, 971, 980, 981, 982, 990, 9100 (9.10 is where shit
+  starts to break down).
+
+  Late note: forget it.
+
+  Late note 2: maybe use environment variables?
+
+* in build.xml, the version comparisons in these targets need to be broken
+  down:
+    ~ make-EnvisionControls_CAB
+    ~ sign-EnvisionControls_CAB
+    ~ make-EnvisionControls_CAB_EN
+
+* in buildC#CPP.xml, the version comparisons in these targets need to be
+  broken down:
+    ~ build-CSharp
+    ~ make-AgentSupport
+    ~ make-QualityMonitoring
+    ~ make-eLearning
+    ~ make-SharedResources
+    ~ make-AgentX_OCX
+    ~ sign-AgentX_OCX
+    ~ make-C2CReportingControls_OCX
+    ~ sign-C2CReportingControls_OCX
+    ~ make-WebControls_OCX
+    ~ sign-WebControls_OCX
+
+* in buildJars.xml, the version comparisons in these targets need to be broken
+  down:
+    ~ build-Envision_JAR
+
+* in buildSetup.xml, the version comparisons in these targets need to be
+  broken down:
+    ~ release-installers
+    ~ unzip-Centricity_WebHelp
+
+* It would be better to generate lists of targets separately, rather than
+  scattering the version logic (set-conditional-properties type stuff) all
+  over the place.  So the first target would be generate-target-list, and the
+  second one would be the list itself.  It presents a problem though, which is
+  how to create the target list on the fly.  Ant isn't exactly well known for
+  introspection.
+

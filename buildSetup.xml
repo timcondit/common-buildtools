@@ -1,0 +1,908 @@
+<?xml version="1.0"?>
+
+<!-- ===================================================================== -->
+<!-- Envision build file                                                   -->
+<!-- ===================================================================== -->
+<project name="buildSetup" default="installers" basedir="." xmlns:ac="antlib:net.sf.antcontrib">
+
+    <!-- ================================================================= -->
+    <!-- Make environment variables accessible in build.properties         -->
+    <!-- ================================================================= -->
+    <!-- http://forums.sun.com/thread.jspa?messageID=4257700 -->
+    <property environment="env"/>
+
+    <!-- ================================================================= -->
+    <!-- Source the contents of build.properties                           -->
+    <!-- ================================================================= -->
+    <!-- Note: There should not be any references to this property anywhere in
+    the rest of the script.  It is read at this point, the property values are
+    set, and that's the end of it. -->
+    <!-- TODO consider loadproperties task instead. -timc 5/28/2009 -->
+    <property file="build.properties" />
+
+    <!-- ================================================================= -->
+    <!-- Top-level target: create and deploy all installers                -->
+    <!-- ================================================================= -->
+    <target name="release-installers" depends="set-conditional-properties, prepare"
+        description="Copies installers, documentation, etc. from build machine to release share">
+
+        <!-- target1, all versions -->
+        <antcall target="release-AgentSupport"/>
+        <antcall target="release-PerformanceSuite"/>
+        <antcall target="release-Documentation-CD1"/>
+
+        <!-- target2, all versions -->
+        <antcall target="release-Server"/>
+        <antcall target="release-Documentation-CD2"/>
+
+        <!-- target3 -->
+        <antcall target="release-DotNetInstaller"/>
+
+        <!-- utils -->
+        <antcall target="release-ADIT"/>
+        <antcall target="release-AGMS"/>
+        <antcall target="release-DADI"/>
+        <antcall target="release-DBMigration"/>
+        <antcall target="release-ECC"/>
+
+        <!-- TODO if we're doing only 9.6 and later, this is redundant (but
+        harmless and informative) -->
+        <!-- 9.6.x -->
+        <ac:if>
+            <or>
+                <and>
+                    <ac:equals arg1="${MAJOR}" arg2="9"/>
+                    <ac:equals arg1="${MINOR}" arg2="6"/>
+                </and>
+                <and>
+                    <ac:equals arg1="${MAJOR}" arg2="9"/>
+                    <ac:isgreaterthan arg1="${MINOR}" arg2="6"/>
+                </and>
+            </or>
+            <then>
+                <!-- target2, 9.6.0000.0 and later -->
+                <antcall target="release-Analytics"/>
+                <antcall target="release-Centricity"/>
+                <antcall target="release-CentricityWebApplications"/>
+                <antcall target="release-WMWrapperService"/>
+            </then>
+        </ac:if>
+
+        <!-- 9.8.x -->
+        <ac:if>
+            <or>
+                <and>
+                    <ac:equals arg1="${MAJOR}" arg2="9"/>
+                    <ac:equals arg1="${MINOR}" arg2="8"/>
+                </and>
+                <and>
+                    <ac:equals arg1="${MAJOR}" arg2="9"/>
+                    <ac:isgreaterthan arg1="${MINOR}" arg2="8"/>
+                </and>
+            </or>
+            <then>
+                <!-- target2, 9.8.0000.0 and later -->
+                <antcall target="release-SpeechServerService"/>
+                <antcall target="release-SpeechProcessingClient"/>
+                <!-- target3, 9.8.0000.0 and later -->
+                <antcall target="release-EnvisionPlugin"/>
+            </then>
+        </ac:if>
+    </target>
+
+    <!-- ================================================================= -->
+    <!-- Set conditional properties                                        -->
+    <!-- ================================================================= -->
+    <target name="set-conditional-properties" depends="define-ac">
+        <!-- Use tasks from ant-contrib to figure out what kind of build we're
+        doing.  It does decimal comparisons where appropriate, which is not
+        everywhere.  In particular, 9.10 and higher need special treatment.
+        Version numbers are not decimals, so we can't do decimal comparisons
+        with them, e.g., 9.6 is greater than 9.10, 9.11, 9.5999, etc. -->
+
+        <!-- This is a cascade, like switch statements without breaks.  It
+        works because Ant's properties are immutable once set.  For instance,
+        if the version is 9.9, the compiler is set to VS2008 when the 9.8.x if
+        statement is encountered and found to be true.  The 9.6.x if statement
+        is also encountered and is also true, but the property is already set,
+        and is not reset. -->
+
+        <!-- This target implicitly depends on not having big changes in
+        service packs.  If that changes, I'll subdivide it further.  -->
+
+        <!-- short-circuit sanity check -->
+        <ac:if>
+            <or>
+                <and>
+                    <ac:equals arg1="${MAJOR}" arg2="9"/>
+                    <ac:islessthan arg1="${MINOR}" arg2="6"/>
+                </and>
+                <and>
+                    <ac:islessthan arg1="${MAJOR}" arg2="9"/>
+                </and>
+            </or>
+            <then>
+                <fail message="common-buildtools are only for product version 9.6 and later"/>
+            </then>
+        </ac:if>
+
+        <!-- Part 1 of 2: set properties based on build version -->
+        <!-- 10.0 -->
+        <ac:if>
+            <or>
+                <ac:isgreaterthan arg1="${MAJOR}.${MINOR}" arg2="10.0"/>
+                <ac:equals arg1="${MAJOR}.${MINOR}" arg2="10.0"/>
+            </or>
+            <then>
+                <echo message="INFO setting 10.0 properties (if any)"/>
+            </then>
+        </ac:if>
+
+        <!-- 9.10 -->
+        <ac:if>
+            <or>
+                <and>
+                    <ac:equals arg1="${MAJOR}" arg2="9"/>
+                    <ac:isgreaterthan arg1="${MINOR}" arg2="10"/>
+                </and>
+                <and>
+                    <ac:equals arg1="${MAJOR}" arg2="9"/>
+                    <ac:equals arg1="${MINOR}" arg2="10"/>
+                </and>
+            </or>
+            <then>
+                <echo message="INFO setting 9.10 properties (if any)"/>
+            </then>
+        </ac:if>
+
+        <!-- 9.9 -->
+        <ac:if>
+            <or>
+                <and>
+                    <ac:equals arg1="${MAJOR}" arg2="9"/>
+                    <ac:isgreaterthan arg1="${MINOR}" arg2="9"/>
+                </and>
+                <and>
+                    <ac:equals arg1="${MAJOR}" arg2="9"/>
+                    <ac:equals arg1="${MINOR}" arg2="9"/>
+                </and>
+            </or>
+            <then>
+                <echo message="INFO setting 9.9 properties (if any)"/>
+            </then>
+        </ac:if>
+
+        <!-- 9.8 -->
+        <ac:if>
+            <or>
+                <and>
+                    <ac:equals arg1="${MAJOR}" arg2="9"/>
+                    <ac:isgreaterthan arg1="${MINOR}" arg2="8"/>
+                </and>
+                <and>
+                    <ac:equals arg1="${MAJOR}" arg2="9"/>
+                    <ac:equals arg1="${MINOR}" arg2="8"/>
+                </and>
+            </or>
+            <then>
+                <echo message="INFO setting 9.8 properties (if any)"/>
+                <property name="compiler.cpp" value="${vs90_devenv}"/>
+                <property name="compiler.message" value="${vs90_mc}"/>
+                <property name="vscommontools" value="${env.VS90COMNTOOLS}"/>
+            </then>
+        </ac:if>
+
+        <!-- 9.7 -->
+        <ac:if>
+            <or>
+                <and>
+                    <ac:equals arg1="${MAJOR}" arg2="9"/>
+                    <ac:isgreaterthan arg1="${MINOR}" arg2="7"/>
+                </and>
+                <and>
+                    <ac:equals arg1="${MAJOR}" arg2="9"/>
+                    <ac:equals arg1="${MINOR}" arg2="7"/>
+                </and>
+            </or>
+            <then>
+                <echo message="INFO setting 9.7 properties (if any)"/>
+                <property name="file.pfx" value="${cert.envision}"/>
+                <property name="signtool.password" value="${signtool.envisionpass}"/>
+            </then>
+        </ac:if>
+
+        <!-- 9.6 -->
+        <ac:if>
+            <or>
+                <and>
+                    <ac:equals arg1="${MAJOR}" arg2="9"/>
+                    <ac:isgreaterthan arg1="${MINOR}" arg2="6"/>
+                </and>
+                <and>
+                    <ac:equals arg1="${MAJOR}" arg2="9"/>
+                    <ac:equals arg1="${MINOR}" arg2="6"/>
+                </and>
+            </or>
+            <then>
+                <echo message="INFO setting 9.6 properties (if any)"/>
+                <property name="compiler.cpp" value="${vs80_devenv}"/>
+                <property name="compiler.message" value="${vs80_mc}"/>
+                <property name="vscommontools" value="${env.VS80COMNTOOLS}"/>
+                <property name="file.pfx" value="${cert.private}"/>
+                <!-- <property name="signtool.password" value="${signtool.privatepass}"/> -->
+                <property name="signtool.password" value="${signtool.envisionpass}"/>
+                <!-- <property name="javac.source" value="1.6"/> -->
+            </then>
+        </ac:if>
+
+        <!-- Part 2 of 2: Check for resources that we need in order to move
+        on.  If property is not set, fail fast.  This still leaves open the
+        possibility that we've assigned the wrong value to the property.
+        Reference: http://ant.apache.org/manual/CoreTasks/conditions.html -->
+        <ac:if>
+            <not>
+                <and>
+                    <isset property="compiler.cpp"/>
+                    <available file="${compiler.cpp}"/>
+                </and>
+            </not>
+            <then>
+                <fail message="property compiler.cpp is unset or unavailable"/>
+            </then>
+        </ac:if>
+
+        <ac:if>
+            <not>
+                <and>
+                    <isset property="compiler.message"/>
+                    <available file="${compiler.message}"/>
+                </and>
+            </not>
+            <then>
+                <fail message="property compiler.message is unset or unavailable"/>
+            </then>
+        </ac:if>
+
+        <ac:if>
+            <not>
+                <and>
+                    <isset property="vscommontools"/>
+                    <available file="${vscommontools}"/>
+                </and>
+            </not>
+            <then>
+                <fail message="property vscommontools is unset or unavailable"/>
+            </then>
+        </ac:if>
+
+        <ac:if>
+            <not>
+                <and>
+                    <isset property="file.pfx"/>
+                    <!-- This is only available after we fetch the source.
+                    That makes it either a good test, or a bad one.  I'm not
+                    sure which. -->
+                    <available file="${file.pfx}"/>
+                </and>
+            </not>
+            <then>
+                <fail message="property file.pfx is unset or unavailable"/>
+            </then>
+        </ac:if>
+
+        <ac:if>
+            <not>
+                <and>
+                    <isset property="signtool.password"/>
+                    <!-- Cannot verify if this is available -->
+                </and>
+            </not>
+            <then>
+                <fail message="property signtool.password is unset or unavailable"/>
+            </then>
+        </ac:if>
+
+        <!-- If we get here, display the current settings. -->
+        <echo message="C++ compiler: ${compiler.cpp}"/>
+        <echo message="message compiler: ${compiler.message}"/>
+        <echo message="VS common tools: ${vscommontools}"/>
+        <echo message="certificate file: ${file.pfx}"/>
+        <echo message="signtool password: ${signtool.password}"/>
+    </target>
+
+    <!-- ================================================================= -->
+    <!-- TODO does this replace the antcontrib taskdef ??                  -->
+    <!-- ================================================================= -->
+    <!-- TEMPORARY HACK until I get everything into a single build file.  This
+    target has to be identical to the one in build.xml -->
+    <!-- TODO should I put ant-contrib.jar in the Ant lib dir? -->
+    <target name="define-ac">
+        <typedef resource="net/sf/antcontrib/antlib.xml"
+            uri="antlib:net.sf.antcontrib"
+            classpath="lib/ant-contrib-1.0b3.jar"/>
+        <typedef name="isgreaterthan"
+            classname="net.sf.antcontrib.logic.condition.IsGreaterThan"
+            uri="antlib:net.sf.antcontrib"
+            classpath="lib/ant-contrib-1.0b3.jar"/>
+        <typedef name="islessthan"
+            classname="net.sf.antcontrib.logic.condition.IsLessThan"
+            uri="antlib:net.sf.antcontrib"
+            classpath="lib/ant-contrib-1.0b3.jar"/>
+    </target>
+
+    <!-- ================================================================= -->
+    <!-- Prepare the release share for the installers                      -->
+    <!-- ================================================================= -->
+    <target name="prepare"
+        description="Prepare the release share for the installers">
+        <!-- TODO Use dir.smoketest for test builds.  Probably need to add
+        something to runbuild.py as well.
+        .
+        How to set property smoketest_build? -->
+
+        <!-- if (smoketest_build) { root=dir.smoketest } -->
+        <!-- else { root=dir.products } -->
+        <!-- property name="target1" value="${root}/..." -->
+        <!-- property name="target2" value="${root}/..." -->
+
+        <mkdir dir="${dir.products}/${version.product}"/>
+        <!-- assign these properties sooner so they can be used by the
+        sub-targets (release-ADIT, release-DADI, etc.) as well as by
+        release-installers -->
+        <property name="target1" value="${dir.products}/${version.product}/CD1"/>
+        <property name="target2" value="${dir.products}/${version.product}/CD2"/>
+        <property name="target3" value="${dir.products}/${version.product}/CD3"/>
+        <property name="dir.utils" value="${target2}/utils"/>
+        <property name="dir.nuasis-plugin" value="${target2}/utils/Nuasis"/>
+    </target>
+
+    <!-- ================================================================= -->
+    <!-- Unzip WebHelp for the Server installer                            -->
+    <!-- ================================================================= -->
+    <target name="unzip-WebHelp"
+        depends="unzip-AgentDesktop_WebHelp, unzip-BI_WebHelp,
+        unzip-Centricity_WebHelp, unzip-ClassicReports_WebHelp"/>
+
+    <!-- ================================================================= -->
+    <!-- Unzip Agent_Desktop_Webhelp.zip for the Server installer          -->
+    <!-- ================================================================= -->
+    <target name="unzip-AgentDesktop_WebHelp">
+        <!--
+        root: 9.6\Initial\base\Documentation
+        source: ${root}\WebHelp\AgentDesktop.zip
+        destination: ${root}\WebHelp\AgentDesktop
+        content: ${root}\WebHelp\AgentDesktop\9.6\Output\WebWorks Help 5.0\Envision Agent Desktop\
+        .
+        The ${content} directory is the dividing line between Ant and AI.
+        Once that directory and its contents are present, Ant is done and AI
+        needs to be able to find the _Envision Agent Desktop_ directory.
+        -->
+        <!-- Maybe later this will become three separate tasks. -->
+        <unjar
+            src="${dir.build}/Documentation/WebHelp/EN/Agent_Desktop_Webhelp.zip"
+            dest="${dir.build}/Documentation/WebHelp/EN/Agent_Desktop_Webhelp"/>
+        <unjar
+            src="${dir.build}/Documentation/WebHelp/DE/Agent_Desktop_Webhelp.zip"
+            dest="${dir.build}/Documentation/WebHelp/DE/Agent_Desktop_Webhelp"/>
+        <unjar
+            src="${dir.build}/Documentation/WebHelp/ES/Agent_Desktop_Webhelp.zip"
+            dest="${dir.build}/Documentation/WebHelp/ES/Agent_Desktop_Webhelp"/>
+    </target>
+
+    <!-- ================================================================= -->
+    <!-- Unzip BI WebHelp for the Server installer                         -->
+    <!-- ================================================================= -->
+    <!-- BI is not localized -->
+    <target name="unzip-BI_WebHelp">
+        <unjar
+            src="${dir.build}/Documentation/WebHelp/EN/BI_Webhelp.zip"
+            dest="${dir.build}/Documentation/WebHelp/EN/BI_Webhelp"/>
+    </target>
+
+    <!-- ================================================================= -->
+    <!-- Unzip Centricity WebHelp for the Server installer                 -->
+    <!-- ================================================================= -->
+    <target name="unzip-Centricity_WebHelp" depends="set-conditional-properties">
+        <!-- Maybe later this will become three separate tasks. -->
+        <!-- Centricity documentation for Supervisors -->
+        <unjar
+            src="${dir.build}/Documentation/WebHelp/EN/Centricity_Webhelp.zip"
+            dest="${dir.build}/Documentation/WebHelp/EN/Centricity_Webhelp"/>
+        <unjar
+            src="${dir.build}/Documentation/WebHelp/DE/Centricity_Webhelp.zip"
+            dest="${dir.build}/Documentation/WebHelp/DE/Centricity_Webhelp"/>
+        <unjar
+            src="${dir.build}/Documentation/WebHelp/ES/Centricity_Webhelp.zip"
+            dest="${dir.build}/Documentation/WebHelp/ES/Centricity_Webhelp"/>
+        <!-- Centricity documentation for Agents: 9.8 and later only -->
+        <ac:if>
+            <or>
+                <and>
+                    <ac:equals arg1="${MAJOR}" arg2="9"/>
+                    <ac:equals arg1="${MINOR}" arg2="8"/>
+                </and>
+                <and>
+                    <ac:equals arg1="${MAJOR}" arg2="9"/>
+                    <ac:isgreaterthan arg1="${MINOR}" arg2="8"/>
+                </and>
+            </or>
+            <then>
+                <unjar
+                    src="${dir.build}/Documentation/WebHelp/EN/Agent_Desktop_Centricity_Webhelp.zip"
+                    dest="${dir.build}/Documentation/WebHelp/EN/Agent_Desktop_Centricity_Webhelp"/>
+            </then>
+        </ac:if>
+    </target>
+
+    <!-- ================================================================= -->
+    <!-- Unzip Classic reporting WebHelp for the Server installer          -->
+    <!-- ================================================================= -->
+    <target name="unzip-ClassicReports_WebHelp">
+        <!-- Maybe later this will become three separate tasks. -->
+        <unjar
+            src="${dir.build}/Documentation/WebHelp/EN/Classic_reports_Webhelp.zip"
+            dest="${dir.build}/Documentation/WebHelp/EN/Classic_reports_Webhelp"/>
+        <unjar
+            src="${dir.build}/Documentation/WebHelp/DE/Classic_reports_Webhelp.zip"
+            dest="${dir.build}/Documentation/WebHelp/DE/Classic_reports_Webhelp"/>
+        <unjar
+            src="${dir.build}/Documentation/WebHelp/ES/Classic_reports_Webhelp.zip"
+            dest="${dir.build}/Documentation/WebHelp/ES/Classic_reports_Webhelp"/>
+    </target>
+
+    <!-- ================================================================= -->
+    <!-- Unzip the "Envision" JRE into the working copy                    -->
+    <!-- ================================================================= -->
+    <!-- In case you're wondering: this is a repackage of the private JRE from
+    jdk-6u14-windows-i586.exe.  As far as I know, we cannot use the public
+    JRE, because it's missing bin\client\jvm.dll or bin\server\jvm.dll (I
+    forget exactly which, but it's something like that.
+    .
+    TODO common-buildtools needs to include a version check going forward from
+    July09 (9.10).  It should include the JRE and the zipped up JAR files for
+    Server and PerformanceSuite.
+    .
+    PKI09 (9.9) -> 1.6.0_03
+    July09 (9.10) -> 1.6.0_14 -->
+    <target name="unzip-Envision_JRE">
+        <property name="Envision_JRE" value="jre1.6.0_14-Envision-no-jars.zip"/>
+        <unjar
+            src="${dir.jre}/${Envision_JRE}"
+            dest="${dir.sdk}/java"/>
+    </target>
+
+    <!-- ================================================================= -->
+    <!-- Unzip the Server JARs into the working copy                       -->
+    <!-- ================================================================= -->
+    <!-- I decided to keep the JAR files out of the JRE at the level of the
+    working copy.  They will be added in by the installer, but this keeps
+    things from getting messy.  And it removes an artificial dependency, since
+    unzip-Server-jars_ZIP would otherwise depend on unzip-Envision_JRE.
+    (make-Server depends on both of them.) -->
+    <target name="unzip-Server-jars_ZIP">
+        <property name="Server-jars_ZIP" value="jar-files-EnvisionServer-9.10.zip"/>
+        <unjar
+            src="${dir.jre}/${Server-jars_ZIP}"
+            dest="${dir.sdk}/java"/>
+    </target>
+
+    <!-- ================================================================= -->
+    <!-- Unzip the PerformanceSuite JARs into the working copy             -->
+    <!-- ================================================================= -->
+    <!-- I decided to keep the JAR files out of the JRE at the level of the
+    working copy.  They will be added in by the installer, but this keeps
+    things from getting messy.  And it removes an artificial dependency, since
+    unzip-Server-jars_ZIP would otherwise depend on unzip-Envision_JRE.
+    (make-PerformanceSuite depends on both of them.) -->
+    <target name="unzip-PerformanceSuite-jars_ZIP">
+        <property name="EPS-jars_ZIP" value="jar-files-EnvisionPerformanceSuite-9.10.zip"/>
+        <unjar
+            src="${dir.jre}/${EPS-jars_ZIP}"
+            dest="${dir.sdk}/java"/>
+    </target>
+
+    <!-- ================================================================= -->
+    <!-- Unzip the default Nuance profile for the Speech Server            -->
+    <!-- ================================================================= -->
+    <target name="unzip-NuanceProfile">
+        <unjar
+            src="${dir.sdk}/Nuance/Envision.zip"
+            dest="${dir.workdir}/AudioMining"/>
+    </target>
+
+    <!-- ================================================================= -->
+    <!-- Unzip the Iontas client files                                     -->
+    <!-- ================================================================= -->
+    <!-- This is not up and running yet.  We're still shipping v3.4.1 from the
+    Subversion SDK.
+    .
+    -timc 8/13/2009 -->
+    <target name="unzip-IontasClient">
+        <unjar
+            src="${uncpath.iontas}/IontasClient4.1.zip"
+            dest="${dir.sdk}/Iontas"/>
+    </target>
+
+    <!-- ================================================================= -->
+    <!-- Release .NET 3.5 SP1 installer (prerequisite)                     -->
+    <!-- ================================================================= -->
+    <target name="release-DotNetInstaller" depends="prepare">
+        <copy todir="${target3}/DotNetFramework">
+            <fileset dir="${uncpath.dotnet}"/>
+        </copy>
+    </target>
+
+    <!-- ================================================================= -->
+    <!-- Make and release ADIT                                             -->
+    <!-- ================================================================= -->
+    <target name="make-ADIT" depends="prepare">
+        <build-AI-installer
+            product.name="ADIT"
+            installer.path="${dir.installs}/ADIT"
+            project.file="${dir.installs}/ADIT/ADIT.aip"/>
+    </target>
+    <target name="release-ADIT" depends="make-ADIT">
+        <release-AI-installer
+            product.name="ADIT"
+            installer.path="${dir.installs}/ADIT"
+            product.path="${dir.utils}"/>
+    </target>
+
+    <!-- ================================================================= -->
+    <!-- Make and release AgentSupport                                     -->
+    <!-- ================================================================= -->
+    <!-- NB: AgentSupport directory is called Agent in 9.6 -->
+    <target name="make-AgentSupport" depends="prepare">
+        <build-AI-installer
+            product.name="AgentSupport"
+            installer.path="${dir.installs}/AgentSupport"
+            project.file="${dir.installs}/AgentSupport/AgentSupport.aip"/>
+    </target>
+    <target name="release-AgentSupport" depends="make-AgentSupport">
+        <release-AI-installer
+            product.name="AgentSupport"
+            installer.path="${dir.installs}/AgentSupport"
+            product.path="${target1}"/>
+    </target>
+
+    <!-- ================================================================= -->
+    <!-- Make and release AGMS                                             -->
+    <!-- ================================================================= -->
+    <target name="make-AGMS" depends="prepare">
+        <build-AI-installer
+            product.name="AGMS"
+            installer.path="${dir.installs}/AGMS"
+            project.file="${dir.installs}/AGMS/AGMS.aip"/>
+    </target>
+    <target name="release-AGMS" depends="make-AGMS">
+        <release-AI-installer
+            product.name="AGMS"
+            installer.path="${dir.installs}/AGMS"
+            product.path="${dir.utils}"/>
+    </target>
+
+    <!-- ================================================================= -->
+    <!-- Make and release Analytics                                        -->
+    <!-- ================================================================= -->
+    <target name="make-Analytics" depends="prepare">
+        <build-AI-installer
+            product.name="Analytics"
+            installer.path="${dir.installs}/Analytics"
+            project.file="${dir.installs}/Analytics/Analytics.aip"/>
+    </target>
+    <target name="release-Analytics" depends="make-Analytics">
+        <release-AI-installer
+            product.name="Analytics"
+            installer.path="${dir.installs}/Analytics"
+            product.path="${target2}"/>
+    </target>
+
+    <!-- ================================================================= -->
+    <!-- Make and release Centricity                                       -->
+    <!-- ================================================================= -->
+    <target name="make-Centricity" depends="prepare,unzip-Centricity_WebHelp">
+        <build-AI-installer
+            product.name="Centricity"
+            installer.path="${dir.installs}/Centricity"
+            project.file="${dir.installs}/Centricity/Centricity.aip"/>
+    </target>
+    <target name="release-Centricity" depends="make-Centricity">
+        <release-AI-installer
+            product.name="Centricity"
+            installer.path="${dir.installs}/Centricity"
+            product.path="${target2}"/>
+    </target>
+
+    <!-- ================================================================= -->
+    <!-- Make and release CentricityWebApplications                        -->
+    <!-- ================================================================= -->
+    <target name="make-CentricityWebApplications" depends="prepare">
+        <build-AI-installer
+            product.name="CentricityWebApplications"
+            installer.path="${dir.installs}/CentricityWebApplications"
+            project.file="${dir.installs}/CentricityWebApplications/CentricityWebApplications.aip"/>
+    </target>
+    <target name="release-CentricityWebApplications" depends="make-CentricityWebApplications">
+        <release-AI-installer
+            product.name="CentricityWebApplications"
+            installer.path="${dir.installs}/CentricityWebApplications"
+            product.path="${target2}"/>
+    </target>
+
+    <!-- ================================================================= -->
+    <!-- Make and release SpeechServerService                              -->
+    <!-- ================================================================= -->
+    <target name="make-SpeechServerService"
+        depends="prepare,unzip-NuanceProfile">
+        <build-AI-installer
+            product.name="SpeechServerService"
+            installer.path="${dir.installs}/SpeechServerService"
+            project.file="${dir.installs}/SpeechServerService/SpeechServerService.aip"/>
+    </target>
+    <target name="release-SpeechServerService" depends="make-SpeechServerService">
+        <release-AI-installer
+            product.name="SpeechServerService"
+            installer.path="${dir.installs}/SpeechServerService"
+            product.path="${target2}"/>
+    </target>
+
+    <!-- ================================================================= -->
+    <!-- Make and release SpeechProcessingClient                           -->
+    <!-- ================================================================= -->
+    <target name="make-SpeechProcessingClient" depends="prepare">
+        <build-AI-installer
+            product.name="SpeechProcessingClient"
+            installer.path="${dir.installs}/SpeechProcessingClient"
+            project.file="${dir.installs}/SpeechProcessingClient/SpeechProcessingClient.aip"/>
+    </target>
+    <target name="release-SpeechProcessingClient" depends="make-SpeechProcessingClient">
+        <release-AI-installer
+            product.name="SpeechProcessingClient"
+            installer.path="${dir.installs}/SpeechProcessingClient"
+            product.path="${target2}"/>
+    </target>
+
+    <!-- ================================================================= -->
+    <!-- Make and release DADI                                             -->
+    <!-- ================================================================= -->
+    <target name="make-DADI" depends="prepare">
+        <build-AI-installer
+            product.name="DADI"
+            installer.path="${dir.installs}/DADI"
+            project.file="${dir.installs}/DADI/DADI.aip"/>
+    </target>
+    <target name="release-DADI" depends="make-DADI">
+        <release-AI-installer
+            product.name="DADI"
+            installer.path="${dir.installs}/DADI"
+            product.path="${dir.utils}"/>
+    </target>
+
+    <!-- ================================================================= -->
+    <!-- Make and release DBMigration                                      -->
+    <!-- ================================================================= -->
+    <target name="make-DBMigration" depends="prepare">
+        <build-AI-installer
+            product.name="DBMigration"
+            installer.path="${dir.installs}/DBMigration"
+            project.file="${dir.installs}/DBMigration/DBMigration.aip"/>
+    </target>
+    <target name="release-DBMigration" depends="make-DBMigration">
+        <release-AI-installer
+            product.name="DBMigration"
+            installer.path="${dir.installs}/DBMigration"
+            product.path="${dir.utils}"/>
+    </target>
+
+    <!-- TODO this may need to be changed to work with 9.6 to present -->
+    <!-- ================================================================= -->
+    <!-- Release documentation                                             -->
+    <!-- ================================================================= -->
+    <target name="release-Documentation-CD1" depends="prepare">
+        <!-- full documentation to target1 -->
+        <copy todir="${target1}/Documentation">
+            <fileset dir="${dir.build}/Documentation/QuickReference">
+                <!-- TODO Can I get rid of this?  It's pointless. -->
+                <include name="QRS - CentricityAgentDesktop.pdf"/>
+            </fileset>
+        </copy>
+        <copy todir="${target1}/Documentation/UserGuides">
+            <fileset dir="${dir.build}/Documentation/UserGuides">
+                <exclude name="Install_Upgrade.pdf"/>
+            </fileset>
+        </copy>
+        <!-- ReleaseNotes.pdf with a name change -->
+        <copy file="${dir.build}/Documentation/ReleaseNotes/ReleaseNotes.pdf"
+            tofile="${target1}/Documentation/ReleaseNotes.pdf"/>
+        <copy file="${dir.build}/Documentation/AdbeRdr70_enu.exe"
+            tofile="${target1}/Documentation/AdbeRdr70_enu.exe"/>
+    </target>
+    <!-- TODO this may need to be changed to work with 9.6 to present -->
+    <target name="release-Documentation-CD2" depends="prepare">
+        <!-- release notes only to target2 -->
+        <copy file="${dir.build}/Documentation/ReleaseNotes/ReleaseNotes.pdf"
+            tofile="${target2}/Documentation/ReleaseNotes.pdf"/>
+        <copy file="${dir.build}/Documentation/AdbeRdr70_enu.exe"
+            tofile="${target2}/Documentation/AdbeRdr70_enu.exe"/>
+    </target>
+
+    <!-- ================================================================= -->
+    <!-- Make and release EvaluationConsistencyCheck (ECC)                 -->
+    <!-- ================================================================= -->
+    <target name="make-ECC" depends="prepare">
+        <build-AI-installer
+            product.name="EvaluationConsistencyCheck"
+            installer.path="${dir.installs}/EvaluationConsistencyCheck"
+            project.file="${dir.installs}/EvaluationConsistencyCheck/EvaluationConsistencyCheck.aip"/>
+    </target>
+    <target name="release-ECC" depends="make-ECC">
+        <release-AI-installer
+            product.name="EvaluationConsistencyCheck"
+            installer.path="${dir.installs}/EvaluationConsistencyCheck"
+            product.path="${dir.utils}"/>
+        <!-- additional copy operation for this installer only -->
+        <copy todir="${dir.utils}/EvaluationConsistencyCheck/QM">
+            <fileset dir="${dir.installs}/EvaluationConsistencyCheck/QM"/>
+        </copy>
+    </target>
+
+    <!-- ================================================================= -->
+    <!-- Make and release PerformanceSuite                                 -->
+    <!-- ================================================================= -->
+    <target name="make-PerformanceSuite"
+        depends="prepare, unzip-BI_WebHelp, unzip-Envision_JRE, unzip-PerformanceSuite-jars_ZIP">
+        <build-AI-installer
+            product.name="PerformanceSuite"
+            installer.path="${dir.installs}/PerformanceSuite"
+            project.file="${dir.installs}/PerformanceSuite/PerformanceSuite.aip"/>
+    </target>
+    <target name="release-PerformanceSuite" depends="make-PerformanceSuite">
+        <release-AI-installer
+            product.name="PerformanceSuite"
+            installer.path="${dir.installs}/PerformanceSuite"
+            product.path="${target1}"/>
+    </target>
+
+    <!-- ================================================================= -->
+    <!-- Make and release Server                                           -->
+    <!-- ================================================================= -->
+    <!-- NB: you'll get AI errors if you use -Ddir.build=C:\foo\bar\baz
+    (backslashes) instead of -Ddir.build=C:/foo/bar/baz
+    .
+    Late note: you'll also get AI errors if you use a mangled path like
+    -Ddir.build=C:\Source\9.7\SP1\base-9.7.0100.5-r6372 instead of
+    -Ddir.build=C:\Source\9.7\SP1\base
+    .
+    Late note 2: it looks like using -Ddir.build with either kind of path
+    causes it to error out. :( -->
+
+    <!-- NB: Server directory is called EnvisionServer in 9.6 -->
+    <target name="make-Server"
+        depends="prepare, unzip-WebHelp, unzip-Envision_JRE, unzip-Server-jars_ZIP">
+        <build-AI-installer
+            product.name="Server"
+            installer.path="${dir.installs}/Server"
+            project.file="${dir.installs}/Server/Server.aip"/>
+    </target>
+    <target name="release-Server" depends="make-Server">
+        <release-AI-installer
+            product.name="Server"
+            installer.path="${dir.installs}/Server"
+            product.path="${target2}"/>
+    </target>
+
+    <!-- ================================================================= -->
+    <!-- Make and release WMWrapperService                                 -->
+    <!-- ================================================================= -->
+    <target name="make-WMWrapperService" depends="prepare">
+        <build-AI-installer
+            product.name="WMWrapperService"
+            installer.path="${dir.installs}/WMWrapperService"
+            project.file="${dir.installs}/WMWrapperService/WMWrapperService.aip"/>
+    </target>
+    <target name="release-WMWrapperService" depends="make-WMWrapperService">
+        <release-AI-installer
+            product.name="WMWrapperService"
+            installer.path="${dir.installs}/WMWrapperService"
+            product.path="${target2}"/>
+    </target>
+
+    <!-- ================================================================= -->
+    <!-- Release EnvisionPlugin (for Nuasis only)                          -->
+    <!-- ================================================================= -->
+    <!-- This plugin goes on the customer's PBX to pass contact source
+    messages back and forth with the Server -->
+    <!-- TODO it would be much nicer if I could add dependencies on
+    jar-EnvisionPlugin and have access to property EnvisionPluginBasedir as
+    well.  I'd probably have to put all the build files together to do that
+    (which is not a bad idea).  As it stands right now, I'm duplicating the
+    property name here in case it's not already set (that blows). -->
+    <target name="release-EnvisionPlugin" depends="prepare">
+        <property name="EnvisionPluginBasedir"
+            value="${dir.workdir}/ContactSourceRunner/EnvisionPlugin/"/>
+        <copy file="${EnvisionPluginBasedir}/EnvisionPlugin.jar"
+            tofile="${dir.nuasis-plugin}/EnvisionPlugin.jar"/>
+    </target>
+
+    <!-- ================================================================= -->
+    <!-- Release AutoRun files                                             -->
+    <!-- ================================================================= -->
+    <!-- Note: this is just a copy operation.  These files do not need to be
+    compiled on a nightly basis. -->
+    <!-- timc: not used -->
+    <!--
+    <target name="release-AutoRun-CD1" depends="prepare">
+        <copy file="${dir.build}/setup/CD-Autorun/CD1/autorun.apm"
+            tofile="${target1}/autorun.apm"/>
+        <copy file="${dir.build}/setup/CD-Autorun/CD1/autorun.exe"
+            tofile="${target1}/autorun.exe"/>
+        <copy file="${dir.build}/setup/CD-Autorun/CD1/autorun.inf"
+            tofile="${target1}/autorun.inf"/>
+        <copy todir="${target1}/DATA">
+            <fileset dir="${dir.build}/setup/CD-Autorun/CD1/DATA"/>
+        </copy>
+    </target>
+
+    <target name="release-AutoRun-CD2" depends="prepare">
+        <copy file="${dir.build}/setup/CD-Autorun/CD2/autorun.apm"
+            tofile="${target2}/autorun.apm"/>
+        <copy file="${dir.build}/setup/CD-Autorun/CD2/autorun.exe"
+            tofile="${target2}/autorun.exe"/>
+        <copy file="${dir.build}/setup/CD-Autorun/CD2/autorun.inf"
+            tofile="${target2}/autorun.inf"/>
+        <copy todir="${target2}/DATA">
+            <fileset dir="${dir.build}/setup/CD-Autorun/CD2/DATA"/>
+        </copy>
+    </target>
+    -->
+
+    <!-- ================================================================= -->
+    <!-- Compile AdvancedInstaller project files (macro)                   -->
+    <!-- ================================================================= -->
+    <!-- <pathconvert targetos="windows" property="compiler.ai.converted">
+        <path path="${compiler.ai}"/>
+    </pathconvert>
+    <echo message="AI compiler path: ${compiler.ai}"/>
+    <echo message="AI compiler path (converted): ${compiler.ai.converted}"/> -->
+    <!-- TODO pathconvert these guys (not hipri) 1/7/2009 -->
+    <!-- some useful bits in the comments here
+    http://blog.andrewbeacock.com/2005/08/pretty-printing-java-classpaths-using.html
+    -->
+    <macrodef name="build-AI-installer">
+        <attribute name="product.name" default="NOT SET"/>
+        <attribute name="installer.path" default="NOT SET"/>
+        <attribute name="project.file" default="NOT SET"/>
+        <sequential>
+            <echo message="Making installer at @{project.file}"/>
+            <mkdir dir="@{installer.path}/newInstall"/>
+            <exec dir="@{installer.path}" executable="${compiler.ai}" failonerror="true">
+                <arg line="/edit @{project.file} /SetVersion ${version.product}"/>
+            </exec>
+            <exec dir="@{installer.path}" executable="${compiler.ai}" failonerror="true">
+                <arg line="/build @{project.file}"/>
+            </exec>
+        </sequential>
+    </macrodef>
+
+    <!-- ================================================================= -->
+    <!-- Release AI installers (macro)                                     -->
+    <!-- ================================================================= -->
+    <!-- TODO Remove the newInstall bits at some point.  PRN19794 was for
+    removing the folders from ProductBuilds, but the ones that are left are on
+    the build machine.
+    .
+    When changing newInstall to install in build-AI-installer and
+    release-AI-installer, EVERY installer project file needs to be updated at
+    the same time (on the media page).  Open a PRN for it. -timc 1/7/2009 -->
+    <macrodef name="release-AI-installer">
+        <attribute name="product.name" default="NOT SET"/>
+        <attribute name="installer.path" default="NOT SET"/>
+        <attribute name="product.path" default="NOT SET"/>
+        <sequential>
+            <copy todir="@{product.path}">
+                <fileset dir="@{installer.path}/newInstall"/>
+            </copy>
+        </sequential>
+    </macrodef>
+</project>
+

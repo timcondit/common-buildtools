@@ -1,0 +1,673 @@
+<?xml version="1.0"?>
+
+<!-- ===================================================================== -->
+<!-- C2C build file                                                        -->
+<!-- ===================================================================== -->
+<project name="buildJars" default="do_nothing" basedir="." xmlns:ac="antlib:net.sf.antcontrib">
+
+    <!-- ================================================================= -->
+    <!-- Source the contents of build.properties                           -->
+    <!-- ================================================================= -->
+    <!-- Note: There should not be any references to this property anywhere in
+    the rest of the script.  It is read at this point, the property values are
+    set, and that's the end of it. -->
+    <!-- TODO consider loadproperties task instead. -timc 5/28/2009 -->
+    <property file="build.properties" />
+
+    <!-- ================================================================= -->
+    <!-- Common Classpath                                                  -->
+    <!-- ================================================================= -->
+    <!-- The same classpath is in build.xml!  Which one to keep?           -->
+    <path id="project-classpath">
+        <fileset dir="${dir.sdk}/Java">
+            <include name="**/*.jar"/>
+            <!-- keep this include until the Wise Server installer is gone,
+            and these files are removed permanently -->
+            <exclude name="Jakarta-Tomcat/**/*.jar"/>
+        </fileset>
+        <fileset dir="${dir.sdk}/cti_libs">
+            <include name="**/*.jar"/>
+        </fileset>
+
+        <pathelement location="${dir.sdk}/Genesys/TLibrary7.1/genji.jar"/>
+        <pathelement location="${dir.src}/Envision.jar"/>
+        <pathelement location="${dir.src}/license.jar"/>
+        <pathelement location="${dir.src}/tools/genstubskel"/>
+    </path>
+
+    <!-- TODO collect these things into a common location.  I'm probably going
+    to have to consolidate the build scripts into a single file (or two). -->
+    <!-- http://marc.info/?l=ant-user&m=117052469400299&w=2 -->
+    <typedef resource="net/sf/antcontrib/antlib.xml"
+        uri="antlib:net.sf.antcontrib"
+        classpath="lib/ant-contrib-1.0b3.jar"/>
+    <!-- The logic conditions are not in antlib.xml ?? -->
+    <typedef name="isgreaterthan"
+        classname="net.sf.antcontrib.logic.condition.IsGreaterThan"
+        uri="antlib:net.sf.antcontrib"
+        classpath="lib/ant-contrib-1.0b3.jar"/>
+
+    <!-- ================================================================= -->
+    <!-- Do Nothing, so eclipse will read this file and make targets       -->
+    <!-- accessible                                                        -->
+    <!-- ================================================================= -->
+    <target name="do_nothing" />
+
+    <!-- ================================================================= -->
+    <!-- Build Jars                                                        -->
+    <!-- ================================================================= -->
+    <!-- Caution: needs antcontrib xmlns above -->
+    <target name="build-Envision_JAR">
+        <antcall target="Envision"/>
+        <antcall target="clean_license"/>
+        <antcall target="compile_license"/>
+        <antcall target="jar_license"/>
+        <antcall target="release_license"/>
+        <!-- TODO the product versions should be collected in a map somewhere -->
+        <!-- Note: property EnvisionPluginAfter identifies the last version of
+        the product that does *not* include the target jar-EnvisionPlugin.  I
+        wrote it this way because antcontrib does not have an "is greater than
+        or equal to" method, AFAIK. -->
+        <!-- TODO add to set-conditional-properties -->
+        <property name="EnvisionPluginAfter" value="9.7.0100"/>
+        <ac:if>
+            <or>
+                <and>
+                    <ac:equals arg1="${MAJOR}" arg2="9"/>
+                    <ac:equals arg1="${MINOR}" arg2="7"/>
+                    <ac:equals arg1="${RELEASE}" arg2="0100"/>
+                </and>
+                <and>
+                    <ac:equals arg1="${MAJOR}" arg2="9"/>
+                    <ac:isgreaterthan arg1="${MINOR}" arg2="7"/>
+                </and>
+                <and>
+                    <ac:isgreaterthan arg1="${MAJOR}" arg2="9"/>
+                </and>
+            </or>
+            <then>
+                <antcall target="jar-EnvisionPlugin"/>
+            </then>
+            <else>
+                <echo message="Skipping target jar-EnvisionPlugin (only version 9.8 or later)"/>
+            </else>
+        </ac:if>
+    </target>
+
+    <!-- ================================================================= -->
+    <!-- clean_license                                                     -->
+    <!-- ================================================================= -->
+    <target name="clean_license" description="Deletes existing compiled classes and jars">
+        <delete quiet="true" failonerror="false" includeEmptyDirs="true">
+            <fileset dir="${dir.src}/server/com/et/license/" includes="**/*.class"/>
+        </delete>
+        <delete quiet="true" failonerror="false" file="${dir.src}/server/com/et/license/license.jar"/>
+    </target>
+
+    <!-- ================================================================= -->
+    <!-- compile_license                                                   -->
+    <!-- ================================================================= -->
+    <target name="compile_license" description="Compiles license">
+        <!-- source="${javac.source}" -->
+        <javac srcdir="${dir.src}/server/com/et/license/"
+            destdir="${dir.src}/server/"
+            debug="${javac.debug}"
+            deprecation="${javac.deprecation}"
+            fork="yes"
+            memoryInitialSize="100m"
+            memoryMaximumSize="100m" >
+            <classpath refid="project-classpath"/>
+        </javac>
+    </target>
+
+    <!-- ================================================================= -->
+    <!-- jar_license                                                       -->
+    <!-- ================================================================= -->
+    <target name="jar_license" description="Jar license">
+        <copy file="${dir.src}/server/com/et/license/LicenseManager.class"
+            tofile="${dir.src}/com/et/license/LicenseManager.class"/>
+        <jar destfile="${dir.src}/server/com/et/license/license.jar"
+            basedir="${dir.src}" includes="com/**/*.class"/>
+    </target>
+
+    <!-- ================================================================= -->
+    <!-- release_license                                                   -->
+    <!-- ================================================================= -->
+    <target name="release_license" description="Copies jar to release dir">
+        <delete quiet="true" failonerror="false" file="${dir.release}/license.jar"/>
+        <copy file="${dir.src}/server/com/et/license/license.jar" tofile="${dir.release}/license.jar"/>
+        <delete>
+            <fileset dir="${dir.src}/server/com/et/license" includes="**/*.class"/>
+        </delete>
+    </target>
+
+    <!-- ================================================================= -->
+    <!-- clean_Envision                                                    -->
+    <!-- ================================================================= -->
+    <!-- timc: Obsolete?  Maybe not.  We call into this target (and the rest
+    of the _Envision targets) twice. -->
+    <target name="clean_Envision" description="Deletes compiled classes and jars">
+        <delete quiet="true" failonerror="false" includeEmptyDirs="true">
+            <fileset dir="${dir.src}" includes="**/*.class"/>
+        </delete>
+        <delete quiet="true" failonerror="false" file="${dir.release}/Envision.jar"/>
+        <delete quiet="true" failonerror="false" file="${dir.src}/Envision.jar"/>
+    </target>
+
+    <!-- ================================================================= -->
+    <!-- compile_Envision                                                  -->
+    <!-- ================================================================= -->
+    <target name="compile_Envision" description="Compiles Envision">
+        <echo message="[DEBUG] javac.source=${javac.source}"/>
+        <!-- <echo message="${javac.source}"/> -->
+
+        <javac srcdir="${dir.src}" destdir="${dir.src}"
+            debug="${javac.debug}"
+            deprecation="${javac.deprecation}"
+            fork="yes"
+            memoryInitialSize="200m" memoryMaximumSize="200m">
+            <classpath refid="project-classpath"/>
+        </javac>
+
+        <!-- TODO do we need this? -->
+        <delete quiet="false" failonerror="true"
+            file="${dir.src}/com/et/license/LicenseManager.class"/>
+        <delete quiet="false" failonerror="true"
+            file="${dir.src}/server/com/et/license/LicenseManager.class"/>
+        <delete quiet="false" failonerror="true"
+            file="${dir.src}/server/com/et/license/jar/LicenseManager.class"/>
+    </target>
+
+    <!-- ================================================================= -->
+    <!-- compile_java_dev                                                  -->
+    <!-- ================================================================= -->
+    <target name="compile_java_dev" description="Compiles java for Devs">
+        <echo message="Delete existing class files..."/>
+        <delete quiet="true" failonerror="false">
+            <fileset dir="${dir.src}" includes="**/*.class"/>
+        </delete>
+
+        <echo message="Build source..."/>
+        <javac srcdir="${dir.src}"
+            debug="${javac.debug}"
+            deprecation="false"
+            nowarn="on"
+            fork="yes"
+            memoryInitialSize="256m" memoryMaximumSize="378m">
+            <classpath refid="project-classpath"/>
+            <classpath>
+                <dirset dir="${dir.src}">
+                    <include name="clients/admin"/>
+                    <include name="contactsources/nuasis"/>
+                    <include name="contactsources/nuasisPlugIn"/>
+                    <include name="contactsources/avayapds"/>
+                    <include name="contactsources/cmiaspect"/>
+                    <include name="contactsources/concerto"/>
+                    <include name="contactsources/generic"/>
+                    <include name="contactsources/Genesys"/>
+                    <include name="generated"/>
+                    <include name="server"/>
+                    <include name="tests"/>
+                    <include name="tools"/>
+                </dirset>
+            </classpath>
+        </javac>
+    </target>
+
+    <!-- ================================================================= -->
+    <!-- jar_Envision                                                      -->
+    <!-- ================================================================= -->
+    <target name="jar_Envision" description="Jar Envision">
+        <jar jarfile="${dir.src}/Envision.jar" basedir="${dir.src}"
+            includes="
+            com/**/*.class
+            com/**/*.xml
+            com/**/*.gif
+            com/**/*.jpg
+            com/**/*.png
+            com/**/*.html
+            com/**/*.js
+            com/**/*.ico
+            com/**/*.properties"/>
+    </target>
+
+    <!-- ================================================================= -->
+    <!-- release_Envision                                                  -->
+    <!-- ================================================================= -->
+    <target name="release_Envision" description="copies jar to release dir">
+        <delete quiet="true" failonerror="false" file="${dir.release}/Envision.jar"/>
+        <copy file="${dir.src}/Envision.jar" tofile="${dir.release}/Envision.jar"/>
+        <delete>
+            <fileset dir="${dir.src}/com" />
+        </delete>
+    </target>
+
+    <!-- ================================================================= -->
+    <!-- Copy Envision jar resources                                       -->
+    <!-- ================================================================= -->
+    <!-- timc: called from build.xml -->
+    <target name="copy-jar-resources" description="Copy Envision jar resources">
+        <!--
+        <echo message="Copying files from ${dir.src}/Server/com/et to ${dir.src}/com/et"/>
+        -->
+        <copy todir="${dir.src}/com/et">
+            <fileset dir="${dir.src}/Server/com/et"
+                includes="
+                **/*.xml
+                **/*.gif
+                **/*.jpg
+                **/*.png
+                **/*.html
+                **/*.js
+                **/*.ico
+                **/*.properties"
+                excludes="**/*UTF16.properties"/>
+        </copy>
+
+        <!--
+        <echo message=""/>
+        <echo message="Copying files from ${dir.src}/clients/admin/com/et to ${dir.src}/com/et"/>
+        -->
+        <copy todir="${dir.src}/com/et">
+            <fileset dir="${dir.src}/clients/admin/com/et"
+                includes="
+                **/*.xml
+                **/*.gif
+                **/*.jpg
+                **/*.png
+                **/*.html
+                **/*.js
+                **/*.ico
+                **/*.properties"
+                excludes="**/*UTF16.properties"/>
+        </copy>
+
+        <!--
+        <echo message=""/>
+        <echo message="Copying files from ${dir.src}/Generated/com/et to ${dir.src}/com/et"/>
+        -->
+        <!-- timc: Nothing with these extensions are present, AFAIK -->
+        <copy todir="${dir.src}/com/et">
+            <fileset dir="${dir.src}/Generated/com/et"
+                includes="
+                **/*.xml
+                **/*.gif
+                **/*.jpg
+                **/*.png
+                **/*.html
+                **/*.js
+                **/*.ico
+                **/*.properties"
+                excludes="**/*UTF16.properties"/>
+        </copy>
+
+        <!--
+        <echo message=""/>
+        <echo message="Copying files from ${dir.src}/apis/bi/com/et to ${dir.src}/com/et"/>
+        -->
+        <!-- timc: Nothing with these extensions are present, AFAIK -->
+        <copy todir="${dir.src}/com/et">
+            <fileset dir="${dir.src}/apis/bi/com/et"
+                includes="
+                **/*.xml
+                **/*.gif
+                **/*.jpg
+                **/*.png
+                **/*.html
+                **/*.js
+                **/*.ico
+                **/*.properties"
+                excludes="**/*UTF16.properties"/>
+        </copy>
+
+        <!--
+        <echo message=""/>
+        <echo message="Copying files from ${dir.src}/contactsources/avayapds/com/et to ${dir.src}/com/et"/>
+        -->
+        <!-- timc: Nothing with these extensions are present, AFAIK -->
+        <copy todir="${dir.src}/com/et">
+            <fileset dir="${dir.src}/contactsources/avayapds/com/et"
+                includes="
+                **/*.xml
+                **/*.gif
+                **/*.jpg
+                **/*.png
+                **/*.html
+                **/*.js
+                **/*.ico
+                **/*.properties"
+                excludes="**/*UTF16.properties"/>
+        </copy>
+
+        <!--
+        <echo message=""/>
+        <echo message="Copying files from ${dir.src}/contactsources/cmiaspect/com/et to ${dir.src}/com/et"/>
+        -->
+        <!-- timc: Nothing with these extensions are present, AFAIK -->
+        <copy todir="${dir.src}/com/et">
+            <fileset dir="${dir.src}/contactsources/cmiaspect/com/et"
+                includes="
+                **/*.xml
+                **/*.gif
+                **/*.jpg
+                **/*.png
+                **/*.html
+                **/*.js
+                **/*.ico
+                **/*.properties"
+                excludes="**/*UTF16.properties"/>
+        </copy>
+
+        <!--
+        <echo message=""/>
+        <echo message="Copying files from ${dir.src}/contactsources/concerto/com/et to ${dir.src}/com/et"/>
+        -->
+        <!-- timc: Nothing with these extensions are present, AFAIK -->
+        <copy todir="${dir.src}/com/et">
+            <fileset dir="${dir.src}/contactsources/concerto/com/et"
+                includes="
+                **/*.xml
+                **/*.gif
+                **/*.jpg
+                **/*.png
+                **/*.html
+                **/*.js
+                **/*.ico
+                **/*.properties"
+                excludes="**/*UTF16.properties"/>
+        </copy>
+    </target>
+
+    <!-- ================================================================= -->
+    <!-- clean_genstubskel                                                 -->
+    <!-- ================================================================= -->
+    <!-- timc: not used -->
+    <!--
+    <target name="clean_genstubskel" description="deletes classes and jars for genstubskel">
+        -->
+        <!-- Delete any existing compiled classes -->
+        <!--
+        <delete quiet="true" failonerror="false" includeEmptyDirs="true">
+            <fileset dir="${genstubskel.dir}"
+                includes="**/*.class"/>
+        </delete>
+    </target>
+    -->
+
+    <!-- ================================================================= -->
+    <!-- compile_genstubskel                                               -->
+    <!-- ================================================================= -->
+    <!-- timc: not used -->
+    <!--
+    <target name="compile_genstubskel" description="Compiles genstubskel">
+        -->
+        <!-- not destination is same directory .ro\genstubskel -->
+        <!-- source="${javac.source}" -->
+        <!--
+        <javac srcdir="${genstubskel.dir}" destdir="${ro.dir}"
+            debug="${javac.debug}"
+            deprecation="${javac.deprecation}">
+            <classpath refid="project-classpath"/>
+        </javac>
+    </target>
+    -->
+
+    <!-- ================================================================= -->
+    <!-- jar_genstubskel                                                   -->
+    <!-- ================================================================= -->
+    <!-- timc: not used -->
+    <!--
+    <target name="jar_genstubskel" description="Jar genstubskel">
+        <jar jarfile="${genstubskel.name}" basedir="${genstubskel.dir}" includes="genstubskel/**/*.class"/>
+    </target>
+    -->
+
+    <!-- ================================================================= -->
+    <!-- release_genstubskel                                               -->
+    <!-- ================================================================= -->
+    <!-- timc: not used -->
+    <!--
+    <target name="release_genstubskel" description="copies genstubskel jar to release">
+        <delete quiet="true" failonerror="false" file="${dir.release}/genstubskel.jar"/>
+        <copy file="${genstubskel.name}" tofile="${dir.release}/genstubskel.jar"/>
+        <delete>
+            <fileset dir="${genstubskel.dir}" includes="**/*.class"/>
+        </delete>
+    </target>
+    -->
+
+    <!-- ================================================================= -->
+    <!-- Javadoc_All                                                       -->
+    <!-- ================================================================= -->
+    <!-- timc: not used -->
+    <!--
+    <target name="Javadoc_All">
+        <javadoc sourcepath="." source="1.4" destdir="../apidocs"
+            packageList="./ClassesToJavaDoc.txt" Private="true"
+            additionalparam="-breakiterator" failonerror="false">
+        </javadoc>
+    </target>
+    -->
+
+    <!-- ================================================================= -->
+    <!-- clean_demomode                                                    -->
+    <!-- ================================================================= -->
+    <!-- timc: not used -->
+    <!--
+    <target name="clean_demomode" description="deletes existing compiled classes and jars">
+        <delete quiet="true" failonerror="false" includeEmptyDirs="true">
+            <fileset dir="${dir.src}/demomode/" includes="**/*.class"/>
+        </delete>
+
+        <delete quiet="true" failonerror="false" file="${dir.release}/demomode.jar"/>
+        <delete quiet="true" failonerror="false" file="${demomode.dir}/demomode.jar"/>
+    </target>
+    -->
+
+    <!-- ================================================================= -->
+    <!-- compile_demomode                                                  -->
+    <!-- ================================================================= -->
+    <!-- timc: not used -->
+    <!--
+    <target name="compile_demomode" description="Compiles demomode">
+    -->
+        <!-- source="${javac.source}" -->
+        <!--
+        <javac srcdir="${dir.src}/demomode/" destdir="${dir.build}/demomode/"
+            debug="${javac.debug}"
+            deprecation="${javac.deprecation}">
+            <classpath refid="project-classpath"/>
+        </javac>
+    </target>
+    -->
+
+    <!-- ================================================================= -->
+    <!-- jar_demomode                                                      -->
+    <!-- ================================================================= -->
+    <!-- timc: not used -->
+    <!--
+    <target name="jar_demomode" description="Jar demomode">
+        <jar jarfile="${demomode.name}" basedir="${demomode.dir}"
+            includes="
+            com/**/*.class
+            com/**/*.xml
+            com/**/*.gif
+            com/**/*.jpg
+            com/**/*.png
+            com/**/*.properties"/>
+    </target>
+    -->
+
+    <!-- ================================================================= -->
+    <!-- release_demomode                                                  -->
+    <!-- ================================================================= -->
+    <!-- timc: not used -->
+    <!--
+    <target name="release_demomode" description="copies jar to release dir">
+        <delete quiet="true" failonerror="false" file="${dir.release}/demomode.jar"/>
+        <copy file="${demomode.name}" tofile="${dir.release}/demomode.jar"/>
+        <copy file="${demomode.name}" tofile="${dir.release}/EnvisionServer/demomode.jar"/>
+        <copy todir="${dir.build}/Release/ServiceDescriptions">
+            <fileset dir="${dir.src}/demomode/ServiceDescriptions"/>
+        </copy>
+        <delete>
+            <fileset dir="${dir.src}/demomode/" includes="**/*.class"/>
+        </delete>
+    </target>
+    -->
+
+    <!-- ================================================================= -->
+    <!-- Compile_unittest                                                  -->
+    <!-- ================================================================= -->
+    <!-- timc: not used -->
+    <!--
+    <target name="compile_unittest" description="Compiles unittest">
+        -->
+        <!-- source="${javac.source}" -->
+        <!--
+        <javac srcdir="${unittest.dir}"
+            destdir="${unittest.dir}"
+            excludes="test/**"
+            debug="${javac.debug}"
+            deprecation="${javac.deprecation}">
+            <classpath refid="project-classpath"/>
+        </javac>
+    </target>
+    -->
+
+    <!-- ================================================================= -->
+    <!-- jar_unittest                                                      -->
+    <!-- ================================================================= -->
+    <!-- timc: not used -->
+    <!--
+    <target name="jar_unittest" description="Jar unittest/src sources">
+        <jar jarfile="${unittest.name}" basedir="${unittest.dir}"
+            includes="
+            com/**/*.class
+            com/**/*.xml
+            com/**/*.html
+            com/**/*.gif
+            com/**/*.png
+            com/**/*.jpg
+            com/**/*.ico
+            com/**/*.properties"/>
+    </target>
+    -->
+
+    <!-- ================================================================= -->
+    <!-- release_unittest                                                  -->
+    <!-- ================================================================= -->
+    <!-- timc: not used -->
+    <!--
+    <target name="release_unittest"
+        description="copies Jar unittest to release and cleans out classes">
+        <delete quiet="true" failonerror="false" file="${dir.release}/unittest.jar"/>
+        <copy file="${unittest.name}" tofile="${dir.release}/unittest.jar"/>
+        <delete>
+            <fileset dir="${unittest.dir}" includes="**/*.class"/>
+        </delete>
+    </target>
+    -->
+
+    <!-- ================================================================= -->
+    <!-- Compile EnvisionPlugin                                            -->
+    <!-- ================================================================= -->
+    <!-- This plugin goes on the customer's PBX to pass contact source
+    messages back and forth with the Server -->
+    <target name="make-EnvisionPlugin" description="Compiles EnvisionPlugin">
+        <property name="EnvisionPluginBasedir"
+            value="${dir.workdir}/ContactSourceRunner/EnvisionPlugin/"/>
+        <mkdir dir="${EnvisionPluginBasedir}"/>
+        <javac srcdir="${dir.src}/contactSources/nuasisPlugin/"
+            destdir="${EnvisionPluginBasedir}"
+            debug="${javac.debug}"
+            deprecation="${javac.deprecation}"
+            fork="yes"
+            memoryInitialSize="100m"
+            memoryMaximumSize="100m" >
+            <classpath refid="project-classpath"/>
+        </javac>
+    </target>
+
+    <!-- ================================================================= -->
+    <!-- Jar EnvisionPlugin                                                -->
+    <!-- ================================================================= -->
+    <!-- This plugin goes on the customer's PBX to pass contact source
+    messages back and forth with the Server -->
+    <target name="jar-EnvisionPlugin" description="Creates EnvisionPlugin.jar"
+        depends="make-EnvisionPlugin">
+        <jar jarfile="${EnvisionPluginBasedir}/EnvisionPlugin.jar"
+            basedir="${EnvisionPluginBasedir}"
+            includes="
+            com/**/*.class
+            com/**/*.xml
+            com/**/*.html
+            com/**/*.gif
+            com/**/*.png
+            com/**/*.jpg
+            com/**/*.ico
+            com/**/*.properties"/>
+    </target>
+
+    <!-- ================================================================= -->
+    <!-- Envision Project Choices                                          -->
+    <!-- ================================================================= -->
+    <target name="Envision"
+        depends="
+        clean_Envision,
+        compile_Envision,
+        jar_Envision,
+        release_Envision"/>
+
+    <!-- Are you f'ing kidding me? -->
+    <!--
+    <target name="Envision_clean" depends="clean_Envision"/>
+    <target name="Envision_compile" depends="compile_Envision"/>
+    <target name="Envision_jar" depends="jar_Envision"/>
+    <target name="Envision_release" depends="release_Envision"/>
+    -->
+
+    <!-- ================================================================= -->
+    <!-- GenStubSkel Project Choices                                       -->
+    <!-- ================================================================= -->
+    <!-- timc: not used -->
+    <!--
+    <target name="genstubskel"
+        depends="
+        clean_genstubskel,
+        compile_genstubskel,
+        jar_genstubskel,
+        release_genstubskel"/>
+    -->
+
+    <!-- Are you f'ing kidding me? -->
+    <!--
+    <target name="genstubskel_clean" depends="clean_genstubskel"/>
+    <target name="genstubskel_compile" depends="compile_genstubskel"/>
+    <target name="genstubskel_jar" depends="jar_genstubskel"/>
+    <target name="genstubskel_release" depends="release_genstubskel"/>
+    -->
+
+    <!-- ================================================================= -->
+    <!-- demomode Project Choices                                          -->
+    <!-- ================================================================= -->
+    <!-- timc: not used -->
+    <!--
+    <target name="demomode"
+        depends="
+        clean_demomode,
+        compile_demomode,
+        jar_demomode,
+        release_demomode"/>
+    -->
+
+    <!-- Are you f'ing kidding me? -->
+    <!--
+    <target name="demomode_clean" depends="clean_demomode"/>
+    <target name="demomode_compile" depends="compile_demomode"/>
+    <target name="demomode_jar" depends="jar_demomode"/>
+    <target name="demomode_release" depends="release_demomode"/>
+    -->
+
+</project>
+
