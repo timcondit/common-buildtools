@@ -22,10 +22,8 @@ os.environ['ANT_OPTS'] = '-Xmx1024m'
 
 BRANCHES_BASE = r'svn://chinook/eps/branches'
 TAGS_BASE = r'svn://chinook/eps/tags'
-#PROJECTS_BASE = r'\\Bigfoot\Engineering\Projects\build'
-PROJECTS_BASE = r'C:\Source\Projects\build'
-#PRODUCTS_BASE = r'\\Bigfoot\Engineering\\builds'
-PRODUCTS_BASE = r'C:\Source\builds'
+PROJECTS_BASE = r'\\Bigfoot\Engineering\Projects\build'
+PRODUCTS_BASE = r'\\Bigfoot\Engineering\\builds'
 # should this be ant.home?
 ANT = os.path.join(os.environ['ANT_HOME'], 'bin', 'ant.bat')
 DEBUG = False
@@ -128,7 +126,7 @@ class BuildRunner(object):
                 print("making new logs dir %s" % self.bp.logs_dir)
                 os.makedirs(self.bp.logs_dir)
                 print("copying log.xsl to %s" % self.bp.logs_dir)
-                shutil.copy(self.LOG_FILE, self.bp.logs_dir)
+                shutil.copy(self.bp.log_file, self.bp.logs_dir)
             except OSError:
                 # Don't kill the job here, because the compile can still run
                 # without this directory being present.  It just won't finish
@@ -193,7 +191,7 @@ class BuildRunner(object):
                 # It's an ugly hole that needs to be patched ASAP.)
                 if os.path.exists(sem_file):
                     print("[INFO] found semaphore %s" % sem_file)
-                    f=open(self.lkg_file, 'a')
+                    f=open(self.bp.lkg_file, 'a')
                     f.write(self.options.next)
                     f.write("\n")
                 else: # build SUCCESS, notification FAILURE
@@ -289,14 +287,18 @@ class BuildProperties(object):
     '''DOCSTRING'''
     def __init__(self):
         self.triplet = None
-        self.triple_xx = None
-        self.major_minor = None
+#        self.triple_xx = None
+#        self.major_minor = None
         self.next = None
         self.previous = None
         self.source_url = None
         self.tags_url = None
         self.projects_dir = None
         self.products_dir = None
+        # TODO It would be really nice to set wc_dir to the full version
+        # number (e.g.  prefix/9.10.0110.2 instead of prefix/9.10.0110), but
+        # that's not practical right now, since it's designed to be set in the
+        # config file and not updated.  Something to think about later.
         self.wc_dir = None
         self.logs_dir = None
         self.log_file = None
@@ -307,7 +309,8 @@ class BuildProperties(object):
 
         # This is absurd - maybe self.plist should be composed of smaller
         # lists?  self.def_eligible, self.ABC, self.XYZ?
-        self.plist = [ 'triplet', 'triple_xx', 'major_minor', 'next',
+#        self.plist = [ 'triplet', 'triple_xx', 'major_minor', 'next',
+        self.plist = [ 'triplet', 'next',
                 'previous', 'source_url', 'tags_url', 'projects_dir',
                 'products_dir', 'wc_dir', 'logs_dir', 'log_file', 'log_xsl',
                 'lkg_file', 'major', 'minor', 'patch', 'bn', 'p_major',
@@ -414,18 +417,24 @@ class BuildProperties(object):
             if self.p_bn is None:
                 self.p_bn = h
 
-        if self.triplet is not None:
-            self.major_minor, tmp = self.triplet.rsplit('.', 1)
-            print("[default] setting %s=%s" % ('major_minor', self.major_minor))
-            self.triple_xx = self.triplet[:-2] + "xx"
-            print("[default] setting %s=%s" % ('triple_xx', self.triple_xx))
+#        if self.triplet is not None:
+#            try:
+#                self.major_minor, tmp = self.triplet.rsplit('.', 1)
+#                print("[default] setting %s=%s" % ('major_minor', self.major_minor))
+#                self.triple_xx = self.triplet[:-2] + "xx"
+#                print("[default] setting %s=%s" % ('triple_xx', self.triple_xx))
+#            # this can happen when trying to split a PRN branch like PRN22180;
+#            # a triplet implies patch branches like 9.10.0102
+#            except ValueError:
+#                print("Caught a ValueError.  If using a PRN branch, please")
+#                print("idenfity 
 
         if self.logs_dir is None:
             self.logs_dir = os.path.join(self.projects_dir, 'logs')
             print("[default] setting %s=%s" % ('logs_dir', self.logs_dir))
             # log file
         if self.log_file is None:
-            self.log_file = os.path.join(self.projects_dir, 'build_%s.xml' % self.next)
+            self.log_file = os.path.join(self.logs_dir, 'build_%s.xml' % self.next)
             print("[default] setting %s=%s" % ('log_file', self.log_file))
             # log.xsl
             self.log_xsl = os.path.join(self.logs_dir, 'log.xsl')
@@ -494,8 +503,7 @@ class BuildProperties(object):
     def make_antcall(self, pprint=False):
         '''DOCSTRING'''
         p = pprint
-#        antcall  = self._pprint(ANT, p)
-        antcall = r"python C:\Source\common-buildtools-newopts\anteater.py"
+        antcall  = self._pprint(ANT, p)
         # TODO only need an extra space if not --dry-run
         antcall += " "
         antcall += self._pprint('-Dversion.product=%s ' % self.next, p)
