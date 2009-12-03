@@ -125,13 +125,17 @@ class BuildRunner(object):
             try:
                 print("making new logs dir %s" % self.bp.logs_dir)
                 os.makedirs(self.bp.logs_dir)
-                print("copying log.xsl to %s" % self.bp.logs_dir)
-                shutil.copy(self.bp.log_file, self.bp.logs_dir)
             except OSError:
                 # Don't kill the job here, because the compile can still run
                 # without this directory being present.  It just won't finish
                 # the last couple steps.
                 print("error: could not create %s" % self.bp.logs_dir)
+        # do this separately in case the logs_dir exists, but the log.xsl does
+        # not (it won't happen very often)
+        if not os.path.exists(self.bp.log_xsl):
+            log_xsl_local = os.path.join('logs', 'log.xsl')
+            print("copying %s to %s" % (log_xsl_local, self.bp.logs_dir))
+            shutil.copy(log_xsl_local, self.bp.logs_dir)
 
         try:
             self.retcode = subprocess.check_call(self.antcall)
@@ -302,7 +306,7 @@ class BuildProperties(object):
         self.wc_dir = None
         self.logs_dir = None
         self.log_file = None
-        self.log_xsl = None
+        self.log_xsl = None # path to log.xsl on the publish share
         self.lkg_file = None
         self.major = self.minor = self.patch = self.bn = None
         self.p_major = self.p_minor = self.p_patch = self.p_bn = None
@@ -477,8 +481,9 @@ class BuildProperties(object):
         except WindowsError:
 #            print("%s not found ..." % self.lkg_file)
             print("\nerror: %s not found." % self.lkg_file)
-            print("If you include a version number with --next, I'll be able")
-            print("to generate the file for future use.")
+            print("If you include a version number with --next (and call the")
+            print("'end' target in Ant), I'll be able to generate the file")
+            print("for future use.")
 
             sys.exit(1)
 
