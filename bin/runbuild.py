@@ -1,11 +1,13 @@
 '''A build runner'''
 
 # TODO
-# - figure out what's wrong with no_confirm
-# - only print [config-file], [cmdline] and [default] if VERBOSE or DEBUG=True
-# - [pri 1] fix the attribute ugliness in BuildProperties
-# - add pass-thru args back in!!
-# - replace all instances of RELEASE in the Ant scripts with PATCH
+# - [pri2] figure out what's wrong with no_confirm
+# - [pri3] only print [config-file], [cmdline] and [default] if VERBOSE or
+#   DEBUG=True
+# - [pri1] fix the attribute ugliness in BuildProperties
+# - [pri0] add pass-thru args back in!!
+# - [pri3] replace all instances of RELEASE in the Ant scripts with PATCH
+# - [pri1] TypeError when 'bin\runbuild.py' run without any arguments
 
 
 from optparse import OptionParser, OptionGroup
@@ -534,6 +536,11 @@ class BuildProperties(object):
 
 
 if __name__=='__main__':
+    if len(sys.argv) == 1:
+        print "There's nothing here yet."
+        print "'runbuild.py --help' shows the options"
+        sys.exit(1)
+
     runner=BuildRunner()
 #    runner.test()
     runner.before()
