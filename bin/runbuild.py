@@ -1,13 +1,12 @@
 '''A build runner'''
 
 # TODO
-# - [pri2] figure out what's wrong with no_confirm
-# - [pri3] only print [config-file], [cmdline] and [default] if VERBOSE or
-#   DEBUG=True
+# - *done* [pri2] figure out what's wrong with no_confirm
+# - [pri3] only print [config-file], [cmdline] and [default] if VERBOSE or DEBUG=True
 # - [pri1] fix the attribute ugliness in BuildProperties
-# - [pri0] add pass-thru args back in!!
+# - *done* [pri0] add pass-thru args back in!!
 # - [pri3] replace all instances of RELEASE in the Ant scripts with PATCH
-# - [pri1] TypeError when 'bin\runbuild.py' run without any arguments
+# - *done* [pri1] TypeError when 'bin\runbuild.py' run without any arguments
 
 
 from optparse import OptionParser, OptionGroup
@@ -66,7 +65,7 @@ class BuildRunner(object):
 
         # convenience options
         convenience_opts.add_option('-y', '--yes', '--no-confirm', action='store_true',
-                help='run the build without confirmation')
+                dest="no_confirm", help='run the build without confirmation')
         convenience_opts.add_option('-d', '--dry-run', action='store_true',
                 help='show what would have been done')
         convenience_opts.add_option('-m', '--more-help', action='store_true',
@@ -103,15 +102,16 @@ class BuildRunner(object):
             print("[DEBUG] self.options.no_confirm: %s" % self.options.no_confirm)
             print("[DEBUG] self.options.dry_run: %s" % self.options.dry_run)
 
+        # pprint is True or False based on the value of dry_run
+        self.antcall = self.bp.make_antcall(self.options.dry_run)
         print("\nHere is the Ant command based on provided input:")
+        print("'''\n%s\n'''" % self.antcall)
+
         if self.options.dry_run: # old skool
-            self.antcall = self.bp.make_antcall(pprint=True)
-            print("'''\n%s\n'''" % self.antcall)
             sys.exit(0)
+
         # if not no confirm - awkward ... :)
-        elif not self.options.no_confirm:
-            self.antcall = self.bp.make_antcall(pprint=False)
-            print("'''\n%s\n'''" % self.antcall)
+        if not self.options.no_confirm:
             prompt = 'Run it? [y/n] '
             run_build = None
             while run_build != 'y' and run_build != 'n':
@@ -218,7 +218,9 @@ class BuildRunner(object):
 %s uses input from command-line options, lkg.txt (last known
 good), or a combination of the two.  Use pass-thru args to pass
 arguments on to Ant, typically to invoke specific targets.
-''' % (self.prog, self.prog)
+
+Try '%s --help' for more details
+''' % (self.prog, self.prog, self.prog)
 
 
     # TODO rewrite or delete
@@ -549,12 +551,11 @@ class BuildProperties(object):
 
 
 if __name__=='__main__':
+    runner=BuildRunner()
     if len(sys.argv) == 1:
-        print "There's nothing here yet."
-        print "'runbuild.py --help' shows the options"
+        print runner.usage()
         sys.exit(1)
 
-    runner=BuildRunner()
 #    runner.test()
     runner.before()
     runner.during()
