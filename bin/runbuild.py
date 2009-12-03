@@ -3,7 +3,7 @@
 # TODO
 # - *done* [pri2] figure out what's wrong with no_confirm
 # - [pri3] only print [config-file], [cmdline] and [default] if VERBOSE or DEBUG=True
-# - [pri1] fix the attribute ugliness in BuildProperties
+# - *done* [pri1] fix the attribute ugliness in BuildProperties
 # - *done* [pri0] add pass-thru args back in!!
 # - [pri3] replace all instances of RELEASE in the Ant scripts with PATCH
 # - *done* [pri1] TypeError when 'bin\runbuild.py' run without any arguments
@@ -314,15 +314,16 @@ class BuildProperties(object):
         self.major = self.minor = self.patch = self.bn = None
         self.p_major = self.p_minor = self.p_patch = self.p_bn = None
 
-        # This is absurd - maybe self.plist should be composed of smaller
-        # lists?  self.def_eligible, self.ABC, self.XYZ?
-        self.plist = [ 'triplet', 'next', 'previous', 'source_url',
-                'tags_url', 'projects_dir', 'products_dir', 'wc_dir',
-                'logs_dir', 'log_file', 'log_xsl', 'lkg_file', 'major',
-                'minor', 'patch', 'bn', 'p_major', 'p_minor', 'p_patch',
-                'p_bn', ]
+        # CAREFUL HERE: this is a dynamic dictionary, so it might work well,
+        # or it might bring 'da pain.  The idea is to allow the list of
+        # properties to grow and shrink dynamically, and account for them when
+        # using plist.  It's better than the "solution" it replaces (two sets
+        # of attributes ... gross).  But keep an eye on it.
+        self.plist = self.__dict__.keys()
 
-        self.ant_args = None
+        # NB: attributes added after self.plist defined are NOT included in it
+        self.pass_thru_args = None
+
 
     # consider using the property builtin:
     # http://docs.python.org/library/functions.html
@@ -362,8 +363,8 @@ class BuildProperties(object):
             self.previous = options.previous
             print("[cmdline] setting %s=%s" % ('previous', options.previous))
         if args:
-            print("got args: %s" % args)
-            self.ant_args = args
+            print("[cmdline] got pass-thru args: %s" % args)
+            self.pass_thru_args = args
 
 
     def _props_defaults(self):
@@ -518,8 +519,7 @@ class BuildProperties(object):
         antcall += self._pprint('-Dant.XmlLogger.stylesheet.uri=%s ' % self.log_xsl, p)
         # last one is not pretty-printed
         try:
-            # pass-thru args
-            for arg in self.ant_args:
+            for arg in self.pass_thru_args:
                 antcall += arg + " "
         except TypeError:   # empty list
             pass
