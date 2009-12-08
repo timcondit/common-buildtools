@@ -24,7 +24,7 @@ os.environ['ANT_OPTS'] = '-Xmx1024m'
 BRANCHES_BASE = r'svn://chinook/eps/branches'
 TAGS_BASE = r'svn://chinook/eps/tags'
 PROJECTS_BASE = r'\\Bigfoot\Engineering\Projects\build'
-PRODUCTS_BASE = r'\\Bigfoot\Engineering\\builds'
+PRODUCTS_BASE = r'\\Bigfoot\Engineering\builds'
 # should this be ant.home?
 ANT = os.path.join(os.environ['ANT_HOME'], 'bin', 'ant.bat')
 DEBUG = False
