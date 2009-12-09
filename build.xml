@@ -607,6 +607,16 @@ Log file is here: ${dir.projects.converted}\logs\build_${version.product}.xml
 
 
 Compiled from source revision ${repository.revision}
+
+
+===========================================================
+C# Unit Tests Results
+
+Complete log here: ${dir.projects.converted}\unittests\${version.product}_verbose.xml
+===========================================================
+${unittest.csharpresults}
+
+
             </message>
         </mail>
     </target>
@@ -1257,6 +1267,32 @@ java -cp %CP% genDBSchema.GenDBSchemaFromFiles -inputDir %INPUT_DIR% -outputSche
     </target>
 
     <!-- ================================================================= -->
+    <!-- Target for running unit tests                                     -->
+    <!-- ================================================================= -->
+    <!-- build and run the unit tests -->
+    <target name="run-unit-tests"
+        description="Builds and runs unit tests">
+        <!-- build and run C# unit tests -->
+        <ant antfile="unitTests.xml" dir="." target="run-CSUnitTests"/>
+
+        <!-- this is where JUnit tests can go -->
+    </target>
+
+    <!-- build, run, and publish the unit test results -->
+    <target name="publish-unit-test-results"
+        description="Publishes the results of the unit tests">
+        <!-- publish the results for the c# unit tests -->
+        <ant antfile="unitTests.xml" dir="." target="publish-CSUnitTests"/>
+
+        <!-- this is where JUnit test results can be published -->
+
+        <!-- load the results summary into a property -->
+        <loadfile property="unittest.csharpresults"
+            srcFile="${dir.projects.converted}\unittests\${version.product}_summary.txt"/>
+    </target>
+
+
+    <!-- ================================================================= -->
     <!-- official-build target                                             -->
     <!-- ================================================================= -->
     <!-- TODO maybe this should be a target with a long list of dependencies.
@@ -1287,6 +1323,7 @@ java -cp %CP% genDBSchema.GenDBSchemaFromFiles -inputDir %INPUT_DIR% -outputSche
         <antcall target="commit-all"/>
         <antcall target="email-build-complete"/>
         <antcall target="tag-build"/>
+        <antcall target="publish-unit-test-results"/>
         <antcall target="move-workdir-postbuild"/>
         <antcall target="end"/>
     </target>
