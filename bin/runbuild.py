@@ -512,6 +512,7 @@ class BuildProperties(object):
         antcall += " "
         antcall += self._pprint('-Dversion.product=%s ' % self.next, p)
         antcall += self._pprint('-Dversion.previous=%s ' % self.previous, p)
+        # I guess this will stay major.minor.patch for now.
         antcall += self._pprint('-Ddir.build=%s ' % self.wc_dir, p)
         antcall += self._pprint('-DMAJOR=%s ' % self.major, p)
         antcall += self._pprint('-DMINOR=%s ' % self.minor, p)

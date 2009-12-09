@@ -394,7 +394,7 @@
         <!-- TODO Check if the semaphore file already exists.  This could
         indicate trouble.  (But isn't it too late by this point?) -->
         <!-- See the 'after' method of runbuild.py for details about this. -->
-        <echo file="${dir.build}/../${version.product}_SUCCESS"/>
+        <echo file="${dir.build}/${version.product}_SUCCESS"/>
         <!-- restart virus protection -->
         <exec dir="${dir.bin}" executable="cmd.exe" vmlauncher="false" failonerror="false">
             <arg line="/c startsym.bat"/>
