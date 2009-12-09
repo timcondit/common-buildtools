@@ -127,7 +127,9 @@
         <copy file="${dir.src}/server/com/et/license/LicenseManager.class"
             tofile="${dir.src}/com/et/license/LicenseManager.class"/>
         <jar destfile="${dir.src}/server/com/et/license/license.jar"
-            basedir="${dir.src}" includes="com/**/*.class"/>
+            basedir="${dir.src}"
+            duplicate="preserve"
+            includes="com/**/*.class"/>
     </target>
 
     <!-- ================================================================= -->
@@ -186,7 +188,6 @@
         <delete quiet="true" failonerror="false">
             <fileset dir="${dir.src}" includes="**/*.class"/>
         </delete>
-
         <echo message="Build source..."/>
         <javac srcdir="${dir.src}"
             debug="${javac.debug}"
@@ -218,7 +219,9 @@
     <!-- jar_Envision                                                      -->
     <!-- ================================================================= -->
     <target name="jar_Envision" description="Jar Envision">
-        <jar jarfile="${dir.src}/Envision.jar" basedir="${dir.src}"
+        <jar destfile="${dir.src}/Envision.jar"
+            basedir="${dir.src}"
+            duplicate="preserve"
             includes="
             com/**/*.class
             com/**/*.xml
@@ -418,7 +421,10 @@
     <!-- timc: not used -->
     <!--
     <target name="jar_genstubskel" description="Jar genstubskel">
-        <jar jarfile="${genstubskel.name}" basedir="${genstubskel.dir}" includes="genstubskel/**/*.class"/>
+        <jar destfile="${genstubskel.name}"
+            basedir="${genstubskel.dir}"
+            duplicate="preserve"
+            includes="genstubskel/**/*.class"/>
     </target>
     -->
 
@@ -487,7 +493,9 @@
     <!-- timc: not used -->
     <!--
     <target name="jar_demomode" description="Jar demomode">
-        <jar jarfile="${demomode.name}" basedir="${demomode.dir}"
+        <jar destfile="${demomode.name}"
+            basedir="${demomode.dir}"
+            duplicate="preserve"
             includes="
             com/**/*.class
             com/**/*.xml
@@ -541,7 +549,9 @@
     <!-- timc: not used -->
     <!--
     <target name="jar_unittest" description="Jar unittest/src sources">
-        <jar jarfile="${unittest.name}" basedir="${unittest.dir}"
+        <jar destfile="${unittest.name}"
+            basedir="${unittest.dir}"
+            duplicate="preserve"
             includes="
             com/**/*.class
             com/**/*.xml
@@ -598,6 +608,7 @@
         depends="make-EnvisionPlugin">
         <jar jarfile="${EnvisionPluginBasedir}/EnvisionPlugin.jar"
             basedir="${EnvisionPluginBasedir}"
+            duplicate="preserve"
             includes="
             com/**/*.class
             com/**/*.xml

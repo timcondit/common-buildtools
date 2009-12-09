@@ -35,15 +35,16 @@
         <antcall target="release-Server"/>
         <antcall target="release-Documentation-CD2"/>
 
-        <!-- target3 -->
-        <antcall target="release-DotNetInstaller"/>
-
         <!-- utils -->
         <antcall target="release-ADIT"/>
         <antcall target="release-AGMS"/>
         <antcall target="release-DADI"/>
         <antcall target="release-DBMigration"/>
         <antcall target="release-ECC"/>
+
+        <!-- target3 -->
+        <!-- <antcall target="release-DotNetInstaller"/> -->
+        <antcall target="release-CD3"/>
 
         <!-- TODO if we're doing only 9.6 and later, this is redundant (but
         harmless and informative) -->
@@ -505,8 +506,15 @@
     <!-- Unzip the default Nuance profile for the Speech Server            -->
     <!-- ================================================================= -->
     <target name="unzip-NuanceProfile">
-        <unjar
-            src="${dir.sdk}/Nuance/Envision.zip"
+        <unjar src="${dir.sdk}/Nuance/Envision.zip"
+            dest="${dir.workdir}/AudioMining"/>
+        <unjar src="${dir.sdk}/Nuance/EnvisionEnglishUK.zip"
+            dest="${dir.workdir}/AudioMining"/>
+        <unjar src="${dir.sdk}/Nuance/EnvisionGerman.zip"
+            dest="${dir.workdir}/AudioMining"/>
+        <unjar src="${dir.sdk}/Nuance/EnvisionSpanish.zip"
+            dest="${dir.workdir}/AudioMining"/>
+        <unjar src="${dir.sdk}/Nuance/EnvisionSpanishLA.zip"
             dest="${dir.workdir}/AudioMining"/>
     </target>
 
@@ -524,13 +532,24 @@
     </target>
 
     <!-- ================================================================= -->
+    <!-- Publish CD3                                                       -->
+    <!-- ================================================================= -->
+    <target name="release-CD3" depends="prepare">
+        <copy todir="${target3}">
+            <fileset dir="${uncpath.cd3_sources}"/>
+        </copy>
+    </target>
+
+    <!-- ================================================================= -->
     <!-- Release .NET 3.5 SP1 installer (prerequisite)                     -->
     <!-- ================================================================= -->
+    <!--
     <target name="release-DotNetInstaller" depends="prepare">
         <copy todir="${target3}/DotNetFramework">
             <fileset dir="${uncpath.dotnet}"/>
         </copy>
     </target>
+    -->
 
     <!-- ================================================================= -->
     <!-- Make and release ADIT                                             -->
@@ -632,8 +651,7 @@
     <!-- ================================================================= -->
     <!-- Make and release SpeechServerService                              -->
     <!-- ================================================================= -->
-    <target name="make-SpeechServerService"
-        depends="prepare,unzip-NuanceProfile">
+    <target name="make-SpeechServerService" depends="prepare">
         <build-AI-installer
             product.name="SpeechServerService"
             installer.path="${dir.installs}/SpeechServerService"
@@ -649,7 +667,7 @@
     <!-- ================================================================= -->
     <!-- Make and release SpeechProcessingClient                           -->
     <!-- ================================================================= -->
-    <target name="make-SpeechProcessingClient" depends="prepare">
+    <target name="make-SpeechProcessingClient" depends="prepare,unzip-NuanceProfile">
         <build-AI-installer
             product.name="SpeechProcessingClient"
             installer.path="${dir.installs}/SpeechProcessingClient"
