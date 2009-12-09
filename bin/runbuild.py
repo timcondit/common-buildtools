@@ -122,15 +122,16 @@ class BuildRunner(object):
 
     def during(self):   # AKA build()
         '''DOCSTRING'''
-        if not os.path.exists(self.bp.logs_dir):
-            try:
-                print("making new logs dir %s" % self.bp.logs_dir)
-                os.makedirs(self.bp.logs_dir)
-            except OSError:
-                # Don't kill the job here, because the compile can still run
-                # without this directory being present.  It just won't finish
-                # the last couple steps.
-                print("error: could not create %s" % self.bp.logs_dir)
+        for dir in [self.bp.logs_dir, self.bp.unittests_dir]:
+            if not os.path.exists(dir):
+                try:
+                    print("making new dir %s" % dir)
+                    os.makedirs(dir)
+                except OSError:
+                    # Don't kill the job here, because the compile can still
+                    # run without this directory being present.  It just won't
+                    # finish the last couple steps.
+                    print("error: could not create %s" % self.bp.logs_dir)
         # do this separately in case the logs_dir exists, but the log.xsl does
         # not (it won't happen very often)
         if not os.path.exists(self.bp.log_xsl):
@@ -311,6 +312,7 @@ class BuildProperties(object):
         self.log_file = None
         self.log_xsl = None # path to log.xsl on the publish share
         self.lkg_file = None
+        self.unittests_dir = None
         self.major = self.minor = self.patch = self.bn = None
         self.p_major = self.p_minor = self.p_patch = self.p_bn = None
 
@@ -385,11 +387,19 @@ class BuildProperties(object):
         # lkg.txt - the key to the whole flippin' thing
         if self.lkg_file is None:
             self.lkg_file = os.path.join(self.projects_dir, 'lkg.txt')
+            # FIXME - lkg.txt is the value of the LAST build, not the next
+            # one.
             print("[default] setting %s=%s" % ('lkg_file', self.lkg_file))
 
         # next!
         if self.lkg_file is not None and self.next is None:
-            self.next = self._parse_buildfile()
+            # FIXME - lkg.txt is the value of the LAST build, not the next
+            # one.
+            self.next = int(self._parse_buildfile()) + 1
+#            try:
+#                self.next = int(self._parse_buildfile()) + 1
+#            except ValueError:
+#                pass
             print("[default] setting %s=%s" % ('next', self.next))
 
         if self.next:
@@ -436,6 +446,9 @@ class BuildProperties(object):
             # log.xsl
             self.log_xsl = os.path.join(self.logs_dir, 'log.xsl')
             print("[default] setting %s=%s" % ('log_xsl', self.log_xsl))
+        if self.unittests_dir is None:
+            self.unittests_dir = os.path.join(self.projects_dir, 'unittests')
+            print("[default] setting %s=%s" % ('unittests_dir', self.unittests_dir))
 
         # example: svn://chinook/eps/tags/9.10/SP2/base
         # TAGS_BASE = r'svn://chinook/eps/tags'
