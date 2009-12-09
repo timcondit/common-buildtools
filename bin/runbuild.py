@@ -395,11 +395,9 @@ class BuildProperties(object):
         if self.lkg_file is not None and self.next is None:
             # FIXME - lkg.txt is the value of the LAST build, not the next
             # one.
-            self.next = int(self._parse_buildfile()) + 1
-#            try:
-#                self.next = int(self._parse_buildfile()) + 1
-#            except ValueError:
-#                pass
+            car, cdr = self._parse_buildfile().rsplit('.', 1)
+            cdr = int(cdr) + 1
+            self.next = car + '.' + str(cdr)
             print("[default] setting %s=%s" % ('next', self.next))
 
         if self.next:
