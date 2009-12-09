@@ -153,6 +153,9 @@
         <ac:if>
             <or>
                 <and>
+                    <ac:isgreaterthan arg1="${MAJOR}" arg2="9"/>
+                </and>
+                <and>
                     <ac:equals arg1="${MAJOR}" arg2="9"/>
                     <ac:isgreaterthan arg1="${MINOR}" arg2="10"/>
                 </and>
@@ -173,6 +176,9 @@
         <ac:if>
             <or>
                 <and>
+                    <ac:isgreaterthan arg1="${MAJOR}" arg2="9"/>
+                </and>
+                <and>
                     <ac:equals arg1="${MAJOR}" arg2="9"/>
                     <ac:isgreaterthan arg1="${MINOR}" arg2="9"/>
                 </and>
@@ -192,6 +198,9 @@
         <!-- 9.8 -->
         <ac:if>
             <or>
+                <and>
+                    <ac:isgreaterthan arg1="${MAJOR}" arg2="9"/>
+                </and>
                 <and>
                     <ac:equals arg1="${MAJOR}" arg2="9"/>
                     <ac:isgreaterthan arg1="${MINOR}" arg2="8"/>
@@ -216,6 +225,9 @@
         <ac:if>
             <or>
                 <and>
+                    <ac:isgreaterthan arg1="${MAJOR}" arg2="9"/>
+                </and>
+                <and>
                     <ac:equals arg1="${MAJOR}" arg2="9"/>
                     <ac:isgreaterthan arg1="${MINOR}" arg2="7"/>
                 </and>
@@ -237,6 +249,9 @@
         <!-- 9.6 -->
         <ac:if>
             <or>
+                <and>
+                    <ac:isgreaterthan arg1="${MAJOR}" arg2="9"/>
+                </and>
                 <and>
                     <ac:equals arg1="${MAJOR}" arg2="9"/>
                     <ac:isgreaterthan arg1="${MINOR}" arg2="6"/>
