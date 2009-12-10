@@ -1,0 +1,76 @@
+<?xml version="1.0"?>
+
+<!-- ===================================================================== -->
+<!-- Project for building and running unit tests                           -->
+<!-- ===================================================================== -->
+<project name="RunUnitTests" default="" basedir=".">
+
+    <!-- ================================================================= -->
+    <!-- Source the contents of build.properties                           -->
+    <!-- ================================================================= -->
+    <!-- Note: There should not be any references to this property anywhere in
+    the rest of the script.  It is read at this point, the property values are
+    set, and that's the end of it. -->
+    <property file="build.properties"/>
+
+
+    <!-- ================================================================= -->
+    <!-- Build C# unit test projects                                       -->
+    <!-- ================================================================= -->
+    <target name="build-CSUnitTests"
+        description="Build the C# unit test projects">
+        <exec dir="${dir.build}" executable="${compiler.cpp}" vmlauncher="false" failonerror="false">
+            <arg line="/build Release
+                ${dir.src}/tests/DotNetUnitTests/DotNetUnitTests.sln
+                /out ${dir.build}/BuildLog.txt"/>
+        </exec>
+    </target>
+
+    <!-- ================================================================= -->
+    <!-- Run C# unit tests                                                 -->
+    <!-- ================================================================= -->
+    <target name="run-CSUnitTests" depends="build-CSUnitTests"
+        description="Run the C# unit tests">
+
+        <!-- Replace the connection string to point to the unit test database -->
+        <loadfile srcfile="${dir.src}/tests/DotNetUnitTests/UT_Release.config" property="unittest.updatedconfig">
+            <filterchain>
+                <replacetokens begintoken="D" endtoken=";">
+                    <token key="ata Source=localhost" value="Data Source=${unittest.sqlserver};"/>
+                </replacetokens>
+                <replacetokens begintoken="I" endtoken=";">
+                    <token key="nitial Catalog=EPS9_Common" value="Initial Catalog=${unittest.sqldb};"/>
+                </replacetokens>
+            </filterchain>
+        </loadfile>
+        <echo file="${dir.src}/tests/DotNetUnitTests/UT_Release.config" message="${unittest.updatedconfig}"/>
+
+        <!-- Delete whatever previous results that may exist -->
+        <delete file="${dir.src}/tests/DotNetUnitTests/UT_BLL/bin/Release/results_summary.txt"/>
+        <delete file="${dir.src}/tests/DotNetUnitTests/UT_BLL/bin/Release/results_verbose.xml"/>
+
+        <!-- Run the unit tests -->
+        <exec dir="${dir.build}" executable="${unittest.nunit.bin}/nunit-console.exe" vmlauncher="false" failonerror="false">
+            <arg line="${dir.src}/tests/DotNetUnitTests/UT_Release.nunit
+                /xml:${dir.src}\tests\DotNetUnitTests\UT_BLL\bin\Release\results_verbose.xml"/>
+            <redirector output="${dir.src}\tests\DotNetUnitTests\UT_BLL\bin\Release\results_summary.txt" alwayslog="true"/>
+        </exec>
+    </target>
+
+    <!-- ================================================================= -->
+    <!-- Publish C# unit test results                                      -->
+    <!-- ================================================================= -->
+    <target name="publish-CSUnitTests" depends="run-CSUnitTests"
+        description="Publish the results of the C# unit tests">
+
+        <!-- Copy the summary and verbose results to the projects folder -->
+        <copy
+        file="${dir.src}/tests/DotNetUnitTests/UT_BLL/bin/Release/results_summary.txt"
+        tofile="${dir.projects.converted}/unittests/${version.product}_summary.txt"/>
+
+        <copy
+        file="${dir.src}/tests/DotNetUnitTests/UT_BLL/bin/Release/results_verbose.xml"
+        tofile="${dir.projects.converted}/unittests/${version.product}_verbose.xml"/>
+    </target>
+
+</project>
