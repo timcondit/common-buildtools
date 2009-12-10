@@ -62,3 +62,17 @@
   how to create the target list on the fly.  Ant isn't exactly well known for
   introspection.
 
+* Current status (12/09/2009):
+    - Old copies of SVN common-buildtools are removed from build4 and build5
+    - Latest changes are committed to SVN common-buildtools and copied to git
+    - Latest changes are NOT committed to SVN trunk - at this point, it's not
+      worth bothering with.  Maintaining common-buildtools and the trunk is
+      pointless.
+
+* Next actions (12/09/2009):
+    - Goal: do not touch SVN buildtools at all from this point forward.
+    - Need to test full production builds with git/cb.
+    - Need to touch bin/runbuild.py to create the unittests dir.
+    - Fix the next version number bug (just found it - see commit
+      3bc1736bf2af2de67f86d89983e2d36c9c7925f4)
+    - Fix the dependence on Ant's end task to generate lkg.txt.
