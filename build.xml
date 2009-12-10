@@ -1047,8 +1047,21 @@ java -cp %CP% genDBSchema.GenDBSchemaFromFiles -inputDir %INPUT_DIR% -outputSche
         <!-- localized in 9.7.x or later -->
         <ac:if>
             <or>
+                <and>
+                    <ac:isgreaterthan arg1="${MAJOR}" arg2="9"/>
+                </and>
+                <and>
+                    <ac:equals arg1="${MAJOR}" arg2="9"/>
+                    <ac:equals arg1="${MINOR}" arg2="7"/>
+                </and>
+                <and>
+                    <ac:equals arg1="${MAJOR}" arg2="9"/>
+                    <ac:isgreaterthan arg1="${MINOR}" arg2="7"/>
+                </and>
+                <!--
                 <ac:isgreaterthan arg1="${MAJOR}.${MINOR}.${RELEASE}" arg2="9.7.0000"/>
                 <ac:equals arg1="${MAJOR}.${MINOR}.${RELEASE}" arg2="9.7.0000"/>
+                -->
             </or>
             <then>
                 <antcall target="make-EnvisionControls_CAB_DE"/>
@@ -1062,6 +1075,9 @@ java -cp %CP% genDBSchema.GenDBSchemaFromFiles -inputDir %INPUT_DIR% -outputSche
         <!-- localized in 9.7.x or later -->
         <ac:if>
             <or>
+                <and>
+                    <ac:isgreaterthan arg1="${MAJOR}" arg2="9"/>
+                </and>
                 <and>
                     <ac:equals arg1="${MAJOR}" arg2="9"/>
                     <ac:equals arg1="${MINOR}" arg2="7"/>
@@ -1110,6 +1126,8 @@ java -cp %CP% genDBSchema.GenDBSchemaFromFiles -inputDir %INPUT_DIR% -outputSche
         9.10.0 or later, we switch back and use Release for English. -->
         <ac:if>
             <!-- 9.7.0 thru 9.9.x, localization with ReleaseEnglish -->
+            <!-- TODO break this out into MAJOR and MINOR and make it work for
+            10.0 like everywhere else. -timc 12/09/2009 -->
             <and>
                 <or>
                     <ac:equals arg1="${MAJOR}.${MINOR}.${RELEASE}" arg2="9.7.0000"/>
@@ -1287,8 +1305,11 @@ java -cp %CP% genDBSchema.GenDBSchemaFromFiles -inputDir %INPUT_DIR% -outputSche
         <antcall target="commit-all"/>
         <antcall target="email-build-complete"/>
         <antcall target="tag-build"/>
-        <antcall target="move-workdir-postbuild"/>
+        <!-- note: I swapped "end" and "move-workdir-postbuild" so that the
+        semaphore file can be written to the wc_dir (working copy) before
+        mangling the wc_dir's name. -timc 12/09/2009 -->
         <antcall target="end"/>
+        <antcall target="move-workdir-postbuild"/>
     </target>
 
     <!-- ================================================================= -->

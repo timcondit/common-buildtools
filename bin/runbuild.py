@@ -185,7 +185,7 @@ class BuildRunner(object):
                 # runbuild.py would need to get the revision number from
                 # somewhere. -timc 1/2/2009
                 semaphore = self.bp.next + '_SUCCESS'
-                sem_file = os.path.join(self.bp.wc_dir, '..', semaphore)
+                sem_file = os.path.join(self.bp.wc_dir, semaphore)
 
                 #
                 # CAUTION
@@ -315,6 +315,27 @@ class BuildProperties(object):
         self.unittests_dir = None
         self.major = self.minor = self.patch = self.bn = None
         self.p_major = self.p_minor = self.p_patch = self.p_bn = None
+
+        #
+        # TODO get this working and use it in build.xml in place of this
+        # stuff.
+        #
+        #    <target name="email-build-complete" depends="get-head-revision">
+        #        <!-- TODO add tolist to runbuild.py -timc 11/21/2009 -->
+        #        <mail from="buildmgr@envisioninc.com"
+        #            tolist="timc@envisioninc.com"
+        #            mailhost="corpserv04.acme.envisiontelephony.com"
+        #            subject="${version.servicepack} build ${version.product} (r${repository.revision}) results"
+        #            encoding="plain">
+        #            <message>
+        #Build is here: ${dir.products.converted}\${version.product}
+        #Log file is here: ${dir.projects.converted}\logs\build_${version.product}.xml
+        #
+        #
+        #Compiled from source revision ${repository.revision}
+        #            </message>
+        #        </mail>
+        #    </target>
 
         # CAREFUL HERE: this is a dynamic dictionary, so it might work well,
         # or it might bring 'da pain.  The idea is to allow the list of
