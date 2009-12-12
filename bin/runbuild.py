@@ -185,7 +185,7 @@ class BuildRunner(object):
                 # runbuild.py would need to get the revision number from
                 # somewhere. -timc 1/2/2009
                 semaphore = self.bp.next + '_SUCCESS'
-                sem_file = os.path.join(self.bp.wc_dir, semaphore)
+                sem_file = os.path.join(self.bp.wc_dir, '..', semaphore)
 
                 #
                 # CAUTION
@@ -412,9 +412,14 @@ class BuildProperties(object):
             # one.
             print("[default] setting %s=%s" % ('lkg_file', self.lkg_file))
 
+        # previous
+        if self.lkg_file is not None and self.previous is None:
+            self.previous = self._parse_buildfile()
+            print("[DEBUG] self.previous=%s" % self.previous)
+
         # next!
         if self.lkg_file is not None and self.next is None:
-            # FIXME - lkg.txt is the value of the LAST build, not the next
+            # FIXME - lkg.txt is the value of the PREVIOUS build, not the next
             # one.
             car, cdr = self._parse_buildfile().rsplit('.', 1)
             cdr = int(cdr) + 1
