@@ -409,7 +409,7 @@
         <!-- TODO Check if the semaphore file already exists.  This could
         indicate trouble.  (But isn't it too late by this point?) -->
         <!-- See the 'after' method of runbuild.py for details about this. -->
-        <echo file="${dir.build}/${version.product}_SUCCESS"/>
+        <echo file="${dir.build}/../${version.product}_SUCCESS"/>
         <!-- restart virus protection -->
         <exec dir="${dir.bin}" executable="cmd.exe" vmlauncher="false" failonerror="false">
             <arg line="/c startsym.bat"/>
@@ -527,6 +527,11 @@
             <equals arg1="${dir.build.present}" arg2="true"/>
             <then>
                 <echo message="moving ${dir.build} to ${dir.postbuild}"/>
+                <!-- TODO WHY am I copying the build dir this way???  I seem
+                to recall it may have something to do with a race condition,
+                where doing the move with an Ant task runs into trouble.  Or
+                it may be that the Ant move task just doesn't work reliably on
+                Windows.  -timc 12/10/2009 -->
                 <exec dir="${basedir}" executable="cmd.exe" vmlauncher="false" failonerror="true">
                     <arg line="/c move ${dir.build} ${dir.postbuild}"/>
                 </exec>
