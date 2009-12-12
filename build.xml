@@ -1379,6 +1379,7 @@ java -cp %CP% genDBSchema.GenDBSchemaFromFiles -inputDir %INPUT_DIR% -outputSche
         <!-- TODO set here at least temporarily -->
         <antcall target="set-conditional-properties"/>
         <antcall target="make-CPP"/>
+        <antcall target="sign-EnvisionControls_CAB"/>
     </target>
 </project>
 

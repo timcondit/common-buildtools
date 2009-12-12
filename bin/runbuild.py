@@ -200,7 +200,7 @@ class BuildRunner(object):
                 if os.path.exists(sem_file):
                     print("[INFO] found semaphore %s" % sem_file)
                     f=open(self.bp.lkg_file, 'a')
-                    f.write(self.options.next)
+                    f.write(self.bp.next)
                     f.write("\n")
                 else: # build SUCCESS, notification FAILURE
                     print("build succeeded but semaphore %s does not exist?" % sem_file)
@@ -211,7 +211,7 @@ class BuildRunner(object):
             build_success=False
         # send status mail
         print("[INFO] This is where we send status mail: %s %s" %
-                (self.options.next, build_success))
+                (self.bp.next, build_success))
 
 
     def usage(self):
