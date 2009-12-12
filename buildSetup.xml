@@ -52,6 +52,9 @@
         <ac:if>
             <or>
                 <and>
+                    <ac:isgreaterthan arg1="${MAJOR}" arg2="9"/>
+                </and>
+                <and>
                     <ac:equals arg1="${MAJOR}" arg2="9"/>
                     <ac:equals arg1="${MINOR}" arg2="6"/>
                 </and>
@@ -72,6 +75,9 @@
         <!-- 9.8.x -->
         <ac:if>
             <or>
+                <and>
+                    <ac:isgreaterthan arg1="${MAJOR}" arg2="9"/>
+                </and>
                 <and>
                     <ac:equals arg1="${MAJOR}" arg2="9"/>
                     <ac:equals arg1="${MINOR}" arg2="8"/>
