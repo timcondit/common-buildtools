@@ -1303,6 +1303,7 @@ java -cp %CP% genDBSchema.GenDBSchemaFromFiles -inputDir %INPUT_DIR% -outputSche
 
     <!-- build, run, and publish the unit test results -->
     <target name="publish-unit-test-results"
+        depends="set-conditional-properties"
         description="Publishes the results of the unit tests">
         <!-- publish the results for the c# unit tests -->
         <ant antfile="unitTests.xml" dir="." target="publish-CSUnitTests"/>
