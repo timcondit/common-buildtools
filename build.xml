@@ -1345,8 +1345,8 @@ java -cp %CP% genDBSchema.GenDBSchemaFromFiles -inputDir %INPUT_DIR% -outputSche
         <!-- TODO break this out into setup and publish targets -->
         <antcall target="setup-installers"/>
         <antcall target="commit-all"/>
-        <antcall target="email-build-complete"/>
         <antcall target="publish-unit-test-results"/>
+        <antcall target="email-build-complete"/>
         <antcall target="tag-build"/>
         <!-- note: I swapped "end" and "move-workdir-postbuild" so that the
         semaphore file can be written to the wc_dir (working copy) before
