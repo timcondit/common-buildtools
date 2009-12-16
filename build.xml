@@ -604,7 +604,7 @@
         <mail from="buildmgr@envisioninc.com"
             tolist="engineering@envisioninc.com,timc@envisioninc.com"
             mailhost="corpserv04.acme.envisiontelephony.com"
-            subject="${version.servicepack} build ${version.product} (r${repository.revision}) results"
+            subject="build results, ${version.product} (r${repository.revision})"
             encoding="plain">
             <message>
 Build is here: ${dir.products.converted}\${version.product}
