@@ -617,11 +617,11 @@ Compiled from source revision ${repository.revision}
 ===========================================================
 C# Unit Tests Results
 
-Complete log here: ${dir.projects.converted}\unittests\${version.product}_verbose.xml
-===========================================================
 ${unittest.csharpresults}
 
 
+Complete log here: ${dir.projects.converted}\unittests\${version.product}_verbose.xml
+===========================================================
             </message>
         </mail>
     </target>
