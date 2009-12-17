@@ -536,10 +536,12 @@
             dest="${dir.workdir}/AudioMining"/>
         <unjar src="${dir.sdk}/Nuance/EnvisionGerman.zip"
             dest="${dir.workdir}/AudioMining"/>
-        <unjar src="${dir.sdk}/Nuance/EnvisionSpanish.zip"
-            dest="${dir.workdir}/AudioMining"/>
-        <unjar src="${dir.sdk}/Nuance/EnvisionSpanishLA.zip"
-            dest="${dir.workdir}/AudioMining"/>
+        <exec dir="${dir.bin}" executable="7za.exe" vmlauncher="false" failonerror="false">
+            <arg line="x ${dir.sdk}/Nuance/EnvisionSpanish.zip -o${dir.workdir}/AudioMining"/>
+        </exec>
+        <exec dir="${dir.bin}" executable="7za.exe" vmlauncher="false" failonerror="false">
+            <arg line="x ${dir.sdk}/Nuance/EnvisionSpanishLA.zip -o${dir.workdir}/AudioMining"/>
+        </exec>
     </target>
 
     <!-- ================================================================= -->
