@@ -336,6 +336,7 @@ class BuildProperties(object):
         #            </message>
         #        </mail>
         #    </target>
+        self.mail_to = None
 
         # CAREFUL HERE: this is a dynamic dictionary, so it might work well,
         # or it might bring 'da pain.  The idea is to allow the list of
@@ -487,6 +488,11 @@ class BuildProperties(object):
         if not self.source_url.lower().startswith(BRANCHES_BASE):
             # os.path.join() uses backslashes on Windows, but that's wrong here!
             self.source_url = BRANCHES_BASE + r'/%s' % self.source_url
+            print("[default] setting %s=%s" % ('source_url', self.source_url))
+
+        if self.mail_to is None:
+            self.mail_to = "engineering@envisioninc.com,timc@envisioninc.com"
+            print("[default] setting %s=%s" % ('mail_to', self.mail_to))
 
 
     def _check_missing(self):
@@ -555,6 +561,7 @@ class BuildProperties(object):
         antcall += self._pprint('-listener=org.apache.tools.ant.XmlLogger ', p)
         antcall += self._pprint('-DXmlLogger.file=%s ' % self.log_file, p)
         antcall += self._pprint('-Dant.XmlLogger.stylesheet.uri=%s ' % self.log_xsl, p)
+        antcall += self._pprint('-Dmail.to="%s" ' % self.mail_to, p)
         # last one is not pretty-printed
         try:
             for arg in self.pass_thru_args:

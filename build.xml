@@ -602,7 +602,7 @@
     <target name="email-build-complete" depends="get-head-revision">
         <!-- TODO add tolist to runbuild.py -timc 11/21/2009 -->
         <mail from="buildmgr@envisioninc.com"
-            tolist="engineering@envisioninc.com,timc@envisioninc.com"
+            tolist="${mail.to}"
             mailhost="corpserv04.acme.envisiontelephony.com"
             subject="build results, ${version.product} (r${repository.revision})"
             encoding="plain">
@@ -1351,8 +1351,8 @@ java -cp %CP% genDBSchema.GenDBSchemaFromFiles -inputDir %INPUT_DIR% -outputSche
         <!-- note: I swapped "end" and "move-workdir-postbuild" so that the
         semaphore file can be written to the wc_dir (working copy) before
         mangling the wc_dir's name. -timc 12/09/2009 -->
-        <antcall target="end"/>
         <antcall target="move-workdir-postbuild"/>
+        <antcall target="end"/>
     </target>
 
     <!-- ================================================================= -->
