@@ -561,7 +561,9 @@ class BuildProperties(object):
         antcall += self._pprint('-listener=org.apache.tools.ant.XmlLogger ', p)
         antcall += self._pprint('-DXmlLogger.file=%s ' % self.log_file, p)
         antcall += self._pprint('-Dant.XmlLogger.stylesheet.uri=%s ' % self.log_xsl, p)
-        antcall += self._pprint('-Dmail.to="%s" ' % self.mail_to, p)
+        # NB: if there is more than one email address, the whole string must
+        # be wrapped in "double quotes" before it gets here.
+        antcall += self._pprint('-Dmail.to=%s ' % self.mail_to, p)
         # last one is not pretty-printed
         try:
             for arg in self.pass_thru_args:
