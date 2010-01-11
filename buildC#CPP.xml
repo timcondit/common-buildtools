@@ -122,6 +122,7 @@
             </or>
             <then>
                 <antcall target="make-DeployAnalyticsTool"/>
+                <antcall target="sign-AnalyticsResources"/>
                 <antcall target="sign-AnalyticsUtilities"/>
             </then>
         </ac:if>
@@ -421,19 +422,15 @@
     <!-- NB: this target depends on WMEncoder.exe being installed on the build
     machine.  It's available locally at
     \\Bigfoot\Engineering\Software\Installs\WindowsMediaEncoder9 -->
-    <!-- ORIGIN: from 9.6 (?) -->
-    <!-- In buildtools/branches/9.0/SP4/base/buildC#CPP.xml this is marked
-    "Maya only" -->
     <target name="make-WMWrapperService" depends="register-NCT-binaries" description="Makes Windows Media wrapper service for Centricity">
         <exec dir="${dir.build}" executable="${compiler.cpp}" vmlauncher="false" failonerror="true">
-            <arg line="/build Release ${dir.src}/winservices/WMWrapperService/WMWrapperService.csproj /out ${dir.build}/BuildLog.txt"/>
+            <arg line="/build Release ${dir.src}/winservices/WMWrapperService/WMWrapperService.sln /out ${dir.build}/BuildLog.txt"/>
         </exec>
     </target>
 
     <!-- ================================================================= -->
     <!-- Register NCT binaries (for use with WMWrapperService)             -->
     <!-- ================================================================= -->
-    <!-- ORIGIN: from 9.6 (?) -->
     <target name="register-NCT-binaries">
         <!-- Don't fail on error.  The binaries may already be registered. -->
         <apply executable="regsvr32" relative="true" dir="${dir.src}/winservices/WMWrapperService/Redist">
@@ -466,8 +463,6 @@
     . \\Bigfoot\Engineering\Software\MICROSOFT\VS2005Pro-SP1
     . \\Bigfoot\Engineering\Software\MICROSOFT\VS2005 Addins\webdeploymentsetup.msi
     . ASPAJAXExtSetup.msi [ASP.NET 2.0 AJAX Extensions 1.0] -->
-
-    <!-- ORIGIN: from 9.6 (?) -->
     <target name="make-Centricity" description="Makes Centricity web app">
         <exec dir="${dir.build}" executable="${compiler.cpp}" vmlauncher="false" failonerror="true">
             <arg line="/build Production ${dir.src}/clients/centricity/Centricity.sln /out ${dir.build}/BuildLog.txt"/>
@@ -482,26 +477,12 @@
     the same location to simplify the dependencies.  The simplest thing that
     works here is to add make-Centricity as a dependency.  We need most of
     Centricity except for the deployment piece here, but I'd rather not cause
-    Centricity to be redeployed just to build data mining.  It'll stay for
+    Centricity to be redeployed just to build audio mining.  It'll stay for
     now. -timc 2/5/2009 -->
-
-    <!-- ORIGIN: from 9.8 -->
     <target name="make-Speech" depends="make-Centricity" description="Makes SpeechServerService and SpeechProcessingClient">
         <!-- dependency 1: AudioMiningRemotable -->
         <exec dir="${dir.build}" executable="${compiler.cpp}" vmlauncher="false" failonerror="true">
-            <arg line="/build Release ${dir.src}/winservices/AudioMining/AudioMiningRemotable/AudioMiningRemotable.csproj /out ${dir.build}/BuildLog.txt"/>
-        </exec>
-        <!-- dependency 2: StateMachineLib -->
-        <exec dir="${dir.build}" executable="${compiler.cpp}" vmlauncher="false" failonerror="true">
-            <arg line="/build Release ${dir.src}/winservices/AudioMining/StateMachineLib/StateMachineLib.csproj /out ${dir.build}/BuildLog.txt"/>
-        </exec>
-        <!-- Server -->
-        <exec dir="${dir.build}" executable="${compiler.cpp}" vmlauncher="false" failonerror="true">
-            <arg line="/build Release ${dir.src}/winservices/AudioMining/AudioMiningServer/AudioMiningServer.csproj /out ${dir.build}/BuildLog.txt"/>
-        </exec>
-        <!-- Client -->
-        <exec dir="${dir.build}" executable="${compiler.cpp}" vmlauncher="false" failonerror="true">
-            <arg line="/build Release ${dir.src}/winservices/AudioMining/AudioMiningClient/AudioMiningClient.csproj /out ${dir.build}/BuildLog.txt"/>
+            <arg line="/build Release ${dir.src}/winservices/AudioMining.sln /out ${dir.build}/BuildLog.txt"/>
         </exec>
     </target>
 
@@ -509,7 +490,6 @@
     <!-- Make, sign, and publish Centricity AV Player (Click Once)         -->
     <!-- ================================================================= -->
     <!-- timc: Do we need this any longer? -->
-    <!-- ORIGIN: from 9.6 (?) -->
     <target name="publish-AVPlayer" description="Publishes Centricity AVPlayer (Click Once) using MSBuild">
         <exec dir="${dir.build}" executable="${compiler.msbuild}" vmlauncher="false" failonerror="true">
             <arg line="/target:publish ${dir.src}/clients/AVPlayer/AVPlayer.csproj /property:Configuration=Release;PublishDir=${dir.workdir}/AVPlayer/ /l:FileLogger,Microsoft.Build.Engine;logfile=${dir.build}/BuildLog.txt;append=true"/>
@@ -520,7 +500,6 @@
     <!-- Make, sign, and publish RecordingDownloadTool (Click Once)        -->
     <!-- ================================================================= -->
     <!-- timc: Do we need this any longer? -->
-    <!-- ORIGIN: from 9.6 (?) -->
     <target name="publish-RecordingDownloadTool" description="Publishes Centricity RecordingDownloadTool (Click Once) using MSBuild">
         <exec dir="${dir.build}" executable="${compiler.msbuild}" vmlauncher="false" failonerror="true">
             <arg line="/target:publish ${dir.src}/clients/RecordingDownloadTool/RecordingDownloadTool.csproj /property:Configuration=Release;PublishDir=${dir.workdir}/RecordingDownloadTool/ /l:FileLogger,Microsoft.Build.Engine;logfile=${dir.build}/BuildLog.txt;append=true"/>
@@ -540,14 +519,12 @@
     <!-- ================================================================= -->
     <!-- Make and sign EnvisionCLR (includes DeployAnalyticsTool)          -->
     <!-- ================================================================= -->
-    <!-- ORIGIN: from 9.6 (?) -->
     <target name="make-EnvisionCLR" description="Makes EnvisionCLR.dll for use with RDL files">
         <exec dir="${dir.build}" executable="${compiler.cpp}" vmlauncher="false" failonerror="true">
-            <arg line="/build Release ${dir.src}/clients/centricity/Analytics/EnvisionCLR/EnvisionCLR.csproj /out ${dir.build}/BuildLog.txt"/>
+            <arg line="/build Release ${dir.src}/clients/centricity/Analytics/EnvisionCLR/EnvisionCLR.sln /out ${dir.build}/BuildLog.txt"/>
         </exec>
     </target>
 
-    <!-- ORIGIN: from 9.6 (?) -->
     <target name="sign-EnvisionCLR" depends="make-EnvisionCLR" description="Digitally signs EnvisionCLR.dll to verify its authenticity.">
         <!-- NB: don't forget the ${basedir}! -->
         <exec dir="${dir.build}" executable="${basedir}/${signtool}" vmlauncher="false" failonerror="true">
@@ -562,15 +539,45 @@
     <!-- This thing is related to EnvisionCLR.dll somehow.  From prn19849 -
     created AnalyticsResources project for localizing Analytics resource
     templates.  Clay or Gurjit can answer any questions. :) -->
-    <!-- ORIGIN: from 9.7 (trunk r5075, prn19849) -->
+    <!--
     <target name="make-AnalyticsResources" description="Makes EnvisionAnalyticsResources.dll for use with RDL files">
         <exec dir="${dir.build}" executable="${compiler.cpp}" vmlauncher="false" failonerror="true">
             <arg line="/build Release ${dir.src}/clients/centricity/Analytics/AnalyticsResources/AnalyticsResources.csproj /out ${dir.build}/BuildLog.txt"/>
         </exec>
     </target>
 
-    <!-- ORIGIN: from 9.6 (?) -->
     <target name="sign-AnalyticsResources" depends="make-AnalyticsResources" description="Digitally signs EnvisionAnalyticsResources.dll to verify its authenticity.">
+        -->
+        <!-- NB: don't forget the ${basedir}! -->
+        <!--
+        <exec dir="${dir.build}" executable="${basedir}/${signtool}" vmlauncher="false" failonerror="true">
+            -->
+            <!-- /f ${dir.build}/setup/Signature/myprivatecert.pfx -->
+            <!--
+            <arg line="sign /a /f ${file.pfx} /p ${signtool.password} /t ${signtool.timestampurl} ${dir.src}/clients/Centricity/Analytics/AnalyticsResources/obj/Release/EnvisionAnalyticsResources.dll"/>
+        </exec>
+    </target>
+    -->
+
+    <!-- ================================================================= -->
+    <!-- Make DeployAnalyticsTool                                          -->
+    <!-- ================================================================= -->
+    <!--
+    <target name="make-DeployAnalyticsTool" depends="sign-AnalyticsResources" description="TODO">
+        -->
+    <target name="make-DeployAnalyticsTool" description="TODO">
+        <exec dir="${dir.build}" executable="${compiler.cpp}" vmlauncher="false" failonerror="true">
+            <arg line="/build Release ${dir.src}/clients/centricity/Analytics/DeployAnalyticsTool/DeployAnalyticsTool.sln /out ${dir.build}/BuildLog.txt"/>
+        </exec>
+    </target>
+
+    <!-- ================================================================= -->
+    <!-- Sign AnalyticsResources                                           -->
+    <!-- ================================================================= -->
+    <!-- AnalyticsResources is compiled in make-DeployAnalyticsTool.
+    Originally I had a make-AnalyticsResources target, which compiled
+    AnalyticsResources.csproj, but it's redundant. -->
+    <target name="sign-AnalyticsResources" depends="make-DeployAnalyticsTool" description="Digitally signs EnvisionAnalyticsResources.dll to verify its authenticity.">
         <!-- NB: don't forget the ${basedir}! -->
         <exec dir="${dir.build}" executable="${basedir}/${signtool}" vmlauncher="false" failonerror="true">
             <!-- /f ${dir.build}/setup/Signature/myprivatecert.pfx -->
@@ -579,26 +586,14 @@
     </target>
 
     <!-- ================================================================= -->
-    <!-- Make DeployAnalyticsTool                                          -->
-    <!-- ================================================================= -->
-    <!-- ORIGIN: from 9.6 (?) -->
-    <target name="make-DeployAnalyticsTool" depends="sign-AnalyticsResources" description="TODO">
-        <exec dir="${dir.build}" executable="${compiler.cpp}" vmlauncher="false" failonerror="true">
-            <arg line="/build Release ${dir.src}/clients/centricity/Analytics/DeployAnalyticsTool/DeployAnalyticsTool.csproj /out ${dir.build}/BuildLog.txt"/>
-        </exec>
-    </target>
-
-    <!-- ================================================================= -->
     <!-- Make and sign AnalyticsUtilities                                  -->
     <!-- ================================================================= -->
-    <!-- ORIGIN: from 9.6 (?) -->
     <target name="make-AnalyticsUtilities" description="Makes EnvisionAnalyticsUtilities.dll for use with RDL files">
         <exec dir="${dir.build}" executable="${compiler.cpp}" vmlauncher="false" failonerror="true">
-            <arg line="/build Release ${dir.src}/clients/centricity/Analytics/AnalyticsUtilities/AnalyticsUtilities.csproj /out ${dir.build}/BuildLog.txt"/>
+            <arg line="/build Release ${dir.src}/clients/centricity/Analytics/AnalyticsUtilities/AnalyticsUtilities.sln /out ${dir.build}/BuildLog.txt"/>
         </exec>
     </target>
 
-    <!-- ORIGIN: from 9.6 (?) -->
     <target name="sign-AnalyticsUtilities" depends="make-AnalyticsUtilities" description="Digitally signs EnvisionAnalyticsUtilities.dll to verify its authenticity.">
         <!-- NB: don't forget the ${basedir}! -->
         <exec dir="${dir.build}" executable="${basedir}/${signtool}" vmlauncher="false" failonerror="true">
@@ -610,7 +605,6 @@
     <!-- ================================================================= -->
     <!-- Make AGMS                                                         -->
     <!-- ================================================================= -->
-    <!-- ORIGIN: pre-SVN -->
     <target name="make-AGMS" description="Makes AGMS using devenv.exe">
         <exec dir="${dir.build}" executable="${compiler.cpp}" vmlauncher="false" failonerror="true">
             <arg line="/build Release ${dir.src}/tools/AGMS/AGMS.sln /out ${dir.build}/BuildLog.txt"/>
@@ -620,7 +614,6 @@
     <!-- ================================================================= -->
     <!-- Make ADIT                                                         -->
     <!-- ================================================================= -->
-    <!-- ORIGIN: pre-SVN -->
     <target name="make-ADIT" description="Makes ADIT using devenv.exe">
         <exec dir="${dir.build}" executable="${compiler.cpp}" vmlauncher="false" failonerror="true">
             <arg line="/build Release ${dir.src}/tools/ADIT/Gold/ADIT.sln /out ${dir.build}/BuildLog.txt"/>
@@ -630,7 +623,6 @@
     <!-- ================================================================= -->
     <!-- Make DADI                                                         -->
     <!-- ================================================================= -->
-    <!-- ORIGIN: from 9.6 (?) -->
     <!-- It's not in buildtools/branches/9.0/SP4/base/buildC#CPP.xml -->
     <target name="make-DADI" description="Makes DADI using devenv.com">
         <exec dir="${dir.build}" executable="${compiler.cpp}" vmlauncher="false" failonerror="true">
@@ -641,7 +633,6 @@
     <!-- ================================================================= -->
     <!-- Make TSAPI                                                        -->
     <!-- ================================================================= -->
-    <!-- ORIGIN: pre-SVN -->
     <target name="make-TSAPI" description="Makes tsapi using devenv.exe">
         <exec dir="${dir.build}" executable="${compiler.cpp}" vmlauncher="false" failonerror="true">
             <arg line="/build Release ${dir.src}/contactsources/tsapi/Tsapi.vcproj /out ${dir.build}/BuildLog.txt"/>
@@ -651,27 +642,24 @@
     <!-- ================================================================= -->
     <!-- make-DBMigration                                                  -->
     <!-- ================================================================= -->
-    <!-- ORIGIN: pre-SVN -->
     <target name="make-DBMigration" description="Makes DBMigrationWizard.exe">
         <exec dir="${dir.build}" executable="${compiler.cpp}" vmlauncher="false" failonerror="true">
-            <arg line="/build Release ${dir.src}/tools/DBMigration/DBMIGRATIONWIZARD/DBMigrationWizard.csproj /out ${dir.build}/BuildLog.txt"/>
+            <arg line="/build Release ${dir.src}/tools/DBMigration/DBMIGRATIONWIZARD/DBMigrationWizard.sln /out ${dir.build}/BuildLog.txt"/>
         </exec>
     </target>
 
     <!-- ================================================================= -->
     <!-- Make Evaluation Consistency Check                                 -->
     <!-- ================================================================= -->
-    <!-- ORIGIN: pre-SVN -->
     <target name="make-EvaluationConsistencyCheck" description="Make EvaluationConsistencyCheck.exe (a database migration utility)">
         <exec dir="${dir.build}" executable="${compiler.cpp}" vmlauncher="false" failonerror="true">
-            <arg line="/build Release ${dir.src}/tools/EvaluationConsistencyCheck/EvaluationConsistencyCheck/evaluationconsistencycheck.csproj /out ${dir.build}/BuildLog.txt" />
+            <arg line="/build Release ${dir.src}/tools/EvaluationConsistencyCheck/EvaluationConsistencyCheck.sln /out ${dir.build}/BuildLog.txt" />
         </exec>
     </target>
 
     <!-- ================================================================= -->
     <!-- Make CSTA Loader                                                   -->
     <!-- ================================================================= -->
-    <!-- ORIGIN: pre-SVN -->
     <!-- TODO are we using these? -timc 5/27/2009 -->
     <target name="make-cstaLoader" description="Makes cstaLoader using devenv.exe">
         <exec dir="${dir.build}" executable="${compiler.cpp}" vmlauncher="false" failonerror="true">
@@ -697,7 +685,6 @@
     <!-- ================================================================= -->
     <!-- Make BI Portal                                                    -->
     <!-- ================================================================= -->
-    <!-- ORIGIN: pre-SVN -->
     <target name="make-Portal_CS" description="Makes BI Portal using devenv.exe">
         <exec dir="${dir.build}" executable="${compiler.cpp}" vmlauncher="false" failonerror="true">
             <arg line="/build Release ${dir.src}/clients/portal/portal.csproj /out ${dir.build}/BuildLog.txt"/>
@@ -707,7 +694,6 @@
     <!-- ================================================================= -->
     <!-- Make BI Tagging Client                                            -->
     <!-- ================================================================= -->
-    <!-- ORIGIN: pre-SVN -->
     <target name="make-TaggingClient_CS" description="Makes BI Tagging Client using devenv.exe">
         <exec dir="${dir.build}" executable="${compiler.cpp}" vmlauncher="false" failonerror="true">
             <arg line="/build Release ${dir.src}/clients/taggingclient/TaggingClient.csproj /out ${dir.build}/BuildLog.txt"/>
@@ -717,7 +703,6 @@
     <!-- ================================================================= -->
     <!-- Make BI Finder Client                                             -->
     <!-- ================================================================= -->
-    <!-- ORIGIN: pre-SVN -->
     <target name="make-FinderClient_CS" description="Makes BI Finder Client using devenv.exe">
         <exec dir="${dir.build}" executable="${compiler.cpp}" vmlauncher="false" failonerror="true">
             <arg line="/build Release ${dir.src}/clients/finder/finderclient.csproj /out ${dir.build}/BuildLog.txt"/>
@@ -727,7 +712,6 @@
     <!-- ================================================================= -->
     <!-- Make BI Call Tagger                                               -->
     <!-- ================================================================= -->
-    <!-- ORIGIN: pre-SVN -->
     <target name="make-CallTagger_CS" description="Makes BI Call Tagger using devenv.exe">
         <exec dir="${dir.build}" executable="${compiler.cpp}" vmlauncher="false" failonerror="true">
             <arg line="/build Release ${dir.src}/apis/bi/com/et/bi/api/tagger/ETCallTagger.csproj /out ${dir.build}/BuildLog.txt"/>
@@ -738,17 +722,15 @@
     <!-- Make C# Server                                                    -->
     <!-- ================================================================= -->
     <!-- NB: The project is corearch in Acme, and server in Maya -->
-    <!-- ORIGIN: pre-SVN -->
     <target name="make-Server_CS" description="Makes Server.dll using devenv.exe">
         <exec dir="${dir.build}" executable="${compiler.cpp}" vmlauncher="false" failonerror="true">
-            <arg line="/build Release ${dir.src}/server/server.csproj /out ${dir.build}/BuildLog.txt"/>
+            <arg line="/build Release ${dir.src}/server/server.sln /out ${dir.build}/BuildLog.txt"/>
         </exec>
     </target>
 
     <!-- ================================================================= -->
     <!-- Make C# APICommon.dll                                             -->
     <!-- ================================================================= -->
-    <!-- ORIGIN: pre-SVN -->
     <target name="make-APICommon_CS" description="Makes APICommon.dll using devenv.exe">
         <exec dir="${dir.build}" executable="${compiler.cpp}" vmlauncher="false" failonerror="true">
             <arg line="/build Release ${dir.src}/apis/bi/com/et/bi/api/common/APICommon.csproj /out ${dir.build}/BuildLog.txt"/>
@@ -758,7 +740,6 @@
     <!-- ================================================================= -->
     <!-- Make C# finder.dll                                                -->
     <!-- ================================================================= -->
-    <!-- ORIGIN: pre-SVN -->
     <target name="make-Finder_CS" description="Makes finder.dll using devenv.exe">
         <exec dir="${dir.build}" executable="${compiler.cpp}" vmlauncher="false" failonerror="true">
             <arg line="/build Release ${dir.src}/apis/bi/com/et/bi/api/finder/finder.csproj /out ${dir.build}/BuildLog.txt"/>
@@ -768,7 +749,6 @@
     <!-- ================================================================= -->
     <!-- Make C# TaggerWrapperService.dll                                  -->
     <!-- ================================================================= -->
-    <!-- 9.6.x and earlier -->
     <target name="make-TaggerWrapperService_CS" description="Makes TaggerWrapperService.dll using devenv.exe">
         <exec dir="${dir.build}" executable="${compiler.cpp}" vmlauncher="false" failonerror="true">
             <arg line="/build Release ${dir.src}/apis/bi/com/et/bi/api/tagger/wrapperservice/TaggerWrapperService.csproj /out ${dir.build}/BuildLog.txt"/>
@@ -778,7 +758,6 @@
     <!-- ================================================================= -->
     <!--  Make ctcLoader7.0                                                -->
     <!-- ================================================================= -->
-    <!-- since 9.0 SP2 -->
     <target name="make-ctcLoader7.0" description="Makes ctcLoader7.0 using devenv.exe">
         <exec dir="${dir.build}" executable="${compiler.cpp}" vmlauncher="false" failonerror="true">
             <arg line="/build Release ${dir.src}/contactsources/netmerge/ctcLoader_7_0/ctcLoader.vcproj /out ${dir.build}/BuildLog.txt"/>
@@ -788,7 +767,6 @@
     <!-- ================================================================= -->
     <!--  Make ctcLoader6.0                                                -->
     <!-- ================================================================= -->
-    <!-- ORIGIN: pre-SVN -->
     <target name="make-ctcLoader6.0" description="Makes ctcLoader6.0 using devenv.exe">
         <exec dir="${dir.build}" executable="${compiler.cpp}" vmlauncher="false" failonerror="true">
             <arg line="/build Release ${dir.src}/contactsources/netmerge/ctcLoader_6_0/ctcLoader_6_0.vcproj /out ${dir.build}/BuildLog.txt"/>
@@ -816,17 +794,15 @@
     This is used for email integrations.  This is a class of components that
     just needs to be built once when we change toolset (compiler version)."
     -->
-    <!-- ORIGIN: pre-SVN -->
     <target name="make-hook" description="Makes hook.dll using devenv.exe">
         <exec dir="${dir.build}" executable="${compiler.cpp}" vmlauncher="false" failonerror="true">
-            <arg line="/build Release ${dir.src}/clients/quality/agentsupport/monitoring/KanaDriver/dll/hook.vcproj /out ${dir.build}/BuildLog.txt"/>
+            <arg line="/build Release ${dir.src}/clients/quality/agentsupport/monitoring/KanaDriver/dll/hook.sln /out ${dir.build}/BuildLog.txt"/>
         </exec>
     </target>
 
     <!-- ================================================================= -->
     <!--  Make CiscoICM                                                    -->
     <!-- ================================================================= -->
-    <!-- ORIGIN: pre-SVN -->
     <target name="make-CiscoICM" description="Makes CiscoICM.dll using devenv.exe">
         <exec dir="${dir.build}" executable="${compiler.cpp}" vmlauncher="false" failonerror="true">
             <arg line="/build Release ${dir.src}/contactsources/ciscoicm/CiscoICM.vcproj /out ${dir.build}/BuildLog.txt"/>
@@ -836,12 +812,10 @@
     <!-- ================================================================= -->
     <!-- Make RegUtils                                                     -->
     <!-- ================================================================= -->
-    <!-- ORIGIN: pre-SVN -->
     <target name="make-RegUtils" description="Makes RegUtils.lib using devenv.exe">
         <exec dir="${dir.build}" executable="${compiler.cpp}" vmlauncher="false" failonerror="true">
             <arg line="/build Release ${dir.src}/clients/quality/regutils/regutils.vcproj /out ${dir.build}/BuildLog.txt"/>
         </exec>
-        <!-- TODO WTF? -->
         <!-- TODO are we using this? -timc 5/27/2009 -->
         <exec dir="${dir.build}" executable="${compiler.cpp}" vmlauncher="false" failonerror="true">
             <arg line="/build Debug ${dir.src}/clients/quality/regutils/regutils.vcproj"/>
@@ -851,7 +825,6 @@
     <!-- ================================================================= -->
     <!--  Make SmartAgentErrs                                              -->
     <!-- ================================================================= -->
-    <!-- ORIGIN: pre-SVN -->
     <target name="make-SmartAgentErrs" description="Makes SmartAgentErrs.dll using devenv.exe">
         <exec dir="${dir.src}/clients/quality/agentsupport/smartagenterrs" executable="${compiler.message}" vmlauncher="false" failonerror="true">
             <arg line="-v -c -s -h ..\ -r .\ -x .\ -U smartagenterrs.mc" />
@@ -864,7 +837,6 @@
     <!-- ================================================================= -->
     <!--  Make AgentSupport                                                -->
     <!-- ================================================================= -->
-    <!-- ORIGIN: pre-SVN -->
     <!-- TODO organize this such that the languages are separable.  In other
     words, do it the same way EnvisionControls_CAB is done in build.xml. -->
     <!-- TODO macrodefs?  Maybe this should come after the previous TODO about
@@ -908,7 +880,6 @@
     reorganize the buildtools toward the goal of creating each product
     separately, this one will standalone.  IOW, it will not be a prerequisite
     compile for anything else (as far as I know). -->
-    <!-- ORIGIN: pre-SVN -->
     <target name="make-QualityMonitoring" depends="set-conditional-properties" description="Makes QM using devenv.exe">
         <!-- English -->
         <exec dir="${dir.build}" executable="${compiler.cpp}" vmlauncher="false" failonerror="true">
@@ -944,7 +915,6 @@
     <!-- ================================================================= -->
     <!--  Make eLearning                                                   -->
     <!-- ================================================================= -->
-    <!-- ORIGIN: pre-SVN -->
     <target name="make-eLearning" depends="set-conditional-properties" description="Makes eLearning using devenv.exe">
         <!-- English -->
         <exec dir="${dir.build}" executable="${compiler.cpp}" vmlauncher="false" failonerror="true">
@@ -980,12 +950,10 @@
     <!-- ================================================================= -->
     <!--  Make RO                                                          -->
     <!-- ================================================================= -->
-    <!-- ORIGIN: pre-SVN -->
     <target name="make-RO" description="Makes RO using devenv.exe">
         <exec dir="${dir.build}" executable="${compiler.cpp}" vmlauncher="false" failonerror="true">
             <arg line="/build Release ${dir.src}/server/ro/cpp/ro.vcproj /out ${dir.build}/BuildLog.txt"/>
         </exec>
-        <!-- TODO WTF? -->
         <!-- TODO are we using this? -timc 5/27/2009 -->
         <exec dir="${dir.build}" executable="${compiler.cpp}" vmlauncher="false" failonerror="true">
             <arg line="/build Debug ${dir.src}/server/ro/cpp/ro.vcproj"/>
@@ -995,17 +963,15 @@
     <!-- ================================================================= -->
     <!-- Make NativeServiceWin32                                           -->
     <!-- ================================================================= -->
-    <!-- ORIGIN: pre-SVN -->
     <target name="make-NativeServiceWin32" description="Makes NativeServiceWin32.dll using devenv.exe">
         <exec dir="${dir.build}" executable="${compiler.cpp}" vmlauncher="false" failonerror="true">
-            <arg line="/build Release ${dir.src}/server/nativeservicewin32/nativeServiceWin32.vcproj /out ${dir.build}/BuildLog.txt"/>
+            <arg line="/build Release ${dir.src}/server/nativeservicewin32/nativeServiceWin32.sln /out ${dir.build}/BuildLog.txt"/>
         </exec>
     </target>
 
     <!-- ================================================================= -->
     <!-- Make Administrator.exe                                            -->
     <!-- ================================================================= -->
-    <!-- ORIGIN: pre-SVN -->
     <target name="make-Administrator" description="Makes Administrator.exe using devenv.exe">
         <exec dir="${dir.build}" executable="${compiler.cpp}" vmlauncher="false" failonerror="true">
             <arg line="/build Release ${dir.src}/clients/admin/Administrator/Administrator.vcproj /out ${dir.build}/BuildLog.txt"/>
@@ -1015,7 +981,6 @@
     <!-- ================================================================= -->
     <!-- Make XFloorWnd.ocx                                                -->
     <!-- ================================================================= -->
-    <!-- ORIGIN: pre-SVN -->
     <target name="make-XFloorWnd" description="Makes XFloorWnd.ocx using devenv.exe">
         <exec dir="${dir.build}" executable="${compiler.cpp}" vmlauncher="false" failonerror="true">
             <arg line="/build Release ${dir.src}/clients/quality/xfloorwnd/XFloorWnd.vcproj /out ${dir.build}/BuildLog.txt"/>
@@ -1025,18 +990,16 @@
     <!-- ================================================================= -->
     <!--  Make Agent Automation                                            -->
     <!-- ================================================================= -->
-    <!-- ORIGIN: pre-SVN -->
     <target name="make-AgentAutomation" depends="set-conditional-properties" description="Makes AgentAutomation.dll using devenv.exe">
         <!-- English -->
         <exec dir="${dir.build}" executable="${compiler.cpp}" vmlauncher="false" failonerror="false">
-            <arg line="/build Release ${dir.src}/apis/automationapi/AgentAutomation.vcproj /out ${dir.build}/BuildLog.txt"/>
+            <arg line="/build Release ${dir.src}/apis/AgentAutomation.sln /out ${dir.build}/BuildLog.txt"/>
         </exec>
     </target>
 
     <!-- ================================================================= -->
     <!--  Make SharedResources DLL                                         -->
     <!-- ================================================================= -->
-    <!-- ORIGIN: pre-SVN -->
     <!-- Note the "logic": first we figure out if it's 9.6 or earlier.  Those
     are not localized, so they get English only.  Then we check if it's
     between 9.7.0 up to but not including 9.10.0.  Those use ReleaseEnglish
@@ -1120,7 +1083,6 @@
     <!-- ================================================================= -->
     <!--  Make and sign AgentX.ocx                                         -->
     <!-- ================================================================= -->
-    <!-- ORIGIN: pre-SVN -->
     <target name="make-AgentX_OCX" depends="set-conditional-properties" description="Makes AgentX.ocx using devenv.exe">
         <!-- English -->
         <exec dir="${dir.build}" executable="${compiler.cpp}" vmlauncher="false" failonerror="false">
@@ -1153,7 +1115,6 @@
         </ac:if>
     </target>
 
-    <!-- ORIGIN: pre-SVN -->
     <target name="sign-AgentX_OCX" depends="set-conditional-properties, make-AgentX_OCX" description="Digitally signs AgentX.ocx to verify its authenticity.">
         <!-- English -->
         <exec dir="${dir.build}" executable="${basedir}/${signtool}" vmlauncher="false" failonerror="true">
@@ -1190,14 +1151,12 @@
     <!-- ================================================================= -->
     <!--  Make and sign AgentAdherence.ocx                                 -->
     <!-- ================================================================= -->
-    <!-- ORIGIN: pre-SVN -->
     <target name="make-AgentAdherence_OCX" description="Makes AgentAdherence.ocx using devenv.exe">
         <exec dir="${dir.build}" executable="${compiler.cpp}" vmlauncher="false" failonerror="true">
             <arg line="/build Release ${dir.src}/clients/wfm/agentadherence/AgentAdherence.vcproj /out ${dir.build}/BuildLog.txt"/>
         </exec>
     </target>
 
-    <!-- ORIGIN: pre-SVN -->
     <target name="sign-AgentAdherence_OCX" depends="make-AgentAdherence_OCX" description="Digitally signs AgentAdherence.ocx to verify its authenticity.">
         <!-- NB: don't forget the ${basedir}! -->
         <exec dir="${dir.build}" executable="${basedir}/${signtool}" vmlauncher="false" failonerror="true">
@@ -1208,14 +1167,12 @@
     <!-- ================================================================= -->
     <!--  Make and sign AgentSchedule.ocx                                  -->
     <!-- ================================================================= -->
-    <!-- ORIGIN: pre-SVN -->
     <target name="make-AgentSchedule_OCX" description="Makes AgentSchedule.ocx using devenv.exe">
         <exec dir="${dir.build}" executable="${compiler.cpp}" vmlauncher="false" failonerror="true">
             <arg line="/build Release ${dir.src}/clients/wfm/agentschedule/AgentSchedule.vcproj /out ${dir.build}/BuildLog.txt"/>
         </exec>
     </target>
 
-    <!-- ORIGIN: pre-SVN -->
     <target name="sign-AgentSchedule_OCX" depends="make-AgentSchedule_OCX" description="Digitally signs AgentSchedule.ocx to verify its authenticity.">
         <!-- NB: don't forget the ${basedir}! -->
         <exec dir="${dir.build}" executable="${basedir}/${signtool}" vmlauncher="false" failonerror="true">
@@ -1226,11 +1183,10 @@
     <!-- ================================================================= -->
     <!--  Make and sign C2CReportingControls.ocx                           -->
     <!-- ================================================================= -->
-    <!-- ORIGIN: pre-SVN -->
     <target name="make-C2CReportingControls_OCX" depends="set-conditional-properties" description="Makes C2CReportingControls.ocx using devenv.exe">
         <!-- English -->
         <exec dir="${dir.build}" executable="${compiler.cpp}" vmlauncher="false" failonerror="false">
-            <arg line="/build Release ${dir.src}/clients/reporting/C2CReportingControls/C2CReportingControls.vcproj /out ${dir.build}/BuildLog.txt"/>
+            <arg line="/build Release ${dir.src}/clients/reporting/C2CReportingControls/C2CReportingControls.sln /out ${dir.build}/BuildLog.txt"/>
         </exec>
         <ac:if>
             <or>
@@ -1249,17 +1205,16 @@
             <then>
                 <!-- German -->
                 <exec dir="${dir.build}" executable="${compiler.cpp}" vmlauncher="false" failonerror="false">
-                    <arg line="/build ReleaseGerman ${dir.src}/clients/reporting/C2CReportingControls/C2CReportingControls.vcproj /out ${dir.build}/BuildLog.txt"/>
+                    <arg line="/build ReleaseGerman ${dir.src}/clients/reporting/C2CReportingControls/C2CReportingControls.sln /out ${dir.build}/BuildLog.txt"/>
                 </exec>
                 <!-- Spanish -->
                 <exec dir="${dir.build}" executable="${compiler.cpp}" vmlauncher="false" failonerror="false">
-                    <arg line="/build ReleaseSpanish ${dir.src}/clients/reporting/C2CReportingControls/C2CReportingControls.vcproj /out ${dir.build}/BuildLog.txt"/>
+                    <arg line="/build ReleaseSpanish ${dir.src}/clients/reporting/C2CReportingControls/C2CReportingControls.sln /out ${dir.build}/BuildLog.txt"/>
                 </exec>
             </then>
         </ac:if>
     </target>
 
-    <!-- ORIGIN: pre-SVN -->
     <target name="sign-C2CReportingControls_OCX" depends="set-conditional-properties, make-C2CReportingControls_OCX" description="Digitally signs C2CReportingControls.ocx to verify its authenticity.">
         <!-- English -->
         <!-- NB: don't forget the ${basedir}! -->
@@ -1298,7 +1253,6 @@
     <!-- ================================================================= -->
     <!-- Make and sign WebControls.ocx                                     -->
     <!-- ================================================================= -->
-    <!-- ORIGIN: pre-SVN -->
     <target name="make-WebControls_OCX" depends="set-conditional-properties" description="Makes WebControls.ocx using devenv.exe">
         <!-- English -->
         <exec dir="${dir.build}" executable="${compiler.cpp}" vmlauncher="false" failonerror="true">
@@ -1331,7 +1285,6 @@
         </ac:if>
     </target>
 
-    <!-- ORIGIN: pre-SVN -->
     <target name="sign-WebControls_OCX" depends="set-conditional-properties, make-WebControls_OCX" description="Digitally signs WebControls.ocx to verify its authenticity.">
         <!-- English -->
         <!-- NB: don't forget the ${basedir}! -->
@@ -1370,7 +1323,6 @@
     <!-- ================================================================= -->
     <!-- Make Shared.Lib                                                   -->
     <!-- ================================================================= -->
-    <!-- ORIGIN: pre-SVN -->
     <target name="make-Shared_LIB" description="Makes Shared Lib using devenv.exe">
         <exec dir="${dir.build}" executable="${compiler.cpp}" vmlauncher="false" failonerror="true">
             <arg line="/build Release ${dir.src}/clients/quality/shared/Shared.vcproj /out ${dir.build}/BuildLog.txt"/>
@@ -1380,7 +1332,6 @@
     <!-- ================================================================= -->
     <!-- Make SourceRunnerService.exe                                      -->
     <!-- ================================================================= -->
-    <!-- ORIGIN: pre-SVN -->
     <target name="make-SourceRunner" depends="make-ContactSourceUtilities_LIB" description="Makes SourceRunnerService.exe using devenv.exe">
         <exec dir="${dir.build}" executable="${compiler.cpp}" vmlauncher="false" failonerror="true">
             <arg line="/build Release ${dir.src}/winservices/SourceRunnerService.sln /out ${dir.build}/BuildLog.txt"/>
@@ -1390,7 +1341,6 @@
     <!-- ================================================================= -->
     <!-- Make JavaContactSource.dll                                        -->
     <!-- ================================================================= -->
-    <!-- ORIGIN: pre-SVN -->
     <target name="make-JavaContactSource" description="Makes javacontactsource.dll using devenv.exe">
         <exec dir="${dir.build}" executable="${compiler.cpp}" vmlauncher="false" failonerror="true">
             <arg line="/build Release ${dir.src}/contactsources/javacontactsource/JavaContactSource.vcproj /out ${dir.build}/BuildLog.txt"/>
@@ -1400,7 +1350,6 @@
     <!-- ================================================================= -->
     <!-- Make NotificationWindow.lib                                       -->
     <!-- ================================================================= -->
-    <!-- ORIGIN: pre-SVN -->
     <target name="make-NotificationWindow_LIB" description="Makes notificationwindow.lib using devenv.exe">
         <exec dir="${dir.build}" executable="${compiler.cpp}" vmlauncher="false" failonerror="true">
             <arg line="/build Release ${dir.src}/clients/quality/notificationwindow/NotificationWindow.vcproj /out ${dir.build}/BuildLog.txt"/>
@@ -1421,7 +1370,6 @@
         </exec>
     </target>
     -->
-    <!-- ORIGIN: pre-SVN -->
     <!--
     <target name="make-NetMerge_debug" description="Makes NetMerge.dll using devenv.exe">
         <echo file="${dir.build}\ProjectThatErrored.txt" message="NetMerge.dll"/>
@@ -1445,7 +1393,6 @@
         </exec>
     </target>
     -->
-    <!-- ORIGIN: pre-SVN -->
     <!--
     <target name="make-NetMergeLoader_debug" description="Makes NetMergeLoader.dll using devenv.exe">
         <echo file="${dir.build}\ProjectThatErrored.txt" message="NetMergeLoader.dll"/>
@@ -1458,17 +1405,15 @@
     <!-- ================================================================= -->
     <!-- Make ContactSourceUtilities.lib                                   -->
     <!-- ================================================================= -->
-    <!-- ORIGIN: pre-SVN -->
     <target name="make-ContactSourceUtilities_LIB" description="Makes ContactSourceUtils.lib using devenv.exe">
         <exec dir="${dir.build}" executable="${compiler.cpp}" vmlauncher="false" failonerror="true">
-            <arg line="/build Release ${dir.src}/contactsources/contactsourceutilities/ContactSourceUtils.vcproj /out ${dir.build}/BuildLog.txt"/>
+            <arg line="/build Release ${dir.src}/contactsources/contactsourceutilities/ContactSourceUtils.sln /out ${dir.build}/BuildLog.txt"/>
         </exec>
     </target>
 
     <!-- ================================================================= -->
     <!-- Make Automated Tagger DLLs                                        -->
     <!-- ================================================================= -->
-    <!-- ORIGIN: pre-SVN -->
     <!-- VB, but compiled with build-CSharp (go figure) -->
     <target name="make-AutoTagger" description="Makes Automated Tagger DLLs devenv.exe">
         <exec dir="${dir.build}" executable="${compiler.cpp}" vmlauncher="false" failonerror="true">
@@ -1479,7 +1424,6 @@
     <!-- ================================================================= -->
     <!-- Make Serializable                                                 -->
     <!-- ================================================================= -->
-    <!-- ORIGIN: pre-SVN -->
     <target name="make-Serializable_LIB" description="Makes Serializable.lib using devenv.exe">
         <exec dir="${dir.build}" executable="${compiler.cpp}" vmlauncher="false" failonerror="true">
             <arg line="/build Release ${dir.src}/serializable/serializable.vcproj /out ${dir.build}/BuildLog.txt"/>
@@ -1489,7 +1433,6 @@
     <!-- ================================================================= -->
     <!-- Make Generated                                                    -->
     <!-- ================================================================= -->
-    <!-- ORIGIN: pre-SVN -->
     <target name="make-Generated" description="Makes generated devenv.exe">
         <exec dir="${dir.build}" executable="${compiler.cpp}" vmlauncher="false" failonerror="true">
             <arg line="/build Release ${dir.src}/generated/generated.vcproj /out ${dir.build}/BuildLog.txt"/>
@@ -1499,7 +1442,6 @@
     <!-- ================================================================= -->
     <!-- Make UserTree                                                     -->
     <!-- ================================================================= -->
-    <!-- ORIGIN: pre-SVN -->
     <target name="make-UserTree_LIB" description="Makes usertree.lib devenv.exe">
         <exec dir="${dir.build}" executable="${compiler.cpp}" vmlauncher="false" failonerror="true">
             <arg line="/build Release ${dir.src}/clients/quality/usertree/usertree.vcproj /out ${dir.build}/BuildLog.txt"/>
@@ -1509,7 +1451,6 @@
     <!-- ================================================================= -->
     <!-- Make WFM                                                          -->
     <!-- ================================================================= -->
-    <!-- ORIGIN: pre-SVN -->
     <target name="make-WFM" description="Makes WFM using devenv.exe">
         <exec dir="${dir.build}" executable="${compiler.cpp}" vmlauncher="false" failonerror="true">
             <arg line="/build Release ${dir.src}/clients/wfm/wfm.sln /out ${dir.build}/BuildLog.txt"/>
@@ -1520,7 +1461,6 @@
     <!--  Make Channel Manager                                             -->
     <!-- ================================================================= -->
     <!-- TODO break into projects! -timc 5/4/2009 -->
-    <!-- ORIGIN: pre-SVN -->
     <target name="make-ChannelManager" description="Makes channelmanager devenv.exe">
         <exec dir="${dir.build}" executable="${compiler.cpp}" vmlauncher="false" failonerror="true">
             <arg line="/build Release ${dir.src}/winservices/ChannelManager.sln /out ${dir.build}/BuildLog.txt"/>
@@ -1550,17 +1490,16 @@
     <!-- Make DialogicChannel60                                            -->
     <!-- ================================================================= -->
     <!-- TODO why is this a separate vcproj? -timc 5/4/2009 -->
-    <!-- ORIGIN: pre-SVN -->
+    <!-- TODO can I remove this from the build list? -timc 1/7/2010 -->
     <target name="make-DialogicChannel60" description="Makes DialogicChannel60 devenv.exe">
         <exec dir="${dir.build}" executable="${compiler.cpp}" vmlauncher="false" failonerror="true">
-            <arg line="/build ReleaseSR60 ${dir.src}/winservices/chanmgr/hosts/DialogicChannel/DialogicChannel.vcproj /out ${dir.build}/BuildLog.txt"/>
+            <arg line="/build ReleaseSR60 ${dir.src}/winservices/ChannelManager.sln /out ${dir.build}/BuildLog.txt"/>
         </exec>
     </target>
 
     <!-- ================================================================= -->
     <!-- Make ETService                                                    -->
     <!-- ================================================================= -->
-    <!-- ORIGIN: pre-SVN -->
     <target name="make-EnvisionService" depends="set-conditional-properties" description="Makes ETService.exe using devenv.exe">
         <!-- NOTE: I'm not sure exactly what this is doing for us, but the
         ETService Release configuration occasionally fails with errors about
@@ -1571,7 +1510,6 @@
         <exec dir="${vscommontools}" executable="cmd.exe">
             <arg line="vsvars32.bat"/>
         </exec>
-
         <exec dir="${dir.build}" executable="${compiler.cpp}" vmlauncher="false" failonerror="true">
             <arg line="/build Release ${dir.src}/server/startserverprocess/C2CServerPro.vcproj /out ${dir.build}/BuildLog.txt"/>
         </exec>

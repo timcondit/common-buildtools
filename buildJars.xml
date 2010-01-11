@@ -250,9 +250,6 @@
     <!-- ================================================================= -->
     <!-- timc: called from build.xml -->
     <target name="copy-jar-resources" description="Copy Envision jar resources">
-        <!--
-        <echo message="Copying files from ${dir.src}/Server/com/et to ${dir.src}/com/et"/>
-        -->
         <copy todir="${dir.src}/com/et">
             <fileset dir="${dir.src}/Server/com/et"
                 includes="
@@ -267,10 +264,6 @@
                 excludes="**/*UTF16.properties"/>
         </copy>
 
-        <!--
-        <echo message=""/>
-        <echo message="Copying files from ${dir.src}/clients/admin/com/et to ${dir.src}/com/et"/>
-        -->
         <copy todir="${dir.src}/com/et">
             <fileset dir="${dir.src}/clients/admin/com/et"
                 includes="
@@ -285,10 +278,6 @@
                 excludes="**/*UTF16.properties"/>
         </copy>
 
-        <!--
-        <echo message=""/>
-        <echo message="Copying files from ${dir.src}/Generated/com/et to ${dir.src}/com/et"/>
-        -->
         <!-- timc: Nothing with these extensions are present, AFAIK -->
         <copy todir="${dir.src}/com/et">
             <fileset dir="${dir.src}/Generated/com/et"
@@ -304,10 +293,6 @@
                 excludes="**/*UTF16.properties"/>
         </copy>
 
-        <!--
-        <echo message=""/>
-        <echo message="Copying files from ${dir.src}/apis/bi/com/et to ${dir.src}/com/et"/>
-        -->
         <!-- timc: Nothing with these extensions are present, AFAIK -->
         <copy todir="${dir.src}/com/et">
             <fileset dir="${dir.src}/apis/bi/com/et"
@@ -323,10 +308,6 @@
                 excludes="**/*UTF16.properties"/>
         </copy>
 
-        <!--
-        <echo message=""/>
-        <echo message="Copying files from ${dir.src}/contactsources/avayapds/com/et to ${dir.src}/com/et"/>
-        -->
         <!-- timc: Nothing with these extensions are present, AFAIK -->
         <copy todir="${dir.src}/com/et">
             <fileset dir="${dir.src}/contactsources/avayapds/com/et"
@@ -342,10 +323,6 @@
                 excludes="**/*UTF16.properties"/>
         </copy>
 
-        <!--
-        <echo message=""/>
-        <echo message="Copying files from ${dir.src}/contactsources/cmiaspect/com/et to ${dir.src}/com/et"/>
-        -->
         <!-- timc: Nothing with these extensions are present, AFAIK -->
         <copy todir="${dir.src}/com/et">
             <fileset dir="${dir.src}/contactsources/cmiaspect/com/et"
@@ -361,10 +338,6 @@
                 excludes="**/*UTF16.properties"/>
         </copy>
 
-        <!--
-        <echo message=""/>
-        <echo message="Copying files from ${dir.src}/contactsources/concerto/com/et to ${dir.src}/com/et"/>
-        -->
         <!-- timc: Nothing with these extensions are present, AFAIK -->
         <copy todir="${dir.src}/com/et">
             <fileset dir="${dir.src}/contactsources/concerto/com/et"
@@ -380,204 +353,6 @@
                 excludes="**/*UTF16.properties"/>
         </copy>
     </target>
-
-    <!-- ================================================================= -->
-    <!-- clean_genstubskel                                                 -->
-    <!-- ================================================================= -->
-    <!-- timc: not used -->
-    <!--
-    <target name="clean_genstubskel" description="deletes classes and jars for genstubskel">
-        -->
-        <!-- Delete any existing compiled classes -->
-        <!--
-        <delete quiet="true" failonerror="false" includeEmptyDirs="true">
-            <fileset dir="${genstubskel.dir}"
-                includes="**/*.class"/>
-        </delete>
-    </target>
-    -->
-
-    <!-- ================================================================= -->
-    <!-- compile_genstubskel                                               -->
-    <!-- ================================================================= -->
-    <!-- timc: not used -->
-    <!--
-    <target name="compile_genstubskel" description="Compiles genstubskel">
-        -->
-        <!-- not destination is same directory .ro\genstubskel -->
-        <!-- source="${javac.source}" -->
-        <!--
-        <javac srcdir="${genstubskel.dir}" destdir="${ro.dir}"
-            debug="${javac.debug}"
-            deprecation="${javac.deprecation}">
-            <classpath refid="project-classpath"/>
-        </javac>
-    </target>
-    -->
-
-    <!-- ================================================================= -->
-    <!-- jar_genstubskel                                                   -->
-    <!-- ================================================================= -->
-    <!-- timc: not used -->
-    <!--
-    <target name="jar_genstubskel" description="Jar genstubskel">
-        <jar destfile="${genstubskel.name}"
-            basedir="${genstubskel.dir}"
-            duplicate="preserve"
-            includes="genstubskel/**/*.class"/>
-    </target>
-    -->
-
-    <!-- ================================================================= -->
-    <!-- release_genstubskel                                               -->
-    <!-- ================================================================= -->
-    <!-- timc: not used -->
-    <!--
-    <target name="release_genstubskel" description="copies genstubskel jar to release">
-        <delete quiet="true" failonerror="false" file="${dir.release}/genstubskel.jar"/>
-        <copy file="${genstubskel.name}" tofile="${dir.release}/genstubskel.jar"/>
-        <delete>
-            <fileset dir="${genstubskel.dir}" includes="**/*.class"/>
-        </delete>
-    </target>
-    -->
-
-    <!-- ================================================================= -->
-    <!-- Javadoc_All                                                       -->
-    <!-- ================================================================= -->
-    <!-- timc: not used -->
-    <!--
-    <target name="Javadoc_All">
-        <javadoc sourcepath="." source="1.4" destdir="../apidocs"
-            packageList="./ClassesToJavaDoc.txt" Private="true"
-            additionalparam="-breakiterator" failonerror="false">
-        </javadoc>
-    </target>
-    -->
-
-    <!-- ================================================================= -->
-    <!-- clean_demomode                                                    -->
-    <!-- ================================================================= -->
-    <!-- timc: not used -->
-    <!--
-    <target name="clean_demomode" description="deletes existing compiled classes and jars">
-        <delete quiet="true" failonerror="false" includeEmptyDirs="true">
-            <fileset dir="${dir.src}/demomode/" includes="**/*.class"/>
-        </delete>
-
-        <delete quiet="true" failonerror="false" file="${dir.release}/demomode.jar"/>
-        <delete quiet="true" failonerror="false" file="${demomode.dir}/demomode.jar"/>
-    </target>
-    -->
-
-    <!-- ================================================================= -->
-    <!-- compile_demomode                                                  -->
-    <!-- ================================================================= -->
-    <!-- timc: not used -->
-    <!--
-    <target name="compile_demomode" description="Compiles demomode">
-    -->
-        <!-- source="${javac.source}" -->
-        <!--
-        <javac srcdir="${dir.src}/demomode/" destdir="${dir.build}/demomode/"
-            debug="${javac.debug}"
-            deprecation="${javac.deprecation}">
-            <classpath refid="project-classpath"/>
-        </javac>
-    </target>
-    -->
-
-    <!-- ================================================================= -->
-    <!-- jar_demomode                                                      -->
-    <!-- ================================================================= -->
-    <!-- timc: not used -->
-    <!--
-    <target name="jar_demomode" description="Jar demomode">
-        <jar destfile="${demomode.name}"
-            basedir="${demomode.dir}"
-            duplicate="preserve"
-            includes="
-            com/**/*.class
-            com/**/*.xml
-            com/**/*.gif
-            com/**/*.jpg
-            com/**/*.png
-            com/**/*.properties"/>
-    </target>
-    -->
-
-    <!-- ================================================================= -->
-    <!-- release_demomode                                                  -->
-    <!-- ================================================================= -->
-    <!-- timc: not used -->
-    <!--
-    <target name="release_demomode" description="copies jar to release dir">
-        <delete quiet="true" failonerror="false" file="${dir.release}/demomode.jar"/>
-        <copy file="${demomode.name}" tofile="${dir.release}/demomode.jar"/>
-        <copy file="${demomode.name}" tofile="${dir.release}/EnvisionServer/demomode.jar"/>
-        <copy todir="${dir.build}/Release/ServiceDescriptions">
-            <fileset dir="${dir.src}/demomode/ServiceDescriptions"/>
-        </copy>
-        <delete>
-            <fileset dir="${dir.src}/demomode/" includes="**/*.class"/>
-        </delete>
-    </target>
-    -->
-
-    <!-- ================================================================= -->
-    <!-- Compile_unittest                                                  -->
-    <!-- ================================================================= -->
-    <!-- timc: not used -->
-    <!--
-    <target name="compile_unittest" description="Compiles unittest">
-        -->
-        <!-- source="${javac.source}" -->
-        <!--
-        <javac srcdir="${unittest.dir}"
-            destdir="${unittest.dir}"
-            excludes="test/**"
-            debug="${javac.debug}"
-            deprecation="${javac.deprecation}">
-            <classpath refid="project-classpath"/>
-        </javac>
-    </target>
-    -->
-
-    <!-- ================================================================= -->
-    <!-- jar_unittest                                                      -->
-    <!-- ================================================================= -->
-    <!-- timc: not used -->
-    <!--
-    <target name="jar_unittest" description="Jar unittest/src sources">
-        <jar destfile="${unittest.name}"
-            basedir="${unittest.dir}"
-            duplicate="preserve"
-            includes="
-            com/**/*.class
-            com/**/*.xml
-            com/**/*.html
-            com/**/*.gif
-            com/**/*.png
-            com/**/*.jpg
-            com/**/*.ico
-            com/**/*.properties"/>
-    </target>
-    -->
-
-    <!-- ================================================================= -->
-    <!-- release_unittest                                                  -->
-    <!-- ================================================================= -->
-    <!-- timc: not used -->
-    <!--
-    <target name="release_unittest"
-        description="copies Jar unittest to release and cleans out classes">
-        <delete quiet="true" failonerror="false" file="${dir.release}/unittest.jar"/>
-        <copy file="${unittest.name}" tofile="${dir.release}/unittest.jar"/>
-        <delete>
-            <fileset dir="${unittest.dir}" includes="**/*.class"/>
-        </delete>
-    </target>
-    -->
 
     <!-- ================================================================= -->
     <!-- Compile EnvisionPlugin                                            -->
@@ -623,62 +398,6 @@
     <!-- ================================================================= -->
     <!-- Envision Project Choices                                          -->
     <!-- ================================================================= -->
-    <target name="Envision"
-        depends="
-        clean_Envision,
-        compile_Envision,
-        jar_Envision,
-        release_Envision"/>
-
-    <!-- Are you f'ing kidding me? -->
-    <!--
-    <target name="Envision_clean" depends="clean_Envision"/>
-    <target name="Envision_compile" depends="compile_Envision"/>
-    <target name="Envision_jar" depends="jar_Envision"/>
-    <target name="Envision_release" depends="release_Envision"/>
-    -->
-
-    <!-- ================================================================= -->
-    <!-- GenStubSkel Project Choices                                       -->
-    <!-- ================================================================= -->
-    <!-- timc: not used -->
-    <!--
-    <target name="genstubskel"
-        depends="
-        clean_genstubskel,
-        compile_genstubskel,
-        jar_genstubskel,
-        release_genstubskel"/>
-    -->
-
-    <!-- Are you f'ing kidding me? -->
-    <!--
-    <target name="genstubskel_clean" depends="clean_genstubskel"/>
-    <target name="genstubskel_compile" depends="compile_genstubskel"/>
-    <target name="genstubskel_jar" depends="jar_genstubskel"/>
-    <target name="genstubskel_release" depends="release_genstubskel"/>
-    -->
-
-    <!-- ================================================================= -->
-    <!-- demomode Project Choices                                          -->
-    <!-- ================================================================= -->
-    <!-- timc: not used -->
-    <!--
-    <target name="demomode"
-        depends="
-        clean_demomode,
-        compile_demomode,
-        jar_demomode,
-        release_demomode"/>
-    -->
-
-    <!-- Are you f'ing kidding me? -->
-    <!--
-    <target name="demomode_clean" depends="clean_demomode"/>
-    <target name="demomode_compile" depends="compile_demomode"/>
-    <target name="demomode_jar" depends="jar_demomode"/>
-    <target name="demomode_release" depends="release_demomode"/>
-    -->
-
+    <target name="Envision" depends="clean_Envision, compile_Envision, jar_Envision, release_Envision"/>
 </project>
 

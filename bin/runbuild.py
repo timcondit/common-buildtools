@@ -491,7 +491,7 @@ class BuildProperties(object):
             print("[default] setting %s=%s" % ('source_url', self.source_url))
 
         if self.mail_to is None:
-            self.mail_to = "engineering@envisioninc.com,timc@envisioninc.com"
+            self.mail_to = "\"engineering@envisioninc.com,timc@envisioninc.com\""
             print("[default] setting %s=%s" % ('mail_to', self.mail_to))
 
 

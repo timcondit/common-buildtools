@@ -355,18 +355,7 @@
     <!-- ================================================================= -->
     <!-- Prepare the release share for the installers                      -->
     <!-- ================================================================= -->
-    <target name="prepare"
-        description="Prepare the release share for the installers">
-        <!-- TODO Use dir.smoketest for test builds.  Probably need to add
-        something to runbuild.py as well.
-        .
-        How to set property smoketest_build? -->
-
-        <!-- if (smoketest_build) { root=dir.smoketest } -->
-        <!-- else { root=dir.products } -->
-        <!-- property name="target1" value="${root}/..." -->
-        <!-- property name="target2" value="${root}/..." -->
-
+    <target name="prepare" description="Prepare the release share for the installers">
         <mkdir dir="${dir.products}/${version.product}"/>
         <!-- assign these properties sooner so they can be used by the
         sub-targets (release-ADIT, release-DADI, etc.) as well as by
@@ -547,10 +536,6 @@
     <!-- ================================================================= -->
     <!-- Unzip the Iontas client files                                     -->
     <!-- ================================================================= -->
-    <!-- This is not up and running yet.  We're still shipping v3.4.1 from the
-    Subversion SDK.
-    .
-    -timc 8/13/2009 -->
     <target name="unzip-IontasClient">
         <unjar
             src="${uncpath.iontas}/IontasClient4.1.zip"
