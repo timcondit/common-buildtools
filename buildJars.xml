@@ -109,6 +109,8 @@
     <!-- ================================================================= -->
     <target name="compile_license" description="Compiles license">
         <!-- source="${javac.source}" -->
+        <!-- TODO fork, memoryInitialSize & memoryMaximumSize need to go to
+        build.properties (or, better, to runbuild.py -timc 2/5/2010 -->
         <javac srcdir="${dir.src}/server/com/et/license/"
             destdir="${dir.src}/server/"
             debug="${javac.debug}"
@@ -163,11 +165,13 @@
         <echo message="[DEBUG] javac.source=${javac.source}"/>
         <!-- <echo message="${javac.source}"/> -->
 
+        <!-- TODO fork, memoryInitialSize & memoryMaximumSize need to go to
+        build.properties (or, better, to runbuild.py -timc 2/5/2010 -->
         <javac srcdir="${dir.src}" destdir="${dir.src}"
             debug="${javac.debug}"
             deprecation="${javac.deprecation}"
             fork="yes"
-            memoryInitialSize="200m" memoryMaximumSize="200m">
+            memoryInitialSize="200m" memoryMaximumSize="1024m">
             <classpath refid="project-classpath"/>
         </javac>
 
@@ -189,6 +193,8 @@
             <fileset dir="${dir.src}" includes="**/*.class"/>
         </delete>
         <echo message="Build source..."/>
+        <!-- TODO fork, memoryInitialSize & memoryMaximumSize need to go to
+        build.properties (or, better, to runbuild.py -timc 2/5/2010 -->
         <javac srcdir="${dir.src}"
             debug="${javac.debug}"
             deprecation="false"
@@ -363,6 +369,8 @@
         <property name="EnvisionPluginBasedir"
             value="${dir.workdir}/ContactSourceRunner/EnvisionPlugin/"/>
         <mkdir dir="${EnvisionPluginBasedir}"/>
+        <!-- TODO fork, memoryInitialSize & memoryMaximumSize need to go to
+        build.properties (or, better, to runbuild.py -timc 2/5/2010 -->
         <javac srcdir="${dir.src}/contactSources/nuasisPlugin/"
             destdir="${EnvisionPluginBasedir}"
             debug="${javac.debug}"
