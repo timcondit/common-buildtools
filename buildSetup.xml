@@ -446,6 +446,30 @@
                     dest="${dir.build}/Documentation/WebHelp/EN/Agent_Desktop_Centricity_Webhelp"/>
             </then>
         </ac:if>
+
+        <!-- localized documentation is currently in 9.10 SP2 only -->
+        <ac:if>
+            <or>
+                <and>
+                    <ac:equals arg1="${MAJOR}" arg2="9"/>
+                    <ac:equals arg1="${MINOR}" arg2="10"/>
+                    <ac:equals arg1="${RELEASE}" arg2="0200"/>
+                </and>
+                <and>
+                    <ac:equals arg1="${MAJOR}" arg2="9"/>
+                    <ac:equals arg1="${MINOR}" arg2="10"/>
+                    <ac:isgreaterthan arg1="${RELEASE}" arg2="0200"/>
+                </and>
+            </or>
+            <then>
+                <unjar
+                    src="${dir.build}/Documentation/WebHelp/DE/Agent_Desktop_Centricity_Webhelp.zip"
+                    dest="${dir.build}/Documentation/WebHelp/DE/Agent_Desktop_Centricity_Webhelp"/>
+                <unjar
+                    src="${dir.build}/Documentation/WebHelp/ES/Agent_Desktop_Centricity_Webhelp.zip"
+                    dest="${dir.build}/Documentation/WebHelp/ES/Agent_Desktop_Centricity_Webhelp"/>
+            </then>
+        </ac:if>
     </target>
 
     <!-- ================================================================= -->
@@ -518,19 +542,36 @@
     <!-- ================================================================= -->
     <!-- Unzip the default Nuance profile for the Speech Server            -->
     <!-- ================================================================= -->
-    <target name="unzip-NuanceProfile">
+    <target name="unzip-NuanceProfile" depends="set-conditional-properties">
         <unjar src="${dir.sdk}/Nuance/Envision.zip"
             dest="${dir.workdir}/AudioMining"/>
-        <unjar src="${dir.sdk}/Nuance/EnvisionEnglishUK.zip"
-            dest="${dir.workdir}/AudioMining"/>
-        <unjar src="${dir.sdk}/Nuance/EnvisionGerman.zip"
-            dest="${dir.workdir}/AudioMining"/>
-        <exec dir="${dir.bin}" executable="7za.exe" vmlauncher="false" failonerror="false">
-            <arg line="x ${dir.sdk}/Nuance/EnvisionSpanish.zip -o${dir.workdir}/AudioMining"/>
-        </exec>
-        <exec dir="${dir.bin}" executable="7za.exe" vmlauncher="false" failonerror="false">
-            <arg line="x ${dir.sdk}/Nuance/EnvisionSpanishLA.zip -o${dir.workdir}/AudioMining"/>
-        </exec>
+        <ac:if>
+            <or>
+                <and>
+                    <ac:isgreaterthan arg1="${MAJOR}" arg2="9"/>
+                </and>
+                <and>
+                    <ac:equals arg1="${MAJOR}" arg2="9"/>
+                    <ac:equals arg1="${MINOR}" arg2="12"/>
+                </and>
+                <and>
+                    <ac:equals arg1="${MAJOR}" arg2="9"/>
+                    <ac:isgreaterthan arg1="${MINOR}" arg2="12"/>
+                </and>
+            </or>
+            <then>
+                <unjar src="${dir.sdk}/Nuance/EnvisionEnglishUK.zip"
+                    dest="${dir.workdir}/AudioMining"/>
+                <unjar src="${dir.sdk}/Nuance/EnvisionGerman.zip"
+                    dest="${dir.workdir}/AudioMining"/>
+                <exec dir="${dir.bin}" executable="7za.exe" vmlauncher="false" failonerror="false">
+                    <arg line="x ${dir.sdk}/Nuance/EnvisionSpanish.zip -o${dir.workdir}/AudioMining"/>
+                </exec>
+                <exec dir="${dir.bin}" executable="7za.exe" vmlauncher="false" failonerror="false">
+                    <arg line="x ${dir.sdk}/Nuance/EnvisionSpanishLA.zip -o${dir.workdir}/AudioMining"/>
+                </exec>
+            </then>
+        </ac:if>
     </target>
 
     <!-- ================================================================= -->
@@ -770,7 +811,8 @@
             installer.path="${dir.installs}/EvaluationConsistencyCheck"
             product.path="${dir.utils}"/>
         <!-- additional copy operation for this installer only -->
-        <copy todir="${dir.utils}/EvaluationConsistencyCheck/QM">
+        <!-- <copy todir="${dir.utils}/EvaluationConsistencyCheck/QM"> -->
+        <copy todir="${dir.utils}/EPS8.4_QMPublishedTemplateEditor">
             <fileset dir="${dir.installs}/EvaluationConsistencyCheck/QM"/>
         </copy>
     </target>
