@@ -521,7 +521,7 @@
     <target name="move-workdir-postbuild" depends="get-head-revision"
         description="Move working directory after build completes">
         <property name="dir.postbuild"
-            value="${version.product}-${dir.build}-r${repository.revision}"/>
+            value="${dir.build}-${version.product}-r${repository.revision}"/>
         <available type="dir" file="${dir.build}" property="dir.build.present"/>
         <if>
             <equals arg1="${dir.build.present}" arg2="true"/>
