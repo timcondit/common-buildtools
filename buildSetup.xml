@@ -96,41 +96,32 @@
             </then>
         </ac:if>
 
-        <!-- 10.0.0100 now, the rest later. -timc 3/12/2010 -->
+        <!-- Grab your nuts, squirrels, and gather 'round, 'cuz this is how
+        you say "if greater than or equal to 10.0.0100" in Ant. -->
         <ac:if>
-            <!--
             <or>
-                -->
                 <!-- if greater than 10 -->
-                <!--
                 <and>
                     <ac:isgreaterthan arg1="${MAJOR}" arg2="10"/>
                 </and>
-                -->
                 <!-- if greater than 10.0 -->
-                <!--
                 <and>
                     <ac:equals arg1="${MAJOR}" arg2="10"/>
                     <ac:isgreaterthan arg1="${MINOR}" arg2="0"/>
                 </and>
-                -->
                 <!-- if greater than 10.0.0100 -->
-                <!--
                 <and>
                     <ac:equals arg1="${MAJOR}" arg2="10"/>
                     <ac:equals arg1="${MINOR}" arg2="0"/>
                     <ac:isgreaterthan arg1="${RELEASE}" arg2="0100"/>
                 </and>
-                -->
                 <!-- if equal to 10.0.0100 -->
                 <and>
                     <ac:equals arg1="${MAJOR}" arg2="10"/>
                     <ac:equals arg1="${MINOR}" arg2="0"/>
                     <ac:equals arg1="${RELEASE}" arg2="0100"/>
                 </and>
-                <!--
             </or>
-            -->
             <then>
                 <antcall target="release-CentricityQM"/>
             </then>
