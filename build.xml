@@ -480,6 +480,16 @@
         <tstamp>
             <format property="datestamp" pattern="yyMMdd" locale="en_US"/>
         </tstamp>
+        <!-- It's past time for EVERY build to be tagged.  To do that I may
+        need to mkdir some parent directories. -->
+        <!-- http://subclipse.tigris.org/svnant/svn.html#mkdir -->
+        <!-- TODO: use branch PRN number here instead of '00000'? -->
+        <!--
+        <svn username="buildmgr" password="buildmgr">
+            <mkdir message="00000: Creating tags dir for build ${version.product}"
+                url="${url.tags}"/>
+        </svn>
+        -->
         <property name="url.tag"
             value="${url.tags}/${datestamp}-${version.product}-r${repository.revision}"/>
         <echo message="tag-build: ${url.tag}"/>

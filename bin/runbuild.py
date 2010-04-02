@@ -481,7 +481,7 @@ class BuildProperties(object):
         # os.path.join() uses backslashes on Windows, but that's wrong here!
         if not self.tags_url:
             tmp = TAGS_BASE + r'/' + self.major + '.' + self.minor + r'/' + triplet
-            self.tags_url =  tmp
+            self.tags_url = tmp
             print("[default] setting %s=%s" % ('tags_url', self.tags_url))
 
         # TODO move this to ... _props_cmdline()?
