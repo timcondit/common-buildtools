@@ -67,7 +67,7 @@
                 <!-- target2, 9.6.0000.0 and later -->
                 <antcall target="release-Analytics"/>
                 <antcall target="release-Centricity"/>
-                <antcall target="release-CentricityWebApplications"/>
+                <!-- <antcall target="release-CentricityWebApplications"/> -->
                 <antcall target="release-WMWrapperService"/>
             </then>
         </ac:if>
@@ -734,6 +734,8 @@
     <!-- ================================================================= -->
     <!-- Make and release CentricityWebApplications                        -->
     <!-- ================================================================= -->
+    <!-- PRN22798 - obsolete -timc 4/7/2010 -->
+    <!--
     <target name="make-CentricityWebApplications" depends="prepare">
         <build-AI-installer
             product.name="CentricityWebApplications"
@@ -746,6 +748,7 @@
             installer.path="${dir.installs}/CentricityWebApplications"
             product.path="${target2}"/>
     </target>
+    -->
 
     <!-- ================================================================= -->
     <!-- Make and release SpeechServerService                              -->
