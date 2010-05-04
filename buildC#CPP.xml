@@ -844,7 +844,7 @@
     <target name="make-AgentSupport" depends="set-conditional-properties" description="Makes AgentSupport using devenv.exe">
         <!-- English only -->
         <exec dir="${dir.build}" executable="${compiler.cpp}" vmlauncher="false" failonerror="true">
-            <arg line="/build Release ${dir.src}/clients/quality/agentsupport/AgentSupport.vcproj /out ${dir.build}/BuildLog.txt"/>
+            <arg line="/build Release ${dir.src}/clients/AgentSupport.sln /out ${dir.build}/BuildLog.txt"/>
         </exec>
         <ac:if>
             <or>
@@ -863,11 +863,11 @@
             <then>
                 <!-- German -->
                 <exec dir="${dir.build}" executable="${compiler.cpp}" vmlauncher="false" failonerror="true">
-                    <arg line="/build ReleaseGerman ${dir.src}/clients/quality/agentsupport/AgentSupport.vcproj /out ${dir.build}/BuildLog.txt"/>
+                    <arg line="/build ReleaseGerman ${dir.src}/clients/AgentSupport.sln /out ${dir.build}/BuildLog.txt"/>
                 </exec>
                 <!-- Spanish -->
                 <exec dir="${dir.build}" executable="${compiler.cpp}" vmlauncher="false" failonerror="true">
-                    <arg line="/build ReleaseSpanish ${dir.src}/clients/quality/agentsupport/AgentSupport.vcproj /out ${dir.build}/BuildLog.txt"/>
+                    <arg line="/build ReleaseSpanish ${dir.src}/clients/AgentSupport.sln /out ${dir.build}/BuildLog.txt"/>
                 </exec>
             </then>
         </ac:if>
