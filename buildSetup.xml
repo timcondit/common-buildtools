@@ -165,11 +165,26 @@
         </ac:if>
 
         <!-- Part 1 of 2: set properties based on build version -->
+        <!-- 10.1 (Viper) -->
+        <ac:if>
+            <or>
+                <ac:isgreaterthan arg1="${MAJOR}.${MINOR}" arg2="10.1"/>
+                <ac:equals arg1="${MAJOR}.${MINOR}" arg2="10.1"/>
+            </or>
+            <then>
+                <echo message="INFO setting 10.1 properties (if any)"/>
+                <property name="dir.sdk" value="${env.ETSDK}"/>
+                <!--
+                <property name="version.range" value="10.1.or.higher"/>
+                -->
+            </then>
+        </ac:if>
+
         <!-- 10.0 -->
         <ac:if>
             <or>
-                <ac:isgreaterthan arg1="${MAJOR}.${MINOR}" arg2="10.0"/>
                 <ac:equals arg1="${MAJOR}.${MINOR}" arg2="10.0"/>
+                <ac:islessthan arg1="${MAJOR}.${MINOR}" arg2="10.0"/>
             </or>
             <then>
                 <echo message="INFO setting 10.0 properties (if any)"/>
@@ -533,7 +548,7 @@
     .
     PKI09 (9.9) -> 1.6.0_03
     July09 (9.10) -> 1.6.0_14 -->
-    <target name="unzip-Envision_JRE">
+    <target name="unzip-Envision_JRE" depends="set-conditional-properties">
         <property name="Envision_JRE" value="jre1.6.0_14-Envision-no-jars.zip"/>
         <unjar
             src="${dir.jre}/${Envision_JRE}"
@@ -548,7 +563,7 @@
     things from getting messy.  And it removes an artificial dependency, since
     unzip-Server-jars_ZIP would otherwise depend on unzip-Envision_JRE.
     (make-Server depends on both of them.) -->
-    <target name="unzip-Server-jars_ZIP">
+    <target name="unzip-Server-jars_ZIP" depends="set-conditional-properties">
         <property name="Server-jars_ZIP" value="jar-files-EnvisionServer-9.10.zip"/>
         <unjar
             src="${dir.jre}/${Server-jars_ZIP}"
@@ -563,7 +578,7 @@
     things from getting messy.  And it removes an artificial dependency, since
     unzip-Server-jars_ZIP would otherwise depend on unzip-Envision_JRE.
     (make-PerformanceSuite depends on both of them.) -->
-    <target name="unzip-PerformanceSuite-jars_ZIP">
+    <target name="unzip-PerformanceSuite-jars_ZIP" depends="set-conditional-properties">
         <property name="EPS-jars_ZIP" value="jar-files-EnvisionPerformanceSuite-9.10.zip"/>
         <unjar
             src="${dir.jre}/${EPS-jars_ZIP}"
@@ -608,7 +623,7 @@
     <!-- ================================================================= -->
     <!-- Unzip the Iontas client files                                     -->
     <!-- ================================================================= -->
-    <target name="unzip-IontasClient">
+    <target name="unzip-IontasClient" depends="set-conditional-properties">
         <unjar
             src="${uncpath.iontas}/IontasClient4.1.zip"
             dest="${dir.sdk}/Iontas"/>

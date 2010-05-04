@@ -135,17 +135,27 @@
         </ac:if>
 
         <!-- Part 1 of 2: set properties based on build version -->
+        <!-- 10.1 (Viper) -->
+        <ac:if>
+            <or>
+                <ac:isgreaterthan arg1="${MAJOR}.${MINOR}" arg2="10.1"/>
+                <ac:equals arg1="${MAJOR}.${MINOR}" arg2="10.1"/>
+            </or>
+            <then>
+                <echo message="INFO setting 10.1 properties (if any)"/>
+                <property name="dir.sdk" value="${env.ETSDK}"/>
+            </then>
+        </ac:if>
+
         <!-- 10.0 -->
         <ac:if>
             <or>
-                <ac:isgreaterthan arg1="${MAJOR}.${MINOR}" arg2="10.0"/>
                 <ac:equals arg1="${MAJOR}.${MINOR}" arg2="10.0"/>
+                <ac:islessthan arg1="${MAJOR}.${MINOR}" arg2="10.0"/>
             </or>
             <then>
                 <echo message="INFO setting 10.0 properties (if any)"/>
-                <!--
-                <property name="version.range" value="10.0.or.higher"/>
-                -->
+                <property name="dir.sdk" value="${dir.build}/SDK"/>
             </then>
         </ac:if>
 
@@ -166,9 +176,6 @@
             </or>
             <then>
                 <echo message="INFO setting 9.10 properties (if any)"/>
-                <!--
-                <property name="version.range" value="9.10.to.10.0"/>
-                -->
             </then>
         </ac:if>
 
@@ -189,9 +196,6 @@
             </or>
             <then>
                 <echo message="INFO setting 9.9 properties (if any)"/>
-                <!--
-                <property name="version.range" value="9.9.to.9.10"/>
-                -->
             </then>
         </ac:if>
 
@@ -212,9 +216,6 @@
             </or>
             <then>
                 <echo message="INFO setting 9.8 properties (if any)"/>
-                <!--
-                <property name="version.range" value="9.8.to.9.9"/>
-                -->
                 <property name="compiler.cpp" value="${vs90_devenv}"/>
                 <property name="compiler.message" value="${vs90_mc}"/>
                 <property name="vscommontools" value="${env.VS90COMNTOOLS}"/>
@@ -238,9 +239,6 @@
             </or>
             <then>
                 <echo message="INFO setting 9.7 properties (if any)"/>
-                <!--
-                <property name="version.range" value="9.7.to.9.8"/>
-                -->
                 <property name="file.pfx" value="${cert.envision}"/>
                 <property name="signtool.password" value="${signtool.envisionpass}"/>
             </then>
@@ -263,9 +261,6 @@
             </or>
             <then>
                 <echo message="INFO setting 9.6 properties (if any)"/>
-                <!--
-                <property name="version.range" value="9.6.to.9.7"/>
-                -->
                 <property name="compiler.cpp" value="${vs80_devenv}"/>
                 <property name="compiler.message" value="${vs80_mc}"/>
                 <property name="vscommontools" value="${env.VS80COMNTOOLS}"/>
