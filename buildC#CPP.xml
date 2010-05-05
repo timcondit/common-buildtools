@@ -25,19 +25,19 @@
     <!-- ================================================================= -->
     <!-- Build C++ project                                                 -->
     <!-- ================================================================= -->
-    <!-- Note: WRT set-conditional-properties, build-CPP is all old skool, and
-    not a problem.  It looks like we can call the targets natively here, and
-    just set conditions as necessary in the individual targets. -->
+    <!-- Note: WRT propset, build-CPP is all old skool, and not a problem.  It
+    looks like we can call the targets natively here, and just set conditions
+    as necessary in the individual targets. -->
     <!-- TODO Each target should depend on init.  init should check that the
-    properties in set-conditional-properties are set, and only call that
-    target if they are not. -->
+    properties in propset are set, and only call that target if they are not.
+    -->
     <!-- Dependencies:
     - make-AgentSupport (rather, reporting\controls\WebUtilsCtl.h) needs
     WebControls_h.h, which seems to come from make-WebControls_OCX
     -->
     <target name="build-CPP"
         depends="
-        set-conditional-properties,
+        propset,
         make-RO,
         make-Serializable_LIB,
         make-Generated,
@@ -73,7 +73,7 @@
     <!-- ================================================================= -->
     <!-- Build C#                                                          -->
     <!-- ================================================================= -->
-    <target name="build-CSharp" depends="set-conditional-properties">
+    <target name="build-CSharp" depends="propset">
         <antcall target="make-Server_CS"/>
         <antcall target="make-APICommon_CS"/>
         <antcall target="make-Finder_CS"/>
@@ -150,12 +150,12 @@
     <!-- ================================================================= -->
     <!-- Build loaders project                                             -->
     <!-- ================================================================= -->
-    <target name="build-Loaders" depends="set-conditional-properties, make-cstaLoader, make-ctcLoader6.0, make-ctcLoader7.0, make-hook"/>
+    <target name="build-Loaders" depends="propset, make-cstaLoader, make-ctcLoader6.0, make-ctcLoader7.0, make-hook"/>
 
     <!-- ================================================================= -->
     <!-- Set conditional properties                                        -->
     <!-- ================================================================= -->
-    <target name="set-conditional-properties" depends="define-ac">
+    <target name="propset" depends="define-ac">
         <!-- Use tasks from ant-contrib to figure out what kind of build we're
         doing.  It does decimal comparisons where appropriate, which is not
         everywhere.  In particular, 9.10 and higher need special treatment.
@@ -854,7 +854,7 @@
     words, do it the same way EnvisionControls_CAB is done in build.xml. -->
     <!-- TODO macrodefs?  Maybe this should come after the previous TODO about
     separating by languages.  See buildSetup.xml for an example. -->
-    <target name="make-AgentSupport" depends="set-conditional-properties" description="Makes AgentSupport using devenv.exe">
+    <target name="make-AgentSupport" depends="propset" description="Makes AgentSupport using devenv.exe">
         <!-- English only -->
         <exec dir="${dir.build}" executable="${compiler.cpp}" vmlauncher="false" failonerror="true">
             <arg line="/build Release ${dir.src}/clients/AgentSupport.sln /out ${dir.build}/BuildLog.txt"/>
@@ -893,7 +893,7 @@
     reorganize the buildtools toward the goal of creating each product
     separately, this one will standalone.  IOW, it will not be a prerequisite
     compile for anything else (as far as I know). -->
-    <target name="make-QualityMonitoring" depends="set-conditional-properties" description="Makes QM using devenv.exe">
+    <target name="make-QualityMonitoring" depends="propset" description="Makes QM using devenv.exe">
         <!-- English -->
         <exec dir="${dir.build}" executable="${compiler.cpp}" vmlauncher="false" failonerror="true">
             <arg line="/build Release ${dir.src}/clients/quality/qm/qm.vcproj /out ${dir.build}/BuildLog.txt"/>
@@ -928,7 +928,7 @@
     <!-- ================================================================= -->
     <!--  Make eLearning                                                   -->
     <!-- ================================================================= -->
-    <target name="make-eLearning" depends="set-conditional-properties" description="Makes eLearning using devenv.exe">
+    <target name="make-eLearning" depends="propset" description="Makes eLearning using devenv.exe">
         <!-- English -->
         <exec dir="${dir.build}" executable="${compiler.cpp}" vmlauncher="false" failonerror="true">
             <arg line="/build eLearningRelease ${dir.src}/clients/quality/qm/qm.vcproj /out ${dir.build}/BuildLog.txt"/>
@@ -1003,7 +1003,7 @@
     <!-- ================================================================= -->
     <!--  Make Agent Automation                                            -->
     <!-- ================================================================= -->
-    <target name="make-AgentAutomation" depends="set-conditional-properties" description="Makes AgentAutomation.dll using devenv.exe">
+    <target name="make-AgentAutomation" depends="propset" description="Makes AgentAutomation.dll using devenv.exe">
         <!-- English -->
         <exec dir="${dir.build}" executable="${compiler.cpp}" vmlauncher="false" failonerror="false">
             <arg line="/build Release ${dir.src}/apis/AgentAutomation.sln /out ${dir.build}/BuildLog.txt"/>
@@ -1018,7 +1018,7 @@
     between 9.7.0 up to but not including 9.10.0.  Those use ReleaseEnglish
     for English; German and Spanish are not affected.  Finally, if it's 9.10.0
     or later, we switch back and use Release for English. -->
-    <target name="make-SharedResources" depends="set-conditional-properties" description="Makes SharedResources.dll using devenv.exe">
+    <target name="make-SharedResources" depends="propset" description="Makes SharedResources.dll using devenv.exe">
         <ac:if>
             <!-- up to 9.6.x, no localization -->
             <or>
@@ -1096,7 +1096,7 @@
     <!-- ================================================================= -->
     <!--  Make and sign AgentX.ocx                                         -->
     <!-- ================================================================= -->
-    <target name="make-AgentX_OCX" depends="set-conditional-properties" description="Makes AgentX.ocx using devenv.exe">
+    <target name="make-AgentX_OCX" depends="propset" description="Makes AgentX.ocx using devenv.exe">
         <!-- English -->
         <exec dir="${dir.build}" executable="${compiler.cpp}" vmlauncher="false" failonerror="false">
             <arg line="/build Release ${dir.src}/clients/quality/agentdesktop/AgentX.vcproj /out ${dir.build}/BuildLog.txt"/>
@@ -1128,7 +1128,7 @@
         </ac:if>
     </target>
 
-    <target name="sign-AgentX_OCX" depends="set-conditional-properties, make-AgentX_OCX" description="Digitally signs AgentX.ocx to verify its authenticity.">
+    <target name="sign-AgentX_OCX" depends="propset, make-AgentX_OCX" description="Digitally signs AgentX.ocx to verify its authenticity.">
         <!-- English -->
         <exec dir="${dir.build}" executable="${basedir}/${signtool}" vmlauncher="false" failonerror="true">
             <arg line="sign /a /f ${file.pfx} /p ${signtool.password} /t ${signtool.timestampurl} ${dir.workdir}/quality/AgentX.ocx"/>
@@ -1196,7 +1196,7 @@
     <!-- ================================================================= -->
     <!--  Make and sign C2CReportingControls.ocx                           -->
     <!-- ================================================================= -->
-    <target name="make-C2CReportingControls_OCX" depends="set-conditional-properties" description="Makes C2CReportingControls.ocx using devenv.exe">
+    <target name="make-C2CReportingControls_OCX" depends="propset" description="Makes C2CReportingControls.ocx using devenv.exe">
         <!-- English -->
         <exec dir="${dir.build}" executable="${compiler.cpp}" vmlauncher="false" failonerror="false">
             <arg line="/build Release ${dir.src}/clients/reporting/C2CReportingControls/C2CReportingControls.sln /out ${dir.build}/BuildLog.txt"/>
@@ -1228,7 +1228,7 @@
         </ac:if>
     </target>
 
-    <target name="sign-C2CReportingControls_OCX" depends="set-conditional-properties, make-C2CReportingControls_OCX" description="Digitally signs C2CReportingControls.ocx to verify its authenticity.">
+    <target name="sign-C2CReportingControls_OCX" depends="propset, make-C2CReportingControls_OCX" description="Digitally signs C2CReportingControls.ocx to verify its authenticity.">
         <!-- English -->
         <!-- NB: don't forget the ${basedir}! -->
         <exec dir="${dir.build}" executable="${basedir}/${signtool}" vmlauncher="false" failonerror="true">
@@ -1266,7 +1266,7 @@
     <!-- ================================================================= -->
     <!-- Make and sign WebControls.ocx                                     -->
     <!-- ================================================================= -->
-    <target name="make-WebControls_OCX" depends="set-conditional-properties" description="Makes WebControls.ocx using devenv.exe">
+    <target name="make-WebControls_OCX" depends="propset" description="Makes WebControls.ocx using devenv.exe">
         <!-- English -->
         <exec dir="${dir.build}" executable="${compiler.cpp}" vmlauncher="false" failonerror="true">
             <arg line="/build Release ${dir.src}/clients/reporting/controls/WebControls.vcproj /out ${dir.build}/BuildLog.txt"/>
@@ -1298,7 +1298,7 @@
         </ac:if>
     </target>
 
-    <target name="sign-WebControls_OCX" depends="set-conditional-properties, make-WebControls_OCX" description="Digitally signs WebControls.ocx to verify its authenticity.">
+    <target name="sign-WebControls_OCX" depends="propset, make-WebControls_OCX" description="Digitally signs WebControls.ocx to verify its authenticity.">
         <!-- English -->
         <!-- NB: don't forget the ${basedir}! -->
         <exec dir="${dir.build}" executable="${basedir}/${signtool}" vmlauncher="false" failonerror="true">
@@ -1513,7 +1513,7 @@
     <!-- ================================================================= -->
     <!-- Make ETService                                                    -->
     <!-- ================================================================= -->
-    <target name="make-EnvisionService" depends="set-conditional-properties" description="Makes ETService.exe using devenv.exe">
+    <target name="make-EnvisionService" depends="propset" description="Makes ETService.exe using devenv.exe">
         <!-- NOTE: I'm not sure exactly what this is doing for us, but the
         ETService Release configuration occasionally fails with errors about
         multiply defined libraries.  Running this batch file fixes it.  But it

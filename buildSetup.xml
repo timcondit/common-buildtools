@@ -23,7 +23,7 @@
     <!-- ================================================================= -->
     <!-- Top-level target: create and deploy all installers                -->
     <!-- ================================================================= -->
-    <target name="release-installers" depends="set-conditional-properties, prepare"
+    <target name="release-installers" depends="propset, prepare"
         description="Copies installers, documentation, etc. from build machine to release share">
 
         <!-- target1, all versions -->
@@ -131,7 +131,7 @@
     <!-- ================================================================= -->
     <!-- Set conditional properties                                        -->
     <!-- ================================================================= -->
-    <target name="set-conditional-properties" depends="define-ac">
+    <target name="propset" depends="define-ac">
         <!-- Use tasks from ant-contrib to figure out what kind of build we're
         doing.  It does decimal comparisons where appropriate, which is not
         everywhere.  In particular, 9.10 and higher need special treatment.
@@ -459,7 +459,7 @@
     <!-- ================================================================= -->
     <!-- Unzip Centricity WebHelp for the Server installer                 -->
     <!-- ================================================================= -->
-    <target name="unzip-Centricity_WebHelp" depends="set-conditional-properties">
+    <target name="unzip-Centricity_WebHelp" depends="propset">
         <!-- Maybe later this will become three separate tasks. -->
         <!-- Centricity documentation for Supervisors -->
         <unjar
@@ -548,7 +548,7 @@
     .
     PKI09 (9.9) -> 1.6.0_03
     July09 (9.10) -> 1.6.0_14 -->
-    <target name="unzip-Envision_JRE" depends="set-conditional-properties">
+    <target name="unzip-Envision_JRE" depends="propset">
         <property name="Envision_JRE" value="jre1.6.0_14-Envision-no-jars.zip"/>
         <unjar
             src="${dir.jre}/${Envision_JRE}"
@@ -563,7 +563,7 @@
     things from getting messy.  And it removes an artificial dependency, since
     unzip-Server-jars_ZIP would otherwise depend on unzip-Envision_JRE.
     (make-Server depends on both of them.) -->
-    <target name="unzip-Server-jars_ZIP" depends="set-conditional-properties">
+    <target name="unzip-Server-jars_ZIP" depends="propset">
         <property name="Server-jars_ZIP" value="jar-files-EnvisionServer-9.10.zip"/>
         <unjar
             src="${dir.jre}/${Server-jars_ZIP}"
@@ -578,7 +578,7 @@
     things from getting messy.  And it removes an artificial dependency, since
     unzip-Server-jars_ZIP would otherwise depend on unzip-Envision_JRE.
     (make-PerformanceSuite depends on both of them.) -->
-    <target name="unzip-PerformanceSuite-jars_ZIP" depends="set-conditional-properties">
+    <target name="unzip-PerformanceSuite-jars_ZIP" depends="propset">
         <property name="EPS-jars_ZIP" value="jar-files-EnvisionPerformanceSuite-9.10.zip"/>
         <unjar
             src="${dir.jre}/${EPS-jars_ZIP}"
@@ -588,7 +588,7 @@
     <!-- ================================================================= -->
     <!-- Unzip the default Nuance profile for the Speech Server            -->
     <!-- ================================================================= -->
-    <target name="unzip-NuanceProfile" depends="set-conditional-properties">
+    <target name="unzip-NuanceProfile" depends="propset">
         <unjar src="${dir.sdk}/Nuance/Envision.zip"
             dest="${dir.workdir}/AudioMining"/>
         <ac:if>
@@ -623,7 +623,7 @@
     <!-- ================================================================= -->
     <!-- Unzip the Iontas client files                                     -->
     <!-- ================================================================= -->
-    <target name="unzip-IontasClient" depends="set-conditional-properties">
+    <target name="unzip-IontasClient" depends="propset">
         <unjar
             src="${uncpath.iontas}/IontasClient4.1.zip"
             dest="${dir.sdk}/Iontas"/>

@@ -68,7 +68,7 @@
         the product that does *not* include the target jar-EnvisionPlugin.  I
         wrote it this way because antcontrib does not have an "is greater than
         or equal to" method, AFAIK. -->
-        <!-- TODO add to set-conditional-properties -->
+        <!-- TODO add to propset -->
         <property name="EnvisionPluginAfter" value="9.7.0100"/>
         <ac:if>
             <or>

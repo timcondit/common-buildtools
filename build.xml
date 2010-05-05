@@ -101,7 +101,7 @@
     <!-- ================================================================= -->
     <!-- Set conditional properties                                        -->
     <!-- ================================================================= -->
-    <target name="set-conditional-properties" depends="define-ac">
+    <target name="propset" depends="define-ac">
         <!-- Use tasks from ant-contrib to figure out what kind of build we're
         doing.  It does decimal comparisons where appropriate, which is not
         everywhere.  In particular, 9.10 and higher need special treatment.
@@ -521,8 +521,8 @@
     .
     -timc 8/18/2008
     -->
-    <!-- TODO rewrite this and get rid of dir.build.present - set
-    set-conditional-properties for ideas -timc 11/21/2009 -->
+    <!-- TODO rewrite this and get rid of dir.build.present - set propset for
+    ideas -timc 11/21/2009 -->
     <target name="move-workdir-postbuild" depends="get-head-revision"
         description="Move working directory after build completes">
         <property name="dir.postbuild"
@@ -1062,7 +1062,7 @@ java -cp %CP% genDBSchema.GenDBSchemaFromFiles -inputDir %INPUT_DIR% -outputSche
     <!-- TODO defmacro? -timc 1/2/2009 -->
     <!-- TODO depends? -timc 4/17/2009 -->
 
-    <target name="make-EnvisionControls_CAB" depends="set-conditional-properties">
+    <target name="make-EnvisionControls_CAB" depends="propset">
         <antcall target="make-EnvisionControls_CAB_EN"/>
         <!-- localized in 9.7.x or later -->
         <ac:if>
@@ -1090,7 +1090,7 @@ java -cp %CP% genDBSchema.GenDBSchemaFromFiles -inputDir %INPUT_DIR% -outputSche
         </ac:if>
     </target>
 
-    <target name="sign-EnvisionControls_CAB" depends="set-conditional-properties">
+    <target name="sign-EnvisionControls_CAB" depends="propset">
         <antcall target="sign-EnvisionControls_CAB_EN"/>
         <!-- localized in 9.7.x or later -->
         <ac:if>
@@ -1255,8 +1255,7 @@ java -cp %CP% genDBSchema.GenDBSchemaFromFiles -inputDir %INPUT_DIR% -outputSche
 
 
     <!-- English -->
-    <target name="sign-EnvisionControls_CAB_EN"
-        depends="set-conditional-properties, make-EnvisionControls_CAB_EN"
+    <target name="sign-EnvisionControls_CAB_EN" depends="propset, make-EnvisionControls_CAB_EN"
         description="Signs EnvisionControls.cab (English) using signtool">
         <exec dir="${dir.build}" executable="${basedir}/${signtool}"
             vmlauncher="false" failonerror="true">
@@ -1268,8 +1267,7 @@ java -cp %CP% genDBSchema.GenDBSchemaFromFiles -inputDir %INPUT_DIR% -outputSche
         </exec>
     </target>
     <!-- German -->
-    <target name="sign-EnvisionControls_CAB_DE"
-        depends="set-conditional-properties, make-EnvisionControls_CAB_DE"
+    <target name="sign-EnvisionControls_CAB_DE" depends="propset, make-EnvisionControls_CAB_DE"
         description="Signs EnvisionControls.cab (German) using signtool">
         <exec dir="${dir.build}" executable="${basedir}/${signtool}"
             vmlauncher="false" failonerror="true">
@@ -1281,8 +1279,7 @@ java -cp %CP% genDBSchema.GenDBSchemaFromFiles -inputDir %INPUT_DIR% -outputSche
         </exec>
     </target>
     <!-- Spanish -->
-    <target name="sign-EnvisionControls_CAB_ES"
-        depends="set-conditional-properties, make-EnvisionControls_CAB_ES"
+    <target name="sign-EnvisionControls_CAB_ES" depends="propset, make-EnvisionControls_CAB_ES"
         description="Signs EnvisionControls.cab (Spanish) using signtool">
         <exec dir="${dir.build}" executable="${basedir}/${signtool}"
             vmlauncher="false" failonerror="true">
@@ -1307,8 +1304,7 @@ java -cp %CP% genDBSchema.GenDBSchemaFromFiles -inputDir %INPUT_DIR% -outputSche
     </target>
 
     <!-- build, run, and publish the unit test results -->
-    <target name="publish-unit-test-results"
-        depends="set-conditional-properties"
+    <target name="publish-unit-test-results" depends="propset"
         description="Publishes the results of the unit tests">
         <!-- publish the results for the c# unit tests -->
         <ant antfile="unitTests.xml" dir="." target="publish-CSUnitTests"/>
@@ -1342,7 +1338,7 @@ java -cp %CP% genDBSchema.GenDBSchemaFromFiles -inputDir %INPUT_DIR% -outputSche
         <antcall target="build-jars"/>
         <antcall target="generate-dbschemas"/>
         <!-- TODO set here at least temporarily -->
-        <antcall target="set-conditional-properties"/>
+        <antcall target="propset"/>
         <antcall target="make-CPP"/>
         <!-- TODO move this to buildC#CPP.xml -->
         <antcall target="sign-EnvisionControls_CAB"/>
@@ -1380,7 +1376,7 @@ java -cp %CP% genDBSchema.GenDBSchemaFromFiles -inputDir %INPUT_DIR% -outputSche
         <antcall target="build-jars"/>
         <antcall target="generate-dbschemas"/>
         <!-- TODO set here at least temporarily -->
-        <antcall target="set-conditional-properties"/>
+        <antcall target="propset"/>
         <antcall target="make-CPP"/>
         <antcall target="sign-EnvisionControls_CAB"/>
     </target>

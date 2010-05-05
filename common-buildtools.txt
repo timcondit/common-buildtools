@@ -8,14 +8,14 @@
 * I need a generic configuration tool for setting and retrieving path and
   source data
 
-* set-conditional-properties should identify missing resources precisely
+* propset should identify missing resources precisely
 
-* set-conditional-properties should do all version comparisons individually,
-  e.g. for 9.10 compare 9 and 10 separately.
+* propset should do all version comparisons individually, e.g. for 9.10
+  compare 9 and 10 separately.
 
-* set-conditional-properties should set a property for each release that
-  matters, and use that everywhere else.  The alternative, doing the
-  comparison everywhere it's needed, is too awful to contemplate.
+* propset should set a property for each release that matters, and use that
+  everywhere else.  The alternative, doing the comparison everywhere it's
+  needed, is too awful to contemplate.
 
   The property could be either a long integer, e.g., 1000000 -> 10.0.0000,
   09060100 -> 9.6.0100, but that just blows. I don't know yet what it should
@@ -56,11 +56,10 @@
     ~ unzip-Centricity_WebHelp
 
 * It would be better to generate lists of targets separately, rather than
-  scattering the version logic (set-conditional-properties type stuff) all
-  over the place.  So the first target would be generate-target-list, and the
-  second one would be the list itself.  It presents a problem though, which is
-  how to create the target list on the fly.  Ant isn't exactly well known for
-  introspection.
+  scattering the version logic (propset type stuff) all over the place.  So
+  the first target would be generate-target-list, and the second one would be
+  the list itself.  It presents a problem though, which is how to create the
+  target list on the fly.  Ant isn't exactly well known for introspection.
 
 * Current status (12/09/2009):
     - Old copies of SVN common-buildtools are removed from build4 and build5
