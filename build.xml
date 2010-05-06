@@ -2760,11 +2760,10 @@ Complete log here: ${dir.projects.converted}\unittests\${version.product}_verbos
     <!-- ================================================================= -->
     <!-- build, run, and publish the unit test results                     -->
     <!-- ================================================================= -->
-    <!-- TODO expect this to fail -timc, 5/6/2010 -->
     <target name="publish-unit-test-results" depends="propset"
         description="Publishes the results of the unit tests">
         <!-- publish the results for the c# unit tests -->
-        <ant antfile="unitTests.xml" dir="." target="publish-CSUnitTests"/>
+        <antcall target="publish-CSUnitTests"/>
 
         <!-- this is where JUnit test results can be published -->
 
