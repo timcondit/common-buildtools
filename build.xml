@@ -99,7 +99,7 @@ have comments in-place.
     <!-- ================================================================= -->
     <macrodef name="build-cpp">
         <attribute name="configuration" default="Release"/>
-        <attribute name="solution.file" default="NOT SET"/>
+        <attribute name="solution.file"/>
         <attribute name="output.path" default="${dir.build}/BuildLog.txt"/>
         <sequential>
             <echo message="Compiling @{configuration} from @{solution.file}"/>
@@ -122,9 +122,9 @@ have comments in-place.
     http://blog.andrewbeacock.com/2005/08/pretty-printing-java-classpaths-using.html
     -->
     <macrodef name="build-AI-installer">
-        <attribute name="product.name" default="NOT SET"/>
-        <attribute name="installer.path" default="NOT SET"/>
-        <attribute name="project.file" default="NOT SET"/>
+        <attribute name="product.name"/>
+        <attribute name="installer.path"/>
+        <attribute name="project.file"/>
         <sequential>
             <echo message="Making installer at @{project.file}"/>
             <mkdir dir="@{installer.path}/newInstall"/>
@@ -148,9 +148,9 @@ have comments in-place.
     release-AI-installer, EVERY installer project file needs to be updated at
     the same time (on the media page).  Open a PRN for it. -timc 1/7/2009 -->
     <macrodef name="release-AI-installer">
-        <attribute name="product.name" default="NOT SET"/>
-        <attribute name="installer.path" default="NOT SET"/>
-        <attribute name="product.path" default="NOT SET"/>
+        <attribute name="product.name"/>
+        <attribute name="installer.path"/>
+        <attribute name="product.path"/>
         <sequential>
             <copy todir="@{product.path}">
                 <fileset dir="@{installer.path}/newInstall"/>
