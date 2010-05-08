@@ -6,106 +6,49 @@
 <project name="BuildC++" default="" basedir="." xmlns:ac="antlib:net.sf.antcontrib">
 
     <!-- ================================================================= -->
-    <!-- Source the contents of build.properties                           -->
+    <!-- Make ADIT                                                         -->
     <!-- ================================================================= -->
-    <!-- Note: There should not be any references to this property anywhere in
-    the rest of the script.  It is read at this point, the property values are
-    set, and that's the end of it. -->
-    <!-- TODO consider loadproperties task instead. -timc 5/28/2009 -->
-    <property file="build.properties"/>
-
-    <!-- TEMPORARY HACK until I get everything into a single build file.  This
-    target has to be identical to the one in build.xml -->
-    <!-- ================================================================= -->
-    <!-- Make environment variables accessible in build.properties         -->
-    <!-- ================================================================= -->
-    <!-- http://forums.sun.com/thread.jspa?messageID=4257700 -->
-    <property environment="env"/>
+    <target name="make-ADIT" description="Makes ADIT">
+        <build-cpp solution.file="${dir.src}/tools/ADIT/Gold/ADIT.sln"/>
+    </target>
 
     <!-- ================================================================= -->
-    <!-- Build C++ project                                                 -->
+    <!-- Make Administrator.exe                                            -->
     <!-- ================================================================= -->
-    <!-- Note: WRT propset, build-CPP is all old skool, and not a problem.  It
-    looks like we can call the targets natively here, and just set conditions
-    as necessary in the individual targets. -->
-    <!-- TODO Each target should depend on init.  init should check that the
-    properties in propset are set, and only call that target if they are not.
-    -->
-    <!-- Dependencies:
-    - make-AgentSupport (rather, reporting\controls\WebUtilsCtl.h) needs
-    WebControls_h.h, which seems to come from make-WebControls_OCX
-    -->
-    <target name="build-CPP"
-        depends="
-        propset,
-        make-RO,
-        make-Serializable_LIB,
-        make-Generated,
-        make-RegUtils,
-        make-SharedResources,
-        make-Shared_LIB,
-        make-UserTree_LIB,
-        make-NotificationWindow_LIB,
-        make-ContactSourceUtilities_LIB,
-        make-NativeServiceWin32,
-        make-AgentAutomation,
-        make-EnvisionService,
-        make-SourceRunner,
-        make-JavaContactSource,
-        make-ChannelManager,
-        make-DialogicChannel60,
-        make-CiscoICM,
-        make-TSAPI,
-        make-XFloorWnd,
-        sign-AgentX_OCX,
-        sign-AgentSchedule_OCX,
-        sign-AgentAdherence_OCX,
-        sign-C2CReportingControls_OCX,
-        sign-WebControls_OCX,
-        make-SmartAgentErrs,
-        make-AgentSupport,
-        make-Administrator,
-        make-eLearning,
-        make-QualityMonitoring,
-        make-WFM
-        "/>
+    <target name="make-Administrator" description="Makes Administrator.exe">
+        <build-cpp solution.file="${dir.src}/clients/admin/Administrator/Administrator.vcproj"/>
+    </target>
 
     <!-- ================================================================= -->
-    <!-- Build C#                                                          -->
+    <!--  Make AgentAdherence.ocx                                          -->
     <!-- ================================================================= -->
-    <target name="build-CSharp" depends="propset">
-        <antcall target="make-Server_CS"/>
-        <antcall target="make-APICommon_CS"/>
-        <antcall target="make-Finder_CS"/>
-        <!-- make-TaggerWrapperService_CS is in 9.6.x only -->
-        <ac:if>
-            <and>
-                <or>
-                    <ac:isgreaterthan arg1="${MAJOR}.${MINOR}" arg2="9.6"/>
-                    <ac:equals arg1="${MAJOR}.${MINOR}" arg2="9.6"/>
-                </or>
-                <ac:islessthan arg1="${MAJOR}.${MINOR}" arg2="9.7"/>
-            </and>
-            <then>
-                <antcall target="make-TaggerWrapperService_CS"/>
-            </then>
-        </ac:if>
-        <antcall target="make-CallTagger_CS"/>
-        <antcall target="make-FinderClient_CS"/>
-        <antcall target="make-TaggingClient_CS"/>
-        <antcall target="make-Portal_CS"/>
-        <antcall target="make-ADIT"/>
-        <antcall target="make-DBMigration"/>
-        <antcall target="make-EvaluationConsistencyCheck"/>
-        <antcall target="make-AutoTagger"/>
-        <antcall target="make-AGMS"/>
-        <antcall target="make-DADI"/>
-        <antcall target="make-WMWrapperService"/>
-        <antcall target="make-Centricity"/>
-        <antcall target="publish-AVPlayer"/>
-        <antcall target="publish-RecordingDownloadTool"/>
-        <antcall target="sign-EnvisionCLR"/>
-        <!-- 9.7.x (localization is handled in the targets) -->
+    <target name="make-AgentAdherence_OCX" description="Makes AgentAdherence.ocx">
+        <build-cpp solution.file="${dir.src}/clients/wfm/agentadherence/AgentAdherence.vcproj"/>
+    </target>
+
+    <!-- ================================================================= -->
+    <!--  Make Agent Automation                                            -->
+    <!-- ================================================================= -->
+    <target name="make-AgentAutomation" depends="propset" description="Makes AgentAutomation.dll">
+        <build-cpp solution.file="${dir.src}/apis/AgentAutomation.sln"/>
+    </target>
+
+    <!-- ================================================================= -->
+    <!--  Make AgentSchedule.ocx                                           -->
+    <!-- ================================================================= -->
+    <target name="make-AgentSchedule_OCX" description="Makes AgentSchedule.ocx">
+        <build-cpp solution.file="${dir.src}/clients/wfm/agentschedule/AgentSchedule.vcproj"/>
+    </target>
+
+    <!-- ================================================================= -->
+    <!--  Make AgentSupport                                                -->
+    <!-- ================================================================= -->
+    <!-- TODO organize this such that the languages are separable.  In other
+    words, do it the same way EnvisionControls_CAB is done in build.xml. -->
+    <!-- TODO macrodefs?  Maybe this should come after the previous TODO about
+    separating by languages.  See buildSetup.xml for an example. -->
+    <target name="make-AgentSupport" depends="propset" description="Makes AgentSupport">
+        <build-cpp solution.file="${dir.src}/clients/AgentSupport.sln"/>
         <ac:if>
             <or>
                 <and>
@@ -121,12 +64,19 @@
                 </and>
             </or>
             <then>
-                <antcall target="make-DeployAnalyticsTool"/>
-                <antcall target="sign-AnalyticsResources"/>
-                <antcall target="sign-AnalyticsUtilities"/>
+                <build-cpp configuration="ReleaseGerman"
+                    solution.file="${dir.src}/clients/AgentSupport.sln"/>
+                <build-cpp configuration="ReleaseSpanish"
+                    solution.file="${dir.src}/clients/AgentSupport.sln"/>
             </then>
         </ac:if>
-        <!-- 9.8.x -->
+    </target>
+
+    <!-- ================================================================= -->
+    <!--  Make AgentX.ocx                                                  -->
+    <!-- ================================================================= -->
+    <target name="make-AgentX_OCX" depends="propset" description="Makes AgentX.ocx">
+        <build-cpp solution.file="${dir.src}/clients/quality/agentdesktop/AgentX.vcproj"/>
         <ac:if>
             <or>
                 <and>
@@ -134,47 +84,405 @@
                 </and>
                 <and>
                     <ac:equals arg1="${MAJOR}" arg2="9"/>
-                    <ac:equals arg1="${MINOR}" arg2="8"/>
+                    <ac:equals arg1="${MINOR}" arg2="7"/>
                 </and>
                 <and>
                     <ac:equals arg1="${MAJOR}" arg2="9"/>
-                    <ac:isgreaterthan arg1="${MINOR}" arg2="8"/>
+                    <ac:isgreaterthan arg1="${MINOR}" arg2="7"/>
                 </and>
             </or>
             <then>
-                <antcall target="make-Speech"/>
+                <build-cpp configuration="ReleaseGerman"
+                    solution.file="${dir.src}/clients/quality/agentdesktop/AgentX.vcproj"/>
+                <build-cpp configuration="ReleaseSpanish"
+                    solution.file="${dir.src}/clients/quality/agentdesktop/AgentX.vcproj"/>
             </then>
         </ac:if>
     </target>
 
     <!-- ================================================================= -->
-    <!-- Build loaders project                                             -->
+    <!-- Make AGMS                                                         -->
     <!-- ================================================================= -->
-    <target name="build-Loaders" depends="propset, make-cstaLoader, make-ctcLoader6.0, make-ctcLoader7.0, make-hook"/>
+    <target name="make-AGMS" description="Makes AGMS">
+        <build-cpp solution.file="${dir.src}/tools/AGMS/AGMS.sln"/>
+    </target>
 
     <!-- ================================================================= -->
-    <!-- Set conditional properties                                        -->
+    <!-- Make AnalyticsUtilities                                           -->
     <!-- ================================================================= -->
-    <target name="propset" depends="define-ac">
-        <!-- Use tasks from ant-contrib to figure out what kind of build we're
-        doing.  It does decimal comparisons where appropriate, which is not
-        everywhere.  In particular, 9.10 and higher need special treatment.
-        Version numbers are not decimals, so we can't do decimal comparisons
-        with them, e.g., 9.6 is greater than 9.10, 9.11, 9.5999, etc. -->
+    <target name="make-AnalyticsUtilities" description="Makes EnvisionAnalyticsUtilities.dll">
+        <build-cpp solution.file="${dir.src}/clients/centricity/Analytics/AnalyticsUtilities/AnalyticsUtilities.sln"/>
+    </target>
 
-        <!-- This is a cascade, like switch statements without breaks.  It
-        works because Ant's properties are immutable once set.  For instance,
-        if the version is 9.9, the compiler is set to VS2008 when the 9.8.x if
-        statement is encountered and found to be true.  The 9.6.x if statement
-        is also encountered and is also true, but the property is already set,
-        and is not reset. -->
+    <!-- ================================================================= -->
+    <!-- Make C# APICommon.dll                                             -->
+    <!-- ================================================================= -->
+    <target name="make-APICommon_CS" description="Makes APICommon.dll">
+        <build-cpp solution.file="${dir.src}/apis/bi/com/et/bi/api/common/APICommon.csproj"/>
+    </target>
 
-        <!-- This target implicitly depends on not having big changes in
-        service packs.  If that changes, I'll subdivide it further.  -->
+    <!-- ================================================================= -->
+    <!-- Make Automated Tagger DLLs                                        -->
+    <!-- ================================================================= -->
+    <!-- VB, but compiled with build-CSharp (go figure) -->
+    <target name="make-AutoTagger" description="Makes Automated Tagger DLLs">
+        <build-cpp solution.file="${dir.src}/clients/focus/PSPost.root/AutomatedTagger.sln"/>
+    </target>
 
-        <!-- short-circuit sanity check -->
+    <!-- ================================================================= -->
+    <!--  Make C2CReportingControls.ocx                                    -->
+    <!-- ================================================================= -->
+    <target name="make-C2CReportingControls_OCX" depends="propset" description="Makes C2CReportingControls.ocx">
+        <build-cpp solution.file="${dir.src}/clients/reporting/C2CReportingControls/C2CReportingControls.sln"/>
         <ac:if>
             <or>
+                <and>
+                    <ac:isgreaterthan arg1="${MAJOR}" arg2="9"/>
+                </and>
+                <and>
+                    <ac:equals arg1="${MAJOR}" arg2="9"/>
+                    <ac:equals arg1="${MINOR}" arg2="7"/>
+                </and>
+                <and>
+                    <ac:equals arg1="${MAJOR}" arg2="9"/>
+                    <ac:isgreaterthan arg1="${MINOR}" arg2="7"/>
+                </and>
+            </or>
+            <then>
+                <build-cpp configuration="ReleaseGerman"
+                    solution.file="${dir.src}/clients/reporting/C2CReportingControls/C2CReportingControls.sln"/>
+                <build-cpp configuration="ReleaseSpanish"
+                    solution.file="${dir.src}/clients/reporting/C2CReportingControls/C2CReportingControls.sln"/>
+            </then>
+        </ac:if>
+    </target>
+
+    <!-- ================================================================= -->
+    <!-- Make BI Call Tagger                                               -->
+    <!-- ================================================================= -->
+    <target name="make-CallTagger_CS" description="Makes BI Call Tagger">
+        <build-cpp solution.file="${dir.src}/apis/bi/com/et/bi/api/tagger/ETCallTagger.csproj"/>
+    </target>
+
+    <!-- ================================================================= -->
+    <!-- Make Centricity web app                                           -->
+    <!-- ================================================================= -->
+    <!-- Dependencies:
+    . \\Bigfoot\Engineering\Software\MICROSOFT\VS2005Pro-SP1
+    . \\Bigfoot\Engineering\Software\MICROSOFT\VS2005 Addins\webdeploymentsetup.msi
+    . ASPAJAXExtSetup.msi [ASP.NET 2.0 AJAX Extensions 1.0] -->
+    <target name="make-Centricity" description="Makes Centricity web app">
+        <build-cpp configuration="Production" solution.file="${dir.src}/clients/centricity/Centricity.sln"/>
+    </target>
+
+    <!-- ================================================================= -->
+    <!--  Make Channel Manager                                             -->
+    <!-- ================================================================= -->
+    <target name="make-ChannelManager" description="Makes channelmanager devenv.exe">
+        <build-cpp solution.file="${dir.src}/winservices/ChannelManager.sln"/>
+    </target>
+
+    <!-- ================================================================= -->
+    <!--  Make CiscoICM                                                    -->
+    <!-- ================================================================= -->
+    <target name="make-CiscoICM" description="Makes CiscoICM.dll">
+        <build-cpp solution.file="${dir.src}/contactsources/ciscoicm/CiscoICM.vcproj"/>
+    </target>
+
+    <!-- ================================================================= -->
+    <!-- Make ContactSourceUtilities.lib                                   -->
+    <!-- ================================================================= -->
+    <target name="make-ContactSourceUtilities_LIB" description="Makes ContactSourceUtils.lib">
+        <build-cpp solution.file="${dir.src}/contactsources/contactsourceutilities/ContactSourceUtils.sln"/>
+    </target>
+
+    <!-- ================================================================= -->
+    <!-- Make CSTA Loader                                                   -->
+    <!-- ================================================================= -->
+    <!-- TODO is there a cstaLoader solution? -timc, Cinco de Mayo 2010 -->
+    <target name="make-cstaLoader" description="Makes cstaLoader">
+        <build-cpp solution.file="${dir.src}/contactsources/tsapi/cstaLoader/cstaLoader.vcproj"/>
+        <build-cpp configuration="Release_1_2"
+            solution.file="${dir.src}/contactsources/tsapi/cstaLoader/cstaLoader.vcproj"/>
+        <build-cpp configuration="Release_1_3_3"
+            solution.file="${dir.src}/contactsources/tsapi/cstaLoader/cstaLoader.vcproj"/>
+        <build-cpp configuration="Release_3_33"
+            solution.file="${dir.src}/contactsources/tsapi/cstaLoader/cstaLoader.vcproj"/>
+        <build-cpp configuration="Release_9_1"
+            solution.file="${dir.src}/contactsources/tsapi/cstaLoader/cstaLoader.vcproj"/>
+        <build-cpp configuration="Release_9_5"
+            solution.file="${dir.src}/contactsources/tsapi/cstaLoader/cstaLoader.vcproj"/>
+    </target>
+
+    <!-- ================================================================= -->
+    <!--  Make ctcLoader6.0                                                -->
+    <!-- ================================================================= -->
+    <!-- TODO is there a ctcLoader solution? -timc, Cinco de Mayo 2010 -->
+    <target name="make-ctcLoader6.0" description="Makes ctcLoader6.0">
+        <build-cpp solution.file="${dir.src}/contactsources/netmerge/ctcLoader_6_0/ctcLoader_6_0.vcproj"/>
+    </target>
+
+    <!-- ================================================================= -->
+    <!--  Make ctcLoader7.0                                                -->
+    <!-- ================================================================= -->
+    <!-- TODO is there a ctcLoader solution? -timc, Cinco de Mayo 2010 -->
+    <target name="make-ctcLoader7.0" description="Makes ctcLoader7.0">
+        <build-cpp solution.file="${dir.src}/contactsources/netmerge/ctcLoader_7_0/ctcLoader.vcproj"/>
+    </target>
+
+    <!-- ================================================================= -->
+    <!-- Make DADI                                                         -->
+    <!-- ================================================================= -->
+    <!-- It's not in buildtools/branches/9.0/SP4/base/buildC#CPP.xml -->
+    <target name="make-DADI" description="Makes DADI">
+        <build-cpp solution.file="${dir.src}/tools/DADI/DADI.sln"/>
+    </target>
+
+    <!-- ================================================================= -->
+    <!-- make-DBMigration                                                  -->
+    <!-- ================================================================= -->
+    <target name="make-DBMigration" description="Makes DBMigrationWizard.exe">
+        <build-cpp solution.file="${dir.src}/tools/DBMigration/DBMIGRATIONWIZARD/DBMigrationWizard.sln"/>
+    </target>
+
+    <!-- ================================================================= -->
+    <!-- Make DeployAnalyticsTool                                          -->
+    <!-- ================================================================= -->
+    <target name="make-DeployAnalyticsTool" description="TODO">
+        <build-cpp solution.file="${dir.src}/clients/centricity/Analytics/DeployAnalyticsTool/DeployAnalyticsTool.sln"/>
+    </target>
+
+    <!-- ================================================================= -->
+    <!-- Make DialogicChannel60                                            -->
+    <!-- ================================================================= -->
+    <!-- TODO why is this a separate vcproj? -timc 5/4/2009 -->
+    <target name="make-DialogicChannel60" description="Makes DialogicChannel60 devenv.exe">
+        <build-cpp configuration="ReleaseSR60" solution.file="${dir.src}/winservices/ChannelManager.sln"/>
+    </target>
+
+    <!-- ================================================================= -->
+    <!--  Make eLearning                                                   -->
+    <!-- ================================================================= -->
+    <!-- TODO is there an eLearning solution? -timc, Cinco de Mayo -->
+    <target name="make-eLearning" depends="propset" description="Makes eLearning">
+        <build-cpp configuration="eLearningRelease" solution.file="${dir.src}/clients/quality/qm/qm.vcproj"/>
+        <ac:if>
+            <or>
+                <and>
+                    <ac:isgreaterthan arg1="${MAJOR}" arg2="9"/>
+                </and>
+                <and>
+                    <ac:equals arg1="${MAJOR}" arg2="9"/>
+                    <ac:equals arg1="${MINOR}" arg2="7"/>
+                </and>
+                <and>
+                    <ac:equals arg1="${MAJOR}" arg2="9"/>
+                    <ac:isgreaterthan arg1="${MINOR}" arg2="7"/>
+                </and>
+            </or>
+            <then>
+                <build-cpp configuration="eLearningReleaseGerman" solution.file="${dir.src}/clients/quality/qm/qm.vcproj"/>
+                <build-cpp configuration="eLearningReleaseSpanish" solution.file="${dir.src}/clients/quality/qm/qm.vcproj"/>
+            </then>
+        </ac:if>
+    </target>
+
+    <!-- ================================================================= -->
+    <!-- Make EnvisionCLR (includes DeployAnalyticsTool)                   -->
+    <!-- ================================================================= -->
+    <target name="make-EnvisionCLR" description="Makes EnvisionCLR.dll for use with RDL files">
+        <build-cpp solution.file="${dir.src}/clients/centricity/Analytics/EnvisionCLR/EnvisionCLR.sln"/>
+    </target>
+
+    <!-- ================================================================= -->
+    <!-- Make ETService                                                    -->
+    <!-- ================================================================= -->
+    <!-- TODO is there an EnvisionService solution? -timc, Cinco de Mayo -->
+    <target name="make-EnvisionService" depends="propset" description="Makes ETService.exe">
+        <!-- NOTE: I'm not sure exactly what this is doing for us, but the
+        ETService Release configuration occasionally fails with errors about
+        multiply defined libraries.  Running this batch file fixes it.  But it
+        needs to be run in the same environment as ETService.vcproj.  That's
+        why it's not invoked with executable="cmd.exe" and arg
+        line="vsvars.bat" (although that seems to work as well). -->
+        <exec dir="${vscommontools}" executable="cmd.exe">
+            <arg line="vsvars32.bat"/>
+        </exec>
+        <build-cpp solution.file="${dir.src}/server/startserverprocess/C2CServerPro.vcproj"/>
+        <build-cpp solution.file="${dir.src}/server/shutdownserverprocess/ShutdownServer.vcproj"/>
+        <build-cpp solution.file="${dir.src}/winservices/etservice/ETService.vcproj"/>
+        <build-cpp solution.file="${dir.src}/winservices/etservice/ETServiceInstall.vcproj"/>
+    </target>
+
+    <!-- ================================================================= -->
+    <!-- Make Evaluation Consistency Check                                 -->
+    <!-- ================================================================= -->
+    <target name="make-EvaluationConsistencyCheck" description="Make EvaluationConsistencyCheck.exe (a database migration utility)">
+        <build-cpp solution.file="${dir.src}/tools/EvaluationConsistencyCheck/EvaluationConsistencyCheck.sln"/>
+    </target>
+
+    <!-- ================================================================= -->
+    <!-- Make C# finder.dll                                                -->
+    <!-- ================================================================= -->
+    <!-- TODO is there a Finder solution? -timc, Cinco de Mayo -->
+    <target name="make-Finder_CS" description="Makes finder.dll">
+        <build-cpp solution.file="${dir.src}/apis/bi/com/et/bi/api/finder/finder.csproj"/>
+    </target>
+
+    <!-- ================================================================= -->
+    <!-- Make BI Finder Client                                             -->
+    <!-- ================================================================= -->
+    <!-- TODO is there a FinderClient solution? -timc, Cinco de Mayo -->
+    <target name="make-FinderClient_CS" description="Makes BI Finder Client">
+        <build-cpp solution.file="${dir.src}/clients/finder/finderclient.csproj"/>
+    </target>
+
+    <!-- ================================================================= -->
+    <!-- Make Generated                                                    -->
+    <!-- ================================================================= -->
+    <!-- TODO is there a Generated solution? -timc, Cinco de Mayo -->
+    <target name="make-Generated" description="Makes generated devenv.exe">
+        <build-cpp solution.file="${dir.src}/generated/generated.vcproj"/>
+    </target>
+
+    <!-- ================================================================= -->
+    <!--  Make hook                                                        -->
+    <!-- ================================================================= -->
+    <!-- Per Ed in email, 1/21/09 "This is the hook.dll component for getting
+    Windows messages into AgentSupport to process start/stop email captures.
+    This is used for email integrations.  This is a class of components that
+    just needs to be built once when we change toolset (compiler version)."
+    -->
+    <target name="make-hook" description="Makes hook.dll">
+        <build-cpp solution.file="${dir.src}/clients/quality/agentsupport/monitoring/KanaDriver/dll/hook.sln"/>
+    </target>
+
+    <!-- ================================================================= -->
+    <!-- Make JavaContactSource.dll                                        -->
+    <!-- ================================================================= -->
+    <!-- TODO is there a JavaContactSource solution? -timc, Cinco de Mayo -->
+    <target name="make-JavaContactSource" description="Makes javacontactsource.dll">
+        <build-cpp solution.file="${dir.src}/contactsources/javacontactsource/JavaContactSource.vcproj"/>
+    </target>
+
+    <!-- ================================================================= -->
+    <!-- Make NativeServiceWin32                                           -->
+    <!-- ================================================================= -->
+    <target name="make-NativeServiceWin32" description="Makes NativeServiceWin32.dll">
+        <build-cpp solution.file="${dir.src}/server/nativeservicewin32/nativeServiceWin32.sln"/>
+    </target>
+
+    <!-- ================================================================= -->
+    <!-- Make NotificationWindow.lib                                       -->
+    <!-- ================================================================= -->
+    <!-- TODO is there a NotificationWindow solution? -timc, Cinco de Mayo -->
+    <target name="make-NotificationWindow_LIB" description="Makes notificationwindow.lib">
+        <build-cpp solution.file="${dir.src}/clients/quality/notificationwindow/NotificationWindow.vcproj"/>
+    </target>
+
+    <!-- ================================================================= -->
+    <!-- Make BI Portal                                                    -->
+    <!-- ================================================================= -->
+    <!-- TODO is there a BI Portal solution? -timc, Cinco de Mayo -->
+    <target name="make-Portal_CS" description="Makes BI Portal">
+        <build-cpp solution.file="${dir.src}/clients/portal/portal.csproj"/>
+    </target>
+
+    <!-- ================================================================= -->
+    <!--  Make Quality Monitoring                                          -->
+    <!-- ================================================================= -->
+    <!-- NOTE This looks like a PerformanceSuite target only.  So when I
+    reorganize the buildtools toward the goal of creating each product
+    separately, this one will standalone.  IOW, it will not be a prerequisite
+    compile for anything else (as far as I know). -->
+    <!-- TODO is there a QM solution? -timc, Cinco de Mayo -->
+    <target name="make-QualityMonitoring" depends="propset" description="Makes QM">
+        <build-cpp solution.file="${dir.src}/clients/quality/qm/qm.vcproj"/>
+        <ac:if>
+            <or>
+                <and>
+                    <ac:isgreaterthan arg1="${MAJOR}" arg2="9"/>
+                </and>
+                <and>
+                    <ac:equals arg1="${MAJOR}" arg2="9"/>
+                    <ac:equals arg1="${MINOR}" arg2="7"/>
+                </and>
+                <and>
+                    <ac:equals arg1="${MAJOR}" arg2="9"/>
+                    <ac:isgreaterthan arg1="${MINOR}" arg2="7"/>
+                </and>
+            </or>
+            <then>
+                <build-cpp configuration="ReleaseGerman"
+                    solution.file="${dir.src}/clients/quality/qm/qm.vcproj"/>
+                <build-cpp configuration="ReleaseSpanish"
+                    solution.file="${dir.src}/clients/quality/qm/qm.vcproj"/>
+            </then>
+        </ac:if>
+    </target>
+
+    <!-- ================================================================= -->
+    <!-- Make RegUtils                                                     -->
+    <!-- ================================================================= -->
+    <!-- TODO is there a RegUtils solution? -timc, Cinco de Mayo -->
+    <target name="make-RegUtils" description="Makes RegUtils.lib">
+        <build-cpp solution.file="${dir.src}/clients/quality/regutils/regutils.vcproj"/>
+        <!-- TODO are we using this? -timc 5/27/2009 -->
+        <build-cpp configuration="Debug"
+            solution.file="${dir.src}/clients/quality/regutils/regutils.vcproj"/>
+    </target>
+
+    <!-- ================================================================= -->
+    <!--  Make RO                                                          -->
+    <!-- ================================================================= -->
+    <!-- TODO is there a RO solution? -timc, Cinco de Mayo -->
+    <target name="make-RO" description="Makes RO">
+        <build-cpp solution.file="${dir.src}/server/ro/cpp/ro.vcproj"/>
+        <!-- TODO are we using this? -timc 5/27/2009 -->
+        <build-cpp configuration="Debug" solution.file="${dir.src}/server/ro/cpp/ro.vcproj"/>
+    </target>
+
+    <!-- ================================================================= -->
+    <!-- Make Serializable                                                 -->
+    <!-- ================================================================= -->
+    <!-- TODO is there a Serializable solution? -timc, Cinco de Mayo -->
+    <target name="make-Serializable_LIB" description="Makes Serializable.lib">
+        <build-cpp solution.file="${dir.src}/serializable/serializable.vcproj"/>
+    </target>
+
+    <!-- ================================================================= -->
+    <!-- Make C# Server                                                    -->
+    <!-- ================================================================= -->
+    <!-- NB: The project is corearch in Acme, and server in Maya -->
+    <target name="make-Server_CS" description="Makes Server.dll">
+        <build-cpp solution.file="${dir.src}/server/server.sln"/>
+    </target>
+
+    <!-- ================================================================= -->
+    <!-- Make Shared.Lib                                                   -->
+    <!-- ================================================================= -->
+    <!-- TODO is there a SharedLib solution? -timc, Cinco de Mayo -->
+    <target name="make-Shared_LIB" description="Makes Shared Lib">
+        <build-cpp solution.file="${dir.src}/clients/quality/shared/Shared.vcproj"/>
+    </target>
+
+    <!-- ================================================================= -->
+    <!--  Make SharedResources DLL                                         -->
+    <!-- ================================================================= -->
+    <!-- Note the "logic": first we figure out if it's 9.6 or earlier.  Those
+    are not localized, so they get English only.  Then we check if it's
+    between 9.7.0 up to but not including 9.10.0.  Those use ReleaseEnglish
+    for English; German and Spanish are not affected.  Finally, if it's 9.10.0
+    or later, we switch back and use Release for English. -->
+    <!-- TODO is there a SharedResources solution? -timc, Cinco de Mayo -->
+    <target name="make-SharedResources" depends="propset" description="Makes SharedResources.dll">
+        <ac:if>
+            <!-- up to 9.6.x, no localization -->
+            <or>
+                <and>
+                    <ac:equals arg1="${MAJOR}" arg2="9"/>
+                    <ac:equals arg1="${MINOR}" arg2="6"/>
+                </and>
                 <and>
                     <ac:equals arg1="${MAJOR}" arg2="9"/>
                     <ac:islessthan arg1="${MINOR}" arg2="6"/>
@@ -184,248 +492,147 @@
                 </and>
             </or>
             <then>
-                <fail message="common-buildtools are only for product version 9.6 and later"/>
+                <build-cpp solution.file="${dir.src}/clients/quality/sharedresources/SharedResources.vcproj"/>
             </then>
+            <ac:elseif>
+                <!-- 9.7.0 thru 9.9.x, localization with ReleaseEnglish -->
+                <and>
+                    <or>
+                        <and>
+                            <ac:equals arg1="${MAJOR}" arg2="9"/>
+                            <ac:equals arg1="${MINOR}" arg2="7"/>
+                        </and>
+                        <and>
+                            <ac:equals arg1="${MAJOR}" arg2="9"/>
+                            <ac:isgreaterthan arg1="${MINOR}" arg2="7"/>
+                        </and>
+                    </or>
+                    <and>
+                        <ac:equals arg1="${MAJOR}" arg2="9"/>
+                        <ac:islessthan arg1="${MINOR}" arg2="10"/>
+                    </and>
+                </and>
+                <then>
+                    <echo message="ReleaseEnglish, ReleaseGerman, ReleaseSpanish"/>
+                    <build-cpp configuration="ReleaseEnglish"
+                        solution.file="${dir.src}/clients/quality/sharedresources/SharedResources.vcproj"/>
+                    <build-cpp configuration="ReleaseGerman"
+                        solution.file="${dir.src}/clients/quality/sharedresources/SharedResources.vcproj"/>
+                    <build-cpp configuration="ReleaseSpanish"
+                        solution.file="${dir.src}/clients/quality/sharedresources/SharedResources.vcproj"/>
+                </then>
+            </ac:elseif>
+            <ac:else>
+                <!-- DRY (combine with 9.6 check?) -->
+                <!-- 9.10.x or later, localization with Release for English -->
+                <echo message="Release, ReleaseGerman, ReleaseSpanish"/>
+                <build-cpp solution.file="${dir.src}/clients/quality/sharedresources/SharedResources.vcproj"/>
+                <build-cpp configuration="ReleaseGerman"
+                    solution.file="${dir.src}/clients/quality/sharedresources/SharedResources.vcproj"/>
+                <build-cpp configuration="ReleaseSpanish"
+                    solution.file="${dir.src}/clients/quality/sharedresources/SharedResources.vcproj"/>
+            </ac:else>
         </ac:if>
+    </target>
 
-        <!-- Part 1 of 2: set properties based on build version -->
-        <!-- 10.1 (Viper) -->
-        <ac:if>
-            <or>
-                <ac:isgreaterthan arg1="${MAJOR}.${MINOR}" arg2="10.1"/>
-                <ac:equals arg1="${MAJOR}.${MINOR}" arg2="10.1"/>
-            </or>
-            <then>
-                <echo message="INFO setting 10.1 properties (if any)"/>
-                <property name="dir.sdk" value="${env.ETSDK}"/>
-            </then>
-        </ac:if>
+    <!-- ================================================================= -->
+    <!--  Make SmartAgentErrs                                              -->
+    <!-- ================================================================= -->
+    <!-- TODO is there a SmartAgentErrs solution? -timc, Cinco de Mayo -->
+    <target name="make-SmartAgentErrs" description="Makes SmartAgentErrs.dll">
+        <exec dir="${dir.src}/clients/quality/agentsupport/smartagenterrs" executable="${compiler.message}" vmlauncher="${vmlauncher}" failonerror="true">
+            <arg line="-v -c -s -h ..\ -r .\ -x .\ -U smartagenterrs.mc" />
+        </exec>
+        <build-cpp solution.file="${dir.src}/clients/quality/agentsupport/smartagenterrs/SmartAgentErrs.vcproj"/>
+    </target>
 
-        <!-- 10.0 -->
-        <ac:if>
-            <or>
-                <ac:isgreaterthan arg1="${MAJOR}.${MINOR}" arg2="10.0"/>
-                <ac:equals arg1="${MAJOR}.${MINOR}" arg2="10.0"/>
-            </or>
-            <then>
-                <echo message="INFO setting 10.0 properties (if any)"/>
-                <property name="dir.sdk" value="${dir.build}/SDK"/>
-            </then>
-        </ac:if>
+    <!-- ================================================================= -->
+    <!-- Make SourceRunnerService.exe                                      -->
+    <!-- ================================================================= -->
+    <target name="make-SourceRunner" depends="make-ContactSourceUtilities_LIB" description="Makes SourceRunnerService.exe">
+        <build-cpp solution.file="${dir.src}/winservices/SourceRunnerService.sln"/>
+    </target>
 
-        <!-- 9.10 -->
+    <!-- ================================================================= -->
+    <!-- Make Speech Server Service and Speech Processing Client           -->
+    <!-- ================================================================= -->
+    <!-- The Speech apps depends on RAL.dll, Centricity_BLL.dll and
+    Centricity_DAL.dll from Centricity, and Server.dll that I'm getting from
+    the same location to simplify the dependencies.  The simplest thing that
+    works here is to add make-Centricity as a dependency.  We need most of
+    Centricity except for the deployment piece here, but I'd rather not cause
+    Centricity to be redeployed just to build audio mining.  It'll stay for
+    now. -timc 2/5/2009 -->
+    <target name="make-Speech" depends="make-Centricity" description="Makes SpeechServerService and SpeechProcessingClient">
+        <build-cpp solution.file="${dir.src}/winservices/AudioMining.sln"/>
+    </target>
+
+    <!-- ================================================================= -->
+    <!-- Make C# TaggerWrapperService.dll                                  -->
+    <!-- ================================================================= -->
+    <!-- TODO is there a TaggerWrapperService solution? -timc, Cinco de Mayo -->
+    <target name="make-TaggerWrapperService_CS" description="Makes TaggerWrapperService.dll">
+        <build-cpp solution.file="${dir.src}/apis/bi/com/et/bi/api/tagger/wrapperservice/TaggerWrapperService.csproj"/>
+    </target>
+
+    <!-- ================================================================= -->
+    <!-- Make BI Tagging Client                                            -->
+    <!-- ================================================================= -->
+    <!-- TODO is there a TaggingClient solution? -timc, Cinco de Mayo -->
+    <target name="make-TaggingClient_CS" description="Makes BI Tagging Client">
+        <build-cpp solution.file="${dir.src}/clients/taggingclient/TaggingClient.csproj"/>
+    </target>
+
+    <!-- ================================================================= -->
+    <!-- Make TSAPI                                                        -->
+    <!-- ================================================================= -->
+    <!-- TODO is there a TSAPI solution? -timc, Cinco de Mayo -->
+    <target name="make-TSAPI" description="Makes tsapi">
+        <build-cpp solution.file="${dir.src}/contactsources/tsapi/Tsapi.vcproj"/>
+    </target>
+
+    <!-- ================================================================= -->
+    <!-- Make UserTree                                                     -->
+    <!-- ================================================================= -->
+    <!-- TODO is there a UserTree solution? -timc, Cinco de Mayo -->
+    <target name="make-UserTree_LIB" description="Makes usertree.lib devenv.exe">
+        <build-cpp solution.file="${dir.src}/clients/quality/usertree/usertree.vcproj"/>
+    </target>
+
+    <!-- ================================================================= -->
+    <!-- Make WebControls.ocx                                              -->
+    <!-- ================================================================= -->
+    <!-- TODO is there a WebControls solution? -timc, Cinco de Mayo -->
+    <target name="make-WebControls_OCX" depends="propset" description="Makes WebControls.ocx">
+        <build-cpp solution.file="${dir.src}/clients/reporting/controls/WebControls.vcproj"/>
         <ac:if>
             <or>
                 <and>
                     <ac:isgreaterthan arg1="${MAJOR}" arg2="9"/>
-                </and>
-                <and>
-                    <ac:equals arg1="${MAJOR}" arg2="9"/>
-                    <ac:isgreaterthan arg1="${MINOR}" arg2="10"/>
-                </and>
-                <and>
-                    <ac:equals arg1="${MAJOR}" arg2="9"/>
-                    <ac:equals arg1="${MINOR}" arg2="10"/>
-                </and>
-            </or>
-            <then>
-                <echo message="INFO setting 9.10 properties (if any)"/>
-            </then>
-        </ac:if>
-
-        <!-- 9.9 -->
-        <ac:if>
-            <or>
-                <and>
-                    <ac:isgreaterthan arg1="${MAJOR}" arg2="9"/>
-                </and>
-                <and>
-                    <ac:equals arg1="${MAJOR}" arg2="9"/>
-                    <ac:isgreaterthan arg1="${MINOR}" arg2="9"/>
-                </and>
-                <and>
-                    <ac:equals arg1="${MAJOR}" arg2="9"/>
-                    <ac:equals arg1="${MINOR}" arg2="9"/>
-                </and>
-            </or>
-            <then>
-                <echo message="INFO setting 9.9 properties (if any)"/>
-            </then>
-        </ac:if>
-
-        <!-- 9.8 -->
-        <ac:if>
-            <or>
-                <and>
-                    <ac:isgreaterthan arg1="${MAJOR}" arg2="9"/>
-                </and>
-                <and>
-                    <ac:equals arg1="${MAJOR}" arg2="9"/>
-                    <ac:isgreaterthan arg1="${MINOR}" arg2="8"/>
-                </and>
-                <and>
-                    <ac:equals arg1="${MAJOR}" arg2="9"/>
-                    <ac:equals arg1="${MINOR}" arg2="8"/>
-                </and>
-            </or>
-            <then>
-                <echo message="INFO setting 9.8 properties (if any)"/>
-                <property name="compiler.cpp" value="${vs90_devenv}"/>
-                <echo message="compiler.cpp: ${compiler.cpp}"/>
-
-                <property name="compiler.message" value="${vs90_mc}"/>
-                <echo message="compiler.message: ${compiler.message}"/>
-
-                <property name="vscommontools" value="${env.VS90COMNTOOLS}"/>
-                <echo message="vscommontools: ${vscommontools}"/>
-            </then>
-        </ac:if>
-
-        <!-- 9.7 -->
-        <ac:if>
-            <or>
-                <and>
-                    <ac:isgreaterthan arg1="${MAJOR}" arg2="9"/>
-                </and>
-                <and>
-                    <ac:equals arg1="${MAJOR}" arg2="9"/>
-                    <ac:isgreaterthan arg1="${MINOR}" arg2="7"/>
                 </and>
                 <and>
                     <ac:equals arg1="${MAJOR}" arg2="9"/>
                     <ac:equals arg1="${MINOR}" arg2="7"/>
                 </and>
-            </or>
-            <then>
-                <echo message="INFO setting 9.7 properties (if any)"/>
-                <property name="file.pfx" value="${cert.envision}"/>
-                <echo message="file.pfx: ${file.pfx}"/>
-
-                <property name="signtool.password" value="${signtool.envisionpass}"/>
-                <echo message="signtool.password: ${signtool.password}"/>
-            </then>
-        </ac:if>
-
-        <!-- 9.6 -->
-        <ac:if>
-            <or>
-                <and>
-                    <ac:isgreaterthan arg1="${MAJOR}" arg2="9"/>
-                </and>
                 <and>
                     <ac:equals arg1="${MAJOR}" arg2="9"/>
-                    <ac:isgreaterthan arg1="${MINOR}" arg2="6"/>
-                </and>
-                <and>
-                    <ac:equals arg1="${MAJOR}" arg2="9"/>
-                    <ac:equals arg1="${MINOR}" arg2="6"/>
+                    <ac:isgreaterthan arg1="${MINOR}" arg2="7"/>
                 </and>
             </or>
             <then>
-                <echo message="INFO setting 9.6 properties (if any)"/>
-                <property name="compiler.cpp" value="${vs80_devenv}"/>
-                <property name="compiler.message" value="${vs80_mc}"/>
-                <property name="vscommontools" value="${env.VS80COMNTOOLS}"/>
-                <property name="file.pfx" value="${cert.private}"/>
-                <!-- <property name="signtool.password" value="${signtool.privatepass}"/> -->
-                <property name="signtool.password" value="${signtool.envisionpass}"/>
-                <!-- <property name="javac.source" value="1.6"/> -->
+                <build-cpp configuration="ReleaseGerman"
+                    solution.file="${dir.src}/clients/reporting/controls/WebControls.vcproj"/>
+                <build-cpp configuration="ReleaseSpanish"
+                    solution.file="${dir.src}/clients/reporting/controls/WebControls.vcproj"/>
             </then>
         </ac:if>
-
-        <!-- Part 2 of 2: Check for resources that we need in order to move
-        on.  If property is not set, fail fast.  This still leaves open the
-        possibility that we've assigned the wrong value to the property.
-        Reference: http://ant.apache.org/manual/CoreTasks/conditions.html -->
-        <ac:if>
-            <not>
-                <and>
-                    <isset property="compiler.cpp"/>
-                    <available file="${compiler.cpp}"/>
-                </and>
-            </not>
-            <then>
-                <fail message="property compiler.cpp is unset or unavailable"/>
-            </then>
-        </ac:if>
-
-        <ac:if>
-            <not>
-                <and>
-                    <isset property="compiler.message"/>
-                    <available file="${compiler.message}"/>
-                </and>
-            </not>
-            <then>
-                <fail message="property compiler.message is unset or unavailable"/>
-            </then>
-        </ac:if>
-
-        <ac:if>
-            <not>
-                <and>
-                    <isset property="vscommontools"/>
-                    <available file="${vscommontools}"/>
-                </and>
-            </not>
-            <then>
-                <fail message="property vscommontools is unset or unavailable"/>
-            </then>
-        </ac:if>
-
-        <ac:if>
-            <not>
-                <and>
-                    <isset property="file.pfx"/>
-                    <!-- This is only available after we fetch the source.
-                    That makes it either a good test, or a bad one.  I'm not
-                    sure which. -->
-                    <available file="${file.pfx}"/>
-                </and>
-            </not>
-            <then>
-                <fail message="property file.pfx is unset or unavailable"/>
-            </then>
-        </ac:if>
-
-        <ac:if>
-            <not>
-                <and>
-                    <isset property="signtool.password"/>
-                    <!-- Cannot verify if this is available -->
-                </and>
-            </not>
-            <then>
-                <fail message="property signtool.password is unset or unavailable"/>
-            </then>
-        </ac:if>
-
-        <!-- If we get here, display the current settings. -->
-        <echo message="C++ compiler: ${compiler.cpp}"/>
-        <echo message="message compiler: ${compiler.message}"/>
-        <echo message="VS common tools: ${vscommontools}"/>
-        <echo message="certificate file: ${file.pfx}"/>
-        <echo message="signtool password: ${signtool.password}"/>
     </target>
 
     <!-- ================================================================= -->
-    <!-- TODO does this replace the antcontrib taskdef ??                  -->
+    <!-- Make WFM                                                          -->
     <!-- ================================================================= -->
-    <!-- TEMPORARY HACK until I get everything into a single build file.  This
-    target has to be identical to the one in build.xml -->
-    <!-- TODO should I put ant-contrib.jar in the Ant lib dir? -->
-    <target name="define-ac">
-        <typedef resource="net/sf/antcontrib/antlib.xml"
-            uri="antlib:net.sf.antcontrib"
-            classpath="lib/ant-contrib-1.0b3.jar"/>
-        <typedef name="isgreaterthan"
-            classname="net.sf.antcontrib.logic.condition.IsGreaterThan"
-            uri="antlib:net.sf.antcontrib"
-            classpath="lib/ant-contrib-1.0b3.jar"/>
-        <typedef name="islessthan"
-            classname="net.sf.antcontrib.logic.condition.IsLessThan"
-            uri="antlib:net.sf.antcontrib"
-            classpath="lib/ant-contrib-1.0b3.jar"/>
+    <target name="make-WFM" description="Makes WFM">
+        <build-cpp solution.file="${dir.src}/clients/wfm/wfm.sln"/>
     </target>
 
     <!-- ================================================================= -->
@@ -436,8 +643,34 @@
     machine.  It's available locally at
     \\Bigfoot\Engineering\Software\Installs\WindowsMediaEncoder9 -->
     <target name="make-WMWrapperService" depends="register-NCT-binaries" description="Makes Windows Media wrapper service for Centricity">
-        <exec dir="${dir.build}" executable="${compiler.cpp}" vmlauncher="false" failonerror="true">
-            <arg line="/build Release ${dir.src}/winservices/WMWrapperService/WMWrapperService.sln /out ${dir.build}/BuildLog.txt"/>
+        <build-cpp solution.file="${dir.src}/winservices/WMWrapperService/WMWrapperService.sln"/>
+    </target>
+
+    <!-- ================================================================= -->
+    <!-- Make XFloorWnd.ocx                                                -->
+    <!-- ================================================================= -->
+    <!-- TODO is there an XFloorWnd solution? -timc, Cinco de Mayo -->
+    <target name="make-XFloorWnd" description="Makes XFloorWnd.ocx">
+        <build-cpp solution.file="${dir.src}/clients/quality/xfloorwnd/XFloorWnd.vcproj"/>
+    </target>
+
+    <!-- ================================================================= -->
+    <!-- Make, sign, and publish Centricity AV Player (Click Once)         -->
+    <!-- ================================================================= -->
+    <!-- timc: Do we need this any longer? -->
+    <target name="publish-AVPlayer" description="Publishes Centricity AVPlayer (Click Once) using MSBuild">
+        <exec dir="${dir.build}" executable="${compiler.msbuild}" vmlauncher="${vmlauncher}" failonerror="true">
+            <arg line="/target:publish ${dir.src}/clients/AVPlayer/AVPlayer.csproj /property:Configuration=Release;PublishDir=${dir.workdir}/AVPlayer/ /l:FileLogger,Microsoft.Build.Engine;logfile=${dir.build}/BuildLog.txt;append=true"/>
+        </exec>
+    </target>
+
+    <!-- ================================================================= -->
+    <!-- Make, sign, and publish RecordingDownloadTool (Click Once)        -->
+    <!-- ================================================================= -->
+    <!-- timc: Do we need this any longer? -->
+    <target name="publish-RecordingDownloadTool" description="Publishes Centricity RecordingDownloadTool (Click Once) using MSBuild">
+        <exec dir="${dir.build}" executable="${compiler.msbuild}" vmlauncher="${vmlauncher}" failonerror="true">
+            <arg line="/target:publish ${dir.src}/clients/RecordingDownloadTool/RecordingDownloadTool.csproj /property:Configuration=Release;PublishDir=${dir.workdir}/RecordingDownloadTool/ /l:FileLogger,Microsoft.Build.Engine;logfile=${dir.build}/BuildLog.txt;append=true"/>
         </exec>
     </target>
 
@@ -470,667 +703,34 @@
     -->
 
     <!-- ================================================================= -->
-    <!-- Make Centricity web app                                           -->
+    <!--  Sign AgentAdherence.ocx                                          -->
     <!-- ================================================================= -->
-    <!-- Dependencies:
-    . \\Bigfoot\Engineering\Software\MICROSOFT\VS2005Pro-SP1
-    . \\Bigfoot\Engineering\Software\MICROSOFT\VS2005 Addins\webdeploymentsetup.msi
-    . ASPAJAXExtSetup.msi [ASP.NET 2.0 AJAX Extensions 1.0] -->
-    <target name="make-Centricity" description="Makes Centricity web app">
-        <exec dir="${dir.build}" executable="${compiler.cpp}" vmlauncher="false" failonerror="true">
-            <arg line="/build Production ${dir.src}/clients/centricity/Centricity.sln /out ${dir.build}/BuildLog.txt"/>
-        </exec>
-    </target>
-
-    <!-- ================================================================= -->
-    <!-- Make Speech Server Service and Speech Processing Client           -->
-    <!-- ================================================================= -->
-    <!-- The Speech apps depends on RAL.dll, Centricity_BLL.dll and
-    Centricity_DAL.dll from Centricity, and Server.dll that I'm getting from
-    the same location to simplify the dependencies.  The simplest thing that
-    works here is to add make-Centricity as a dependency.  We need most of
-    Centricity except for the deployment piece here, but I'd rather not cause
-    Centricity to be redeployed just to build audio mining.  It'll stay for
-    now. -timc 2/5/2009 -->
-    <target name="make-Speech" depends="make-Centricity" description="Makes SpeechServerService and SpeechProcessingClient">
-        <!-- dependency 1: AudioMiningRemotable -->
-        <exec dir="${dir.build}" executable="${compiler.cpp}" vmlauncher="false" failonerror="true">
-            <arg line="/build Release ${dir.src}/winservices/AudioMining.sln /out ${dir.build}/BuildLog.txt"/>
-        </exec>
-    </target>
-
-    <!-- ================================================================= -->
-    <!-- Make, sign, and publish Centricity AV Player (Click Once)         -->
-    <!-- ================================================================= -->
-    <!-- timc: Do we need this any longer? -->
-    <target name="publish-AVPlayer" description="Publishes Centricity AVPlayer (Click Once) using MSBuild">
-        <exec dir="${dir.build}" executable="${compiler.msbuild}" vmlauncher="false" failonerror="true">
-            <arg line="/target:publish ${dir.src}/clients/AVPlayer/AVPlayer.csproj /property:Configuration=Release;PublishDir=${dir.workdir}/AVPlayer/ /l:FileLogger,Microsoft.Build.Engine;logfile=${dir.build}/BuildLog.txt;append=true"/>
-        </exec>
-    </target>
-
-    <!-- ================================================================= -->
-    <!-- Make, sign, and publish RecordingDownloadTool (Click Once)        -->
-    <!-- ================================================================= -->
-    <!-- timc: Do we need this any longer? -->
-    <target name="publish-RecordingDownloadTool" description="Publishes Centricity RecordingDownloadTool (Click Once) using MSBuild">
-        <exec dir="${dir.build}" executable="${compiler.msbuild}" vmlauncher="false" failonerror="true">
-            <arg line="/target:publish ${dir.src}/clients/RecordingDownloadTool/RecordingDownloadTool.csproj /property:Configuration=Release;PublishDir=${dir.workdir}/RecordingDownloadTool/ /l:FileLogger,Microsoft.Build.Engine;logfile=${dir.build}/BuildLog.txt;append=true"/>
-        </exec>
-    </target>
-
-    <!-- ================================================================= -->
-    <!-- Make Report SQL Server Project (part of ET Analytics)             -->
-    <!--                                                                   -->
-    <!-- The Analytics component is mostly made up of RDL files, which are -->
-    <!-- not compiled.  But it depends on ReportSQLServerProject.dll,      -->
-    <!-- which is compiled.  Initially, I had a separate target,           -->
-    <!-- make_ReportSQLServerProject, and made this target dependent on    -->
-    <!-- that one.  But this is simpler.                                   -->
-    <!-- ================================================================= -->
-
-    <!-- ================================================================= -->
-    <!-- Make and sign EnvisionCLR (includes DeployAnalyticsTool)          -->
-    <!-- ================================================================= -->
-    <target name="make-EnvisionCLR" description="Makes EnvisionCLR.dll for use with RDL files">
-        <exec dir="${dir.build}" executable="${compiler.cpp}" vmlauncher="false" failonerror="true">
-            <arg line="/build Release ${dir.src}/clients/centricity/Analytics/EnvisionCLR/EnvisionCLR.sln /out ${dir.build}/BuildLog.txt"/>
-        </exec>
-    </target>
-
-    <target name="sign-EnvisionCLR" depends="make-EnvisionCLR" description="Digitally signs EnvisionCLR.dll to verify its authenticity.">
+    <!-- TODO is there an AgentAdherence solution? -timc, Cinco de Mayo -->
+    <target name="sign-AgentAdherence_OCX" depends="make-AgentAdherence_OCX" description="Digitally signs AgentAdherence.ocx to verify its authenticity.">
         <!-- NB: don't forget the ${basedir}! -->
-        <exec dir="${dir.build}" executable="${basedir}/${signtool}" vmlauncher="false" failonerror="true">
-            <!-- /f ${dir.build}/setup/Signature/myprivatecert.pfx -->
-            <arg line="sign /a /f ${file.pfx} /p ${signtool.password} /t ${signtool.timestampurl} ${dir.src}/clients/Centricity/Analytics/EnvisionCLR/obj/Release/EnvisionCLR.dll"/>
+        <exec dir="${dir.build}" executable="${basedir}/${signtool}" vmlauncher="${vmlauncher}" failonerror="true">
+            <arg line="sign /a /f ${file.pfx} /p ${signtool.password} /t ${signtool.timestampurl} ${dir.workdir}/wfm/AgentAdherence.ocx"/>
         </exec>
     </target>
 
     <!-- ================================================================= -->
-    <!-- Make and sign AnalyticsResources                                  -->
+    <!--  Sign AgentSchedule.ocx                                           -->
     <!-- ================================================================= -->
-    <!-- This thing is related to EnvisionCLR.dll somehow.  From prn19849 -
-    created AnalyticsResources project for localizing Analytics resource
-    templates.  Clay or Gurjit can answer any questions. :) -->
-    <!--
-    <target name="make-AnalyticsResources" description="Makes EnvisionAnalyticsResources.dll for use with RDL files">
-        <exec dir="${dir.build}" executable="${compiler.cpp}" vmlauncher="false" failonerror="true">
-            <arg line="/build Release ${dir.src}/clients/centricity/Analytics/AnalyticsResources/AnalyticsResources.csproj /out ${dir.build}/BuildLog.txt"/>
-        </exec>
-    </target>
-
-    <target name="sign-AnalyticsResources" depends="make-AnalyticsResources" description="Digitally signs EnvisionAnalyticsResources.dll to verify its authenticity.">
-        -->
+    <!-- TODO is there an AgentSchedule solution? -timc, Cinco de Mayo -->
+    <target name="sign-AgentSchedule_OCX" depends="make-AgentSchedule_OCX" description="Digitally signs AgentSchedule.ocx to verify its authenticity.">
         <!-- NB: don't forget the ${basedir}! -->
-        <!--
-        <exec dir="${dir.build}" executable="${basedir}/${signtool}" vmlauncher="false" failonerror="true">
-            -->
-            <!-- /f ${dir.build}/setup/Signature/myprivatecert.pfx -->
-            <!--
-            <arg line="sign /a /f ${file.pfx} /p ${signtool.password} /t ${signtool.timestampurl} ${dir.src}/clients/Centricity/Analytics/AnalyticsResources/obj/Release/EnvisionAnalyticsResources.dll"/>
-        </exec>
-    </target>
-    -->
-
-    <!-- ================================================================= -->
-    <!-- Make DeployAnalyticsTool                                          -->
-    <!-- ================================================================= -->
-    <!--
-    <target name="make-DeployAnalyticsTool" depends="sign-AnalyticsResources" description="TODO">
-        -->
-    <target name="make-DeployAnalyticsTool" description="TODO">
-        <exec dir="${dir.build}" executable="${compiler.cpp}" vmlauncher="false" failonerror="true">
-            <arg line="/build Release ${dir.src}/clients/centricity/Analytics/DeployAnalyticsTool/DeployAnalyticsTool.sln /out ${dir.build}/BuildLog.txt"/>
+        <exec dir="${dir.build}" executable="${basedir}/${signtool}" vmlauncher="${vmlauncher}" failonerror="true">
+            <arg line="sign /a /f ${file.pfx} /p ${signtool.password} /t ${signtool.timestampurl} ${dir.workdir}/wfm/AgentSchedule.ocx"/>
         </exec>
     </target>
 
     <!-- ================================================================= -->
-    <!-- Sign AnalyticsResources                                           -->
+    <!--  Sign AgentX.ocx                                                  -->
     <!-- ================================================================= -->
-    <!-- AnalyticsResources is compiled in make-DeployAnalyticsTool.
-    Originally I had a make-AnalyticsResources target, which compiled
-    AnalyticsResources.csproj, but it's redundant. -->
-    <target name="sign-AnalyticsResources" depends="make-DeployAnalyticsTool" description="Digitally signs EnvisionAnalyticsResources.dll to verify its authenticity.">
-        <!-- NB: don't forget the ${basedir}! -->
-        <exec dir="${dir.build}" executable="${basedir}/${signtool}" vmlauncher="false" failonerror="true">
-            <!-- /f ${dir.build}/setup/Signature/myprivatecert.pfx -->
-            <arg line="sign /a /f ${file.pfx} /p ${signtool.password} /t ${signtool.timestampurl} ${dir.src}/clients/Centricity/Analytics/AnalyticsResources/obj/Release/EnvisionAnalyticsResources.dll"/>
-        </exec>
-    </target>
-
-    <!-- ================================================================= -->
-    <!-- Make and sign AnalyticsUtilities                                  -->
-    <!-- ================================================================= -->
-    <target name="make-AnalyticsUtilities" description="Makes EnvisionAnalyticsUtilities.dll for use with RDL files">
-        <exec dir="${dir.build}" executable="${compiler.cpp}" vmlauncher="false" failonerror="true">
-            <arg line="/build Release ${dir.src}/clients/centricity/Analytics/AnalyticsUtilities/AnalyticsUtilities.sln /out ${dir.build}/BuildLog.txt"/>
-        </exec>
-    </target>
-
-    <target name="sign-AnalyticsUtilities" depends="make-AnalyticsUtilities" description="Digitally signs EnvisionAnalyticsUtilities.dll to verify its authenticity.">
-        <!-- NB: don't forget the ${basedir}! -->
-        <exec dir="${dir.build}" executable="${basedir}/${signtool}" vmlauncher="false" failonerror="true">
-            <!-- /f ${dir.build}/setup/Signature/myprivatecert.pfx -->
-            <arg line="sign /a /f ${file.pfx} /p ${signtool.password} /t ${signtool.timestampurl} ${dir.src}/clients/Centricity/Analytics/AnalyticsUtilities/obj/Release/EnvisionAnalyticsUtilities.dll"/>
-        </exec>
-    </target>
-
-    <!-- ================================================================= -->
-    <!-- Make AGMS                                                         -->
-    <!-- ================================================================= -->
-    <target name="make-AGMS" description="Makes AGMS using devenv.exe">
-        <exec dir="${dir.build}" executable="${compiler.cpp}" vmlauncher="false" failonerror="true">
-            <arg line="/build Release ${dir.src}/tools/AGMS/AGMS.sln /out ${dir.build}/BuildLog.txt"/>
-        </exec>
-    </target>
-
-    <!-- ================================================================= -->
-    <!-- Make ADIT                                                         -->
-    <!-- ================================================================= -->
-    <target name="make-ADIT" description="Makes ADIT using devenv.exe">
-        <exec dir="${dir.build}" executable="${compiler.cpp}" vmlauncher="false" failonerror="true">
-            <arg line="/build Release ${dir.src}/tools/ADIT/Gold/ADIT.sln /out ${dir.build}/BuildLog.txt"/>
-        </exec>
-    </target>
-
-    <!-- ================================================================= -->
-    <!-- Make DADI                                                         -->
-    <!-- ================================================================= -->
-    <!-- It's not in buildtools/branches/9.0/SP4/base/buildC#CPP.xml -->
-    <target name="make-DADI" description="Makes DADI using devenv.com">
-        <exec dir="${dir.build}" executable="${compiler.cpp}" vmlauncher="false" failonerror="true">
-            <arg line="/build Release ${dir.src}/tools/DADI/DADI.sln /out ${dir.build}/BuildLog.txt"/>
-        </exec>
-    </target>
-
-    <!-- ================================================================= -->
-    <!-- Make TSAPI                                                        -->
-    <!-- ================================================================= -->
-    <target name="make-TSAPI" description="Makes tsapi using devenv.exe">
-        <exec dir="${dir.build}" executable="${compiler.cpp}" vmlauncher="false" failonerror="true">
-            <arg line="/build Release ${dir.src}/contactsources/tsapi/Tsapi.vcproj /out ${dir.build}/BuildLog.txt"/>
-        </exec>
-    </target>
-
-    <!-- ================================================================= -->
-    <!-- make-DBMigration                                                  -->
-    <!-- ================================================================= -->
-    <target name="make-DBMigration" description="Makes DBMigrationWizard.exe">
-        <exec dir="${dir.build}" executable="${compiler.cpp}" vmlauncher="false" failonerror="true">
-            <arg line="/build Release ${dir.src}/tools/DBMigration/DBMIGRATIONWIZARD/DBMigrationWizard.sln /out ${dir.build}/BuildLog.txt"/>
-        </exec>
-    </target>
-
-    <!-- ================================================================= -->
-    <!-- Make Evaluation Consistency Check                                 -->
-    <!-- ================================================================= -->
-    <target name="make-EvaluationConsistencyCheck" description="Make EvaluationConsistencyCheck.exe (a database migration utility)">
-        <exec dir="${dir.build}" executable="${compiler.cpp}" vmlauncher="false" failonerror="true">
-            <arg line="/build Release ${dir.src}/tools/EvaluationConsistencyCheck/EvaluationConsistencyCheck.sln /out ${dir.build}/BuildLog.txt" />
-        </exec>
-    </target>
-
-    <!-- ================================================================= -->
-    <!-- Make CSTA Loader                                                   -->
-    <!-- ================================================================= -->
-    <!-- TODO are we using these? -timc 5/27/2009 -->
-    <target name="make-cstaLoader" description="Makes cstaLoader using devenv.exe">
-        <exec dir="${dir.build}" executable="${compiler.cpp}" vmlauncher="false" failonerror="true">
-            <arg line="/build Release ${dir.src}/contactsources/tsapi/cstaLoader/cstaLoader.vcproj /out ${dir.build}/BuildLog.txt"/>
-        </exec>
-        <exec dir="${dir.build}" executable="${compiler.cpp}" vmlauncher="false" failonerror="true">
-            <arg line="/build Release_1_2 ${dir.src}/contactsources/tsapi/cstaLoader/cstaLoader.vcproj /out ${dir.build}/BuildLog.txt"/>
-        </exec>
-        <exec dir="${dir.build}" executable="${compiler.cpp}" vmlauncher="false" failonerror="true">
-            <arg line="/build Release_1_3_3 ${dir.src}/contactsources/tsapi/cstaLoader/cstaLoader.vcproj /out ${dir.build}/BuildLog.txt"/>
-        </exec>
-        <exec dir="${dir.build}" executable="${compiler.cpp}" vmlauncher="false" failonerror="true">
-            <arg line="/build Release_3_33 ${dir.src}/contactsources/tsapi/cstaLoader/cstaLoader.vcproj /out ${dir.build}/BuildLog.txt"/>
-        </exec>
-        <exec dir="${dir.build}" executable="${compiler.cpp}" vmlauncher="false" failonerror="true">
-            <arg line="/build Release_9_1 ${dir.src}/contactsources/tsapi/cstaLoader/cstaLoader.vcproj /out ${dir.build}/BuildLog.txt"/>
-        </exec>
-        <exec dir="${dir.build}" executable="${compiler.cpp}" vmlauncher="false" failonerror="true">
-            <arg line="/build Release_9_5 ${dir.src}/contactsources/tsapi/cstaLoader/cstaLoader.vcproj /out ${dir.build}/BuildLog.txt"/>
-        </exec>
-    </target>
-
-    <!-- ================================================================= -->
-    <!-- Make BI Portal                                                    -->
-    <!-- ================================================================= -->
-    <target name="make-Portal_CS" description="Makes BI Portal using devenv.exe">
-        <exec dir="${dir.build}" executable="${compiler.cpp}" vmlauncher="false" failonerror="true">
-            <arg line="/build Release ${dir.src}/clients/portal/portal.csproj /out ${dir.build}/BuildLog.txt"/>
-        </exec>
-    </target>
-
-    <!-- ================================================================= -->
-    <!-- Make BI Tagging Client                                            -->
-    <!-- ================================================================= -->
-    <target name="make-TaggingClient_CS" description="Makes BI Tagging Client using devenv.exe">
-        <exec dir="${dir.build}" executable="${compiler.cpp}" vmlauncher="false" failonerror="true">
-            <arg line="/build Release ${dir.src}/clients/taggingclient/TaggingClient.csproj /out ${dir.build}/BuildLog.txt"/>
-        </exec>
-    </target>
-
-    <!-- ================================================================= -->
-    <!-- Make BI Finder Client                                             -->
-    <!-- ================================================================= -->
-    <target name="make-FinderClient_CS" description="Makes BI Finder Client using devenv.exe">
-        <exec dir="${dir.build}" executable="${compiler.cpp}" vmlauncher="false" failonerror="true">
-            <arg line="/build Release ${dir.src}/clients/finder/finderclient.csproj /out ${dir.build}/BuildLog.txt"/>
-        </exec>
-    </target>
-
-    <!-- ================================================================= -->
-    <!-- Make BI Call Tagger                                               -->
-    <!-- ================================================================= -->
-    <target name="make-CallTagger_CS" description="Makes BI Call Tagger using devenv.exe">
-        <exec dir="${dir.build}" executable="${compiler.cpp}" vmlauncher="false" failonerror="true">
-            <arg line="/build Release ${dir.src}/apis/bi/com/et/bi/api/tagger/ETCallTagger.csproj /out ${dir.build}/BuildLog.txt"/>
-        </exec>
-    </target>
-
-    <!-- ================================================================= -->
-    <!-- Make C# Server                                                    -->
-    <!-- ================================================================= -->
-    <!-- NB: The project is corearch in Acme, and server in Maya -->
-    <target name="make-Server_CS" description="Makes Server.dll using devenv.exe">
-        <exec dir="${dir.build}" executable="${compiler.cpp}" vmlauncher="false" failonerror="true">
-            <arg line="/build Release ${dir.src}/server/server.sln /out ${dir.build}/BuildLog.txt"/>
-        </exec>
-    </target>
-
-    <!-- ================================================================= -->
-    <!-- Make C# APICommon.dll                                             -->
-    <!-- ================================================================= -->
-    <target name="make-APICommon_CS" description="Makes APICommon.dll using devenv.exe">
-        <exec dir="${dir.build}" executable="${compiler.cpp}" vmlauncher="false" failonerror="true">
-            <arg line="/build Release ${dir.src}/apis/bi/com/et/bi/api/common/APICommon.csproj /out ${dir.build}/BuildLog.txt"/>
-        </exec>
-    </target>
-
-    <!-- ================================================================= -->
-    <!-- Make C# finder.dll                                                -->
-    <!-- ================================================================= -->
-    <target name="make-Finder_CS" description="Makes finder.dll using devenv.exe">
-        <exec dir="${dir.build}" executable="${compiler.cpp}" vmlauncher="false" failonerror="true">
-            <arg line="/build Release ${dir.src}/apis/bi/com/et/bi/api/finder/finder.csproj /out ${dir.build}/BuildLog.txt"/>
-        </exec>
-    </target>
-
-    <!-- ================================================================= -->
-    <!-- Make C# TaggerWrapperService.dll                                  -->
-    <!-- ================================================================= -->
-    <target name="make-TaggerWrapperService_CS" description="Makes TaggerWrapperService.dll using devenv.exe">
-        <exec dir="${dir.build}" executable="${compiler.cpp}" vmlauncher="false" failonerror="true">
-            <arg line="/build Release ${dir.src}/apis/bi/com/et/bi/api/tagger/wrapperservice/TaggerWrapperService.csproj /out ${dir.build}/BuildLog.txt"/>
-        </exec>
-    </target>
-
-    <!-- ================================================================= -->
-    <!--  Make ctcLoader7.0                                                -->
-    <!-- ================================================================= -->
-    <target name="make-ctcLoader7.0" description="Makes ctcLoader7.0 using devenv.exe">
-        <exec dir="${dir.build}" executable="${compiler.cpp}" vmlauncher="false" failonerror="true">
-            <arg line="/build Release ${dir.src}/contactsources/netmerge/ctcLoader_7_0/ctcLoader.vcproj /out ${dir.build}/BuildLog.txt"/>
-        </exec>
-    </target>
-
-    <!-- ================================================================= -->
-    <!--  Make ctcLoader6.0                                                -->
-    <!-- ================================================================= -->
-    <target name="make-ctcLoader6.0" description="Makes ctcLoader6.0 using devenv.exe">
-        <exec dir="${dir.build}" executable="${compiler.cpp}" vmlauncher="false" failonerror="true">
-            <arg line="/build Release ${dir.src}/contactsources/netmerge/ctcLoader_6_0/ctcLoader_6_0.vcproj /out ${dir.build}/BuildLog.txt"/>
-        </exec>
-    </target>
-
-    <!-- ================================================================= -->
-    <!--  Make haspmenu                                                    -->
-    <!-- ================================================================= -->
-    <!-- not using this one, timc, 4/16/09 -->
-    <!--
-    <target name="make_haspmenu" description="Makes haspmenu using devenv.exe">
-        <exec dir="${dir.build}" executable="${compiler.cpp}" vmlauncher="false"
-            failonerror="true">
-            <arg line="/build Release ${dir.src}/tools/haspmenu/HaspMenu.vcproj /out ${dir.build}/BuildLog.txt"/>
-        </exec>
-    </target>
-    -->
-
-    <!-- ================================================================= -->
-    <!--  Make hook                                                        -->
-    <!-- ================================================================= -->
-    <!-- Per Ed in email, 1/21/09 "This is the hook.dll component for getting
-    Windows messages into AgentSupport to process start/stop email captures.
-    This is used for email integrations.  This is a class of components that
-    just needs to be built once when we change toolset (compiler version)."
-    -->
-    <target name="make-hook" description="Makes hook.dll using devenv.exe">
-        <exec dir="${dir.build}" executable="${compiler.cpp}" vmlauncher="false" failonerror="true">
-            <arg line="/build Release ${dir.src}/clients/quality/agentsupport/monitoring/KanaDriver/dll/hook.sln /out ${dir.build}/BuildLog.txt"/>
-        </exec>
-    </target>
-
-    <!-- ================================================================= -->
-    <!--  Make CiscoICM                                                    -->
-    <!-- ================================================================= -->
-    <target name="make-CiscoICM" description="Makes CiscoICM.dll using devenv.exe">
-        <exec dir="${dir.build}" executable="${compiler.cpp}" vmlauncher="false" failonerror="true">
-            <arg line="/build Release ${dir.src}/contactsources/ciscoicm/CiscoICM.vcproj /out ${dir.build}/BuildLog.txt"/>
-        </exec>
-    </target>
-
-    <!-- ================================================================= -->
-    <!-- Make RegUtils                                                     -->
-    <!-- ================================================================= -->
-    <target name="make-RegUtils" description="Makes RegUtils.lib using devenv.exe">
-        <exec dir="${dir.build}" executable="${compiler.cpp}" vmlauncher="false" failonerror="true">
-            <arg line="/build Release ${dir.src}/clients/quality/regutils/regutils.vcproj /out ${dir.build}/BuildLog.txt"/>
-        </exec>
-        <!-- TODO are we using this? -timc 5/27/2009 -->
-        <exec dir="${dir.build}" executable="${compiler.cpp}" vmlauncher="false" failonerror="true">
-            <arg line="/build Debug ${dir.src}/clients/quality/regutils/regutils.vcproj"/>
-        </exec>
-    </target>
-
-    <!-- ================================================================= -->
-    <!--  Make SmartAgentErrs                                              -->
-    <!-- ================================================================= -->
-    <target name="make-SmartAgentErrs" description="Makes SmartAgentErrs.dll using devenv.exe">
-        <exec dir="${dir.src}/clients/quality/agentsupport/smartagenterrs" executable="${compiler.message}" vmlauncher="false" failonerror="true">
-            <arg line="-v -c -s -h ..\ -r .\ -x .\ -U smartagenterrs.mc" />
-        </exec>
-        <exec dir="${dir.build}" executable="${compiler.cpp}" vmlauncher="false" failonerror="true">
-            <arg line="/build Release ${dir.src}/clients/quality/agentsupport/smartagenterrs/SmartAgentErrs.vcproj /out ${dir.build}/BuildLog.txt"/>
-        </exec>
-    </target>
-
-    <!-- ================================================================= -->
-    <!--  Make AgentSupport                                                -->
-    <!-- ================================================================= -->
-    <!-- TODO organize this such that the languages are separable.  In other
-    words, do it the same way EnvisionControls_CAB is done in build.xml. -->
-    <!-- TODO macrodefs?  Maybe this should come after the previous TODO about
-    separating by languages.  See buildSetup.xml for an example. -->
-    <target name="make-AgentSupport" depends="propset" description="Makes AgentSupport using devenv.exe">
-        <!-- English only -->
-        <exec dir="${dir.build}" executable="${compiler.cpp}" vmlauncher="false" failonerror="true">
-            <arg line="/build Release ${dir.src}/clients/AgentSupport.sln /out ${dir.build}/BuildLog.txt"/>
-        </exec>
-        <ac:if>
-            <or>
-                <and>
-                    <ac:isgreaterthan arg1="${MAJOR}" arg2="9"/>
-                </and>
-                <and>
-                    <ac:equals arg1="${MAJOR}" arg2="9"/>
-                    <ac:equals arg1="${MINOR}" arg2="7"/>
-                </and>
-                <and>
-                    <ac:equals arg1="${MAJOR}" arg2="9"/>
-                    <ac:isgreaterthan arg1="${MINOR}" arg2="7"/>
-                </and>
-            </or>
-            <then>
-                <!-- German -->
-                <exec dir="${dir.build}" executable="${compiler.cpp}" vmlauncher="false" failonerror="true">
-                    <arg line="/build ReleaseGerman ${dir.src}/clients/AgentSupport.sln /out ${dir.build}/BuildLog.txt"/>
-                </exec>
-                <!-- Spanish -->
-                <exec dir="${dir.build}" executable="${compiler.cpp}" vmlauncher="false" failonerror="true">
-                    <arg line="/build ReleaseSpanish ${dir.src}/clients/AgentSupport.sln /out ${dir.build}/BuildLog.txt"/>
-                </exec>
-            </then>
-        </ac:if>
-    </target>
-
-    <!-- ================================================================= -->
-    <!--  Make Quality Monitoring                                          -->
-    <!-- ================================================================= -->
-    <!-- NOTE This looks like a PerformanceSuite target only.  So when I
-    reorganize the buildtools toward the goal of creating each product
-    separately, this one will standalone.  IOW, it will not be a prerequisite
-    compile for anything else (as far as I know). -->
-    <target name="make-QualityMonitoring" depends="propset" description="Makes QM using devenv.exe">
-        <!-- English -->
-        <exec dir="${dir.build}" executable="${compiler.cpp}" vmlauncher="false" failonerror="true">
-            <arg line="/build Release ${dir.src}/clients/quality/qm/qm.vcproj /out ${dir.build}/BuildLog.txt"/>
-        </exec>
-        <ac:if>
-            <or>
-                <and>
-                    <ac:isgreaterthan arg1="${MAJOR}" arg2="9"/>
-                </and>
-                <and>
-                    <ac:equals arg1="${MAJOR}" arg2="9"/>
-                    <ac:equals arg1="${MINOR}" arg2="7"/>
-                </and>
-                <and>
-                    <ac:equals arg1="${MAJOR}" arg2="9"/>
-                    <ac:isgreaterthan arg1="${MINOR}" arg2="7"/>
-                </and>
-            </or>
-            <then>
-                <!-- German -->
-                <exec dir="${dir.build}" executable="${compiler.cpp}" vmlauncher="false" failonerror="true">
-                    <arg line="/build ReleaseGerman ${dir.src}/clients/quality/qm/qm.vcproj /out ${dir.build}/BuildLog.txt"/>
-                </exec>
-                <!-- Spanish -->
-                <exec dir="${dir.build}" executable="${compiler.cpp}" vmlauncher="false" failonerror="true">
-                    <arg line="/build ReleaseSpanish ${dir.src}/clients/quality/qm/qm.vcproj /out ${dir.build}/BuildLog.txt"/>
-                </exec>
-            </then>
-        </ac:if>
-    </target>
-
-    <!-- ================================================================= -->
-    <!--  Make eLearning                                                   -->
-    <!-- ================================================================= -->
-    <target name="make-eLearning" depends="propset" description="Makes eLearning using devenv.exe">
-        <!-- English -->
-        <exec dir="${dir.build}" executable="${compiler.cpp}" vmlauncher="false" failonerror="true">
-            <arg line="/build eLearningRelease ${dir.src}/clients/quality/qm/qm.vcproj /out ${dir.build}/BuildLog.txt"/>
-        </exec>
-        <ac:if>
-            <or>
-                <and>
-                    <ac:isgreaterthan arg1="${MAJOR}" arg2="9"/>
-                </and>
-                <and>
-                    <ac:equals arg1="${MAJOR}" arg2="9"/>
-                    <ac:equals arg1="${MINOR}" arg2="7"/>
-                </and>
-                <and>
-                    <ac:equals arg1="${MAJOR}" arg2="9"/>
-                    <ac:isgreaterthan arg1="${MINOR}" arg2="7"/>
-                </and>
-            </or>
-            <then>
-                <!-- German -->
-                <exec dir="${dir.build}" executable="${compiler.cpp}" vmlauncher="false" failonerror="true">
-                    <arg line="/build eLearningReleaseGerman ${dir.src}/clients/quality/qm/qm.vcproj /out ${dir.build}/BuildLog.txt"/>
-                </exec>
-                <!-- Spanish -->
-                <exec dir="${dir.build}" executable="${compiler.cpp}" vmlauncher="false" failonerror="true">
-                    <arg line="/build eLearningReleaseSpanish ${dir.src}/clients/quality/qm/qm.vcproj /out ${dir.build}/BuildLog.txt"/>
-                </exec>
-            </then>
-        </ac:if>
-    </target>
-
-    <!-- ================================================================= -->
-    <!--  Make RO                                                          -->
-    <!-- ================================================================= -->
-    <target name="make-RO" description="Makes RO using devenv.exe">
-        <exec dir="${dir.build}" executable="${compiler.cpp}" vmlauncher="false" failonerror="true">
-            <arg line="/build Release ${dir.src}/server/ro/cpp/ro.vcproj /out ${dir.build}/BuildLog.txt"/>
-        </exec>
-        <!-- TODO are we using this? -timc 5/27/2009 -->
-        <exec dir="${dir.build}" executable="${compiler.cpp}" vmlauncher="false" failonerror="true">
-            <arg line="/build Debug ${dir.src}/server/ro/cpp/ro.vcproj"/>
-        </exec>
-    </target>
-
-    <!-- ================================================================= -->
-    <!-- Make NativeServiceWin32                                           -->
-    <!-- ================================================================= -->
-    <target name="make-NativeServiceWin32" description="Makes NativeServiceWin32.dll using devenv.exe">
-        <exec dir="${dir.build}" executable="${compiler.cpp}" vmlauncher="false" failonerror="true">
-            <arg line="/build Release ${dir.src}/server/nativeservicewin32/nativeServiceWin32.sln /out ${dir.build}/BuildLog.txt"/>
-        </exec>
-    </target>
-
-    <!-- ================================================================= -->
-    <!-- Make Administrator.exe                                            -->
-    <!-- ================================================================= -->
-    <target name="make-Administrator" description="Makes Administrator.exe using devenv.exe">
-        <exec dir="${dir.build}" executable="${compiler.cpp}" vmlauncher="false" failonerror="true">
-            <arg line="/build Release ${dir.src}/clients/admin/Administrator/Administrator.vcproj /out ${dir.build}/BuildLog.txt"/>
-        </exec>
-    </target>
-
-    <!-- ================================================================= -->
-    <!-- Make XFloorWnd.ocx                                                -->
-    <!-- ================================================================= -->
-    <target name="make-XFloorWnd" description="Makes XFloorWnd.ocx using devenv.exe">
-        <exec dir="${dir.build}" executable="${compiler.cpp}" vmlauncher="false" failonerror="true">
-            <arg line="/build Release ${dir.src}/clients/quality/xfloorwnd/XFloorWnd.vcproj /out ${dir.build}/BuildLog.txt"/>
-        </exec>
-    </target>
-
-    <!-- ================================================================= -->
-    <!--  Make Agent Automation                                            -->
-    <!-- ================================================================= -->
-    <target name="make-AgentAutomation" depends="propset" description="Makes AgentAutomation.dll using devenv.exe">
-        <!-- English -->
-        <exec dir="${dir.build}" executable="${compiler.cpp}" vmlauncher="false" failonerror="false">
-            <arg line="/build Release ${dir.src}/apis/AgentAutomation.sln /out ${dir.build}/BuildLog.txt"/>
-        </exec>
-    </target>
-
-    <!-- ================================================================= -->
-    <!--  Make SharedResources DLL                                         -->
-    <!-- ================================================================= -->
-    <!-- Note the "logic": first we figure out if it's 9.6 or earlier.  Those
-    are not localized, so they get English only.  Then we check if it's
-    between 9.7.0 up to but not including 9.10.0.  Those use ReleaseEnglish
-    for English; German and Spanish are not affected.  Finally, if it's 9.10.0
-    or later, we switch back and use Release for English. -->
-    <target name="make-SharedResources" depends="propset" description="Makes SharedResources.dll using devenv.exe">
-        <ac:if>
-            <!-- up to 9.6.x, no localization -->
-            <or>
-                <and>
-                    <ac:equals arg1="${MAJOR}" arg2="9"/>
-                    <ac:equals arg1="${MINOR}" arg2="6"/>
-                </and>
-                <and>
-                    <ac:equals arg1="${MAJOR}" arg2="9"/>
-                    <ac:islessthan arg1="${MINOR}" arg2="6"/>
-                </and>
-                <and>
-                    <ac:islessthan arg1="${MAJOR}" arg2="9"/>
-                </and>
-            </or>
-            <then>
-                <echo message="in the 9.6 SharedResources block"/>
-                <exec dir="${dir.build}" executable="${compiler.cpp}" vmlauncher="false" failonerror="false">
-                    <arg line="/build Release ${dir.src}/clients/quality/sharedresources/SharedResources.vcproj /out ${dir.build}/BuildLog.txt"/>
-                </exec>
-            </then>
-            <ac:elseif>
-                <!-- 9.7.0 thru 9.9.x, localization with ReleaseEnglish -->
-                <and>
-                    <or>
-                        <and>
-                            <ac:equals arg1="${MAJOR}" arg2="9"/>
-                            <ac:equals arg1="${MINOR}" arg2="7"/>
-                        </and>
-                        <and>
-                            <ac:equals arg1="${MAJOR}" arg2="9"/>
-                            <ac:isgreaterthan arg1="${MINOR}" arg2="7"/>
-                        </and>
-                    </or>
-                    <and>
-                        <ac:equals arg1="${MAJOR}" arg2="9"/>
-                        <ac:islessthan arg1="${MINOR}" arg2="10"/>
-                    </and>
-                </and>
-                <then>
-                    <echo message="in the at-least 9.7 but less than 9.10 SharedResources block"/>
-                    <echo message="ReleaseEnglish, ReleaseGerman, ReleaseSpanish"/>
-                    <exec dir="${dir.build}" executable="${compiler.cpp}" vmlauncher="false" failonerror="false">
-                        <arg line="/build ReleaseEnglish ${dir.src}/clients/quality/sharedresources/SharedResources.vcproj /out ${dir.build}/BuildLog.txt"/>
-                    </exec>
-                    <!-- German -->
-                    <exec dir="${dir.build}" executable="${compiler.cpp}" vmlauncher="false" failonerror="false">
-                        <arg line="/build ReleaseGerman ${dir.src}/clients/quality/sharedresources/SharedResources.vcproj /out ${dir.build}/BuildLog.txt"/>
-                    </exec>
-                    <!-- Spanish -->
-                    <exec dir="${dir.build}" executable="${compiler.cpp}" vmlauncher="false" failonerror="false">
-                        <arg line="/build ReleaseSpanish ${dir.src}/clients/quality/sharedresources/SharedResources.vcproj /out ${dir.build}/BuildLog.txt"/>
-                    </exec>
-                </then>
-            </ac:elseif>
-            <ac:else>
-                <!-- DRY (combine with 9.6 check?) -->
-                <!-- 9.10.x or later, localization with Release for English -->
-                <echo message="Release, ReleaseGerman, ReleaseSpanish"/>
-                <exec dir="${dir.build}" executable="${compiler.cpp}" vmlauncher="false" failonerror="false">
-                    <arg line="/build Release ${dir.src}/clients/quality/sharedresources/SharedResources.vcproj /out ${dir.build}/BuildLog.txt"/>
-                </exec>
-                <!-- German -->
-                <exec dir="${dir.build}" executable="${compiler.cpp}" vmlauncher="false" failonerror="false">
-                    <arg line="/build ReleaseGerman ${dir.src}/clients/quality/sharedresources/SharedResources.vcproj /out ${dir.build}/BuildLog.txt"/>
-                </exec>
-                <!-- Spanish -->
-                <exec dir="${dir.build}" executable="${compiler.cpp}" vmlauncher="false" failonerror="false">
-                    <arg line="/build ReleaseSpanish ${dir.src}/clients/quality/sharedresources/SharedResources.vcproj /out ${dir.build}/BuildLog.txt"/>
-                </exec>
-            </ac:else>
-        </ac:if>
-    </target>
-
-    <!-- ================================================================= -->
-    <!--  Make and sign AgentX.ocx                                         -->
-    <!-- ================================================================= -->
-    <target name="make-AgentX_OCX" depends="propset" description="Makes AgentX.ocx using devenv.exe">
-        <!-- English -->
-        <exec dir="${dir.build}" executable="${compiler.cpp}" vmlauncher="false" failonerror="false">
-            <arg line="/build Release ${dir.src}/clients/quality/agentdesktop/AgentX.vcproj /out ${dir.build}/BuildLog.txt"/>
-        </exec>
-        <ac:if>
-            <or>
-                <and>
-                    <ac:isgreaterthan arg1="${MAJOR}" arg2="9"/>
-                </and>
-                <and>
-                    <ac:equals arg1="${MAJOR}" arg2="9"/>
-                    <ac:equals arg1="${MINOR}" arg2="7"/>
-                </and>
-                <and>
-                    <ac:equals arg1="${MAJOR}" arg2="9"/>
-                    <ac:isgreaterthan arg1="${MINOR}" arg2="7"/>
-                </and>
-            </or>
-            <then>
-                <!-- German -->
-                <exec dir="${dir.build}" executable="${compiler.cpp}" vmlauncher="false" failonerror="false">
-                    <arg line="/build ReleaseGerman ${dir.src}/clients/quality/agentdesktop/AgentX.vcproj /out ${dir.build}/BuildLog.txt"/>
-                </exec>
-                <!-- Spanish -->
-                <exec dir="${dir.build}" executable="${compiler.cpp}" vmlauncher="false" failonerror="false">
-                    <arg line="/build ReleaseSpanish ${dir.src}/clients/quality/agentdesktop/AgentX.vcproj /out ${dir.build}/BuildLog.txt"/>
-                </exec>
-            </then>
-        </ac:if>
-    </target>
-
+    <!-- TODO is there an AgentX solution? -timc, Cinco de Mayo -->
     <target name="sign-AgentX_OCX" depends="propset, make-AgentX_OCX" description="Digitally signs AgentX.ocx to verify its authenticity.">
         <!-- English -->
-        <exec dir="${dir.build}" executable="${basedir}/${signtool}" vmlauncher="false" failonerror="true">
+        <exec dir="${dir.build}" executable="${basedir}/${signtool}" vmlauncher="${vmlauncher}" failonerror="true">
             <arg line="sign /a /f ${file.pfx} /p ${signtool.password} /t ${signtool.timestampurl} ${dir.workdir}/quality/AgentX.ocx"/>
         </exec>
         <ac:if>
@@ -1150,11 +750,11 @@
             <then>
                 <!-- NB: don't forget the ${basedir}! -->
                 <!-- German -->
-                <exec dir="${dir.build}" executable="${basedir}/${signtool}" vmlauncher="false" failonerror="true">
+                <exec dir="${dir.build}" executable="${basedir}/${signtool}" vmlauncher="${vmlauncher}" failonerror="true">
                     <arg line="sign /a /f ${file.pfx} /p ${signtool.password} /t ${signtool.timestampurl} ${dir.src}/clients/quality/agentdesktop/ReleaseGerman/AgentX.ocx"/>
                 </exec>
                 <!-- Spanish -->
-                <exec dir="${dir.build}" executable="${basedir}/${signtool}" vmlauncher="false" failonerror="true">
+                <exec dir="${dir.build}" executable="${basedir}/${signtool}" vmlauncher="${vmlauncher}" failonerror="true">
                     <arg line="sign /a /f ${file.pfx} /p ${signtool.password} /t ${signtool.timestampurl} ${dir.src}/clients/quality/agentdesktop/ReleaseSpanish/AgentX.ocx"/>
                 </exec>
             </then>
@@ -1162,76 +762,39 @@
     </target>
 
     <!-- ================================================================= -->
-    <!--  Make and sign AgentAdherence.ocx                                 -->
+    <!-- Sign AnalyticsResources                                           -->
     <!-- ================================================================= -->
-    <target name="make-AgentAdherence_OCX" description="Makes AgentAdherence.ocx using devenv.exe">
-        <exec dir="${dir.build}" executable="${compiler.cpp}" vmlauncher="false" failonerror="true">
-            <arg line="/build Release ${dir.src}/clients/wfm/agentadherence/AgentAdherence.vcproj /out ${dir.build}/BuildLog.txt"/>
-        </exec>
-    </target>
-
-    <target name="sign-AgentAdherence_OCX" depends="make-AgentAdherence_OCX" description="Digitally signs AgentAdherence.ocx to verify its authenticity.">
+    <!-- AnalyticsResources is compiled in make-DeployAnalyticsTool.
+    Originally I had a make-AnalyticsResources target, which compiled
+    AnalyticsResources.csproj, but it's redundant. -->
+    <!-- TODO is there an AnalyticsResources solution? -timc, Cinco de Mayo -->
+    <target name="sign-AnalyticsResources" depends="make-DeployAnalyticsTool" description="Digitally signs EnvisionAnalyticsResources.dll to verify its authenticity.">
         <!-- NB: don't forget the ${basedir}! -->
-        <exec dir="${dir.build}" executable="${basedir}/${signtool}" vmlauncher="false" failonerror="true">
-            <arg line="sign /a /f ${file.pfx} /p ${signtool.password} /t ${signtool.timestampurl} ${dir.workdir}/wfm/AgentAdherence.ocx"/>
+        <exec dir="${dir.build}" executable="${basedir}/${signtool}" vmlauncher="${vmlauncher}" failonerror="true">
+            <!-- /f ${dir.build}/setup/Signature/myprivatecert.pfx -->
+            <arg line="sign /a /f ${file.pfx} /p ${signtool.password} /t ${signtool.timestampurl} ${dir.src}/clients/Centricity/Analytics/AnalyticsResources/obj/Release/EnvisionAnalyticsResources.dll"/>
         </exec>
     </target>
 
     <!-- ================================================================= -->
-    <!--  Make and sign AgentSchedule.ocx                                  -->
+    <!-- Sign AnalyticsUtilities                                           -->
     <!-- ================================================================= -->
-    <target name="make-AgentSchedule_OCX" description="Makes AgentSchedule.ocx using devenv.exe">
-        <exec dir="${dir.build}" executable="${compiler.cpp}" vmlauncher="false" failonerror="true">
-            <arg line="/build Release ${dir.src}/clients/wfm/agentschedule/AgentSchedule.vcproj /out ${dir.build}/BuildLog.txt"/>
-        </exec>
-    </target>
-
-    <target name="sign-AgentSchedule_OCX" depends="make-AgentSchedule_OCX" description="Digitally signs AgentSchedule.ocx to verify its authenticity.">
+    <target name="sign-AnalyticsUtilities" depends="make-AnalyticsUtilities" description="Digitally signs EnvisionAnalyticsUtilities.dll to verify its authenticity.">
         <!-- NB: don't forget the ${basedir}! -->
-        <exec dir="${dir.build}" executable="${basedir}/${signtool}" vmlauncher="false" failonerror="true">
-            <arg line="sign /a /f ${file.pfx} /p ${signtool.password} /t ${signtool.timestampurl} ${dir.workdir}/wfm/AgentSchedule.ocx"/>
+        <exec dir="${dir.build}" executable="${basedir}/${signtool}" vmlauncher="${vmlauncher}" failonerror="true">
+            <!-- /f ${dir.build}/setup/Signature/myprivatecert.pfx -->
+            <arg line="sign /a /f ${file.pfx} /p ${signtool.password} /t ${signtool.timestampurl} ${dir.src}/clients/Centricity/Analytics/AnalyticsUtilities/obj/Release/EnvisionAnalyticsUtilities.dll"/>
         </exec>
     </target>
 
     <!-- ================================================================= -->
-    <!--  Make and sign C2CReportingControls.ocx                           -->
+    <!--  Sign C2CReportingControls.ocx                                    -->
     <!-- ================================================================= -->
-    <target name="make-C2CReportingControls_OCX" depends="propset" description="Makes C2CReportingControls.ocx using devenv.exe">
-        <!-- English -->
-        <exec dir="${dir.build}" executable="${compiler.cpp}" vmlauncher="false" failonerror="false">
-            <arg line="/build Release ${dir.src}/clients/reporting/C2CReportingControls/C2CReportingControls.sln /out ${dir.build}/BuildLog.txt"/>
-        </exec>
-        <ac:if>
-            <or>
-                <and>
-                    <ac:isgreaterthan arg1="${MAJOR}" arg2="9"/>
-                </and>
-                <and>
-                    <ac:equals arg1="${MAJOR}" arg2="9"/>
-                    <ac:equals arg1="${MINOR}" arg2="7"/>
-                </and>
-                <and>
-                    <ac:equals arg1="${MAJOR}" arg2="9"/>
-                    <ac:isgreaterthan arg1="${MINOR}" arg2="7"/>
-                </and>
-            </or>
-            <then>
-                <!-- German -->
-                <exec dir="${dir.build}" executable="${compiler.cpp}" vmlauncher="false" failonerror="false">
-                    <arg line="/build ReleaseGerman ${dir.src}/clients/reporting/C2CReportingControls/C2CReportingControls.sln /out ${dir.build}/BuildLog.txt"/>
-                </exec>
-                <!-- Spanish -->
-                <exec dir="${dir.build}" executable="${compiler.cpp}" vmlauncher="false" failonerror="false">
-                    <arg line="/build ReleaseSpanish ${dir.src}/clients/reporting/C2CReportingControls/C2CReportingControls.sln /out ${dir.build}/BuildLog.txt"/>
-                </exec>
-            </then>
-        </ac:if>
-    </target>
-
+    <!-- TODO is there a C2CReportingControls solution? -timc, Cinco de Mayo -->
     <target name="sign-C2CReportingControls_OCX" depends="propset, make-C2CReportingControls_OCX" description="Digitally signs C2CReportingControls.ocx to verify its authenticity.">
         <!-- English -->
         <!-- NB: don't forget the ${basedir}! -->
-        <exec dir="${dir.build}" executable="${basedir}/${signtool}" vmlauncher="false" failonerror="true">
+        <exec dir="${dir.build}" executable="${basedir}/${signtool}" vmlauncher="${vmlauncher}" failonerror="true">
             <arg line="sign /a /f ${file.pfx} /p ${signtool.password} /t ${signtool.timestampurl} ${dir.src}/clients/reporting/C2CReportingControls/Release/C2CReportingControls.ocx"/>
         </exec>
         <ac:if>
@@ -1251,12 +814,12 @@
             <then>
                 <!-- German -->
                 <!-- NB: don't forget the ${basedir}! -->
-                <exec dir="${dir.build}" executable="${basedir}/${signtool}" vmlauncher="false" failonerror="true">
+                <exec dir="${dir.build}" executable="${basedir}/${signtool}" vmlauncher="${vmlauncher}" failonerror="true">
                     <arg line="sign /a /f ${file.pfx} /p ${signtool.password} /t ${signtool.timestampurl} ${dir.src}/clients/reporting/C2CReportingControls/ReleaseGerman/C2CReportingControls.ocx"/>
                 </exec>
                 <!-- Spanish -->
                 <!-- NB: don't forget the ${basedir}! -->
-                <exec dir="${dir.build}" executable="${basedir}/${signtool}" vmlauncher="false" failonerror="true">
+                <exec dir="${dir.build}" executable="${basedir}/${signtool}" vmlauncher="${vmlauncher}" failonerror="true">
                     <arg line="sign /a /f ${file.pfx} /p ${signtool.password} /t ${signtool.timestampurl} ${dir.src}/clients/reporting/C2CReportingControls/ReleaseSpanish/C2CReportingControls.ocx"/>
                 </exec>
             </then>
@@ -1264,44 +827,23 @@
     </target>
 
     <!-- ================================================================= -->
-    <!-- Make and sign WebControls.ocx                                     -->
+    <!-- Sign EnvisionCLR (includes DeployAnalyticsTool)                   -->
     <!-- ================================================================= -->
-    <target name="make-WebControls_OCX" depends="propset" description="Makes WebControls.ocx using devenv.exe">
-        <!-- English -->
-        <exec dir="${dir.build}" executable="${compiler.cpp}" vmlauncher="false" failonerror="true">
-            <arg line="/build Release ${dir.src}/clients/reporting/controls/WebControls.vcproj /out ${dir.build}/BuildLog.txt"/>
+    <target name="sign-EnvisionCLR" depends="make-EnvisionCLR" description="Digitally signs EnvisionCLR.dll to verify its authenticity.">
+        <!-- NB: don't forget the ${basedir}! -->
+        <exec dir="${dir.build}" executable="${basedir}/${signtool}" vmlauncher="${vmlauncher}" failonerror="true">
+            <!-- /f ${dir.build}/setup/Signature/myprivatecert.pfx -->
+            <arg line="sign /a /f ${file.pfx} /p ${signtool.password} /t ${signtool.timestampurl} ${dir.src}/clients/Centricity/Analytics/EnvisionCLR/obj/Release/EnvisionCLR.dll"/>
         </exec>
-        <ac:if>
-            <or>
-                <and>
-                    <ac:isgreaterthan arg1="${MAJOR}" arg2="9"/>
-                </and>
-                <and>
-                    <ac:equals arg1="${MAJOR}" arg2="9"/>
-                    <ac:equals arg1="${MINOR}" arg2="7"/>
-                </and>
-                <and>
-                    <ac:equals arg1="${MAJOR}" arg2="9"/>
-                    <ac:isgreaterthan arg1="${MINOR}" arg2="7"/>
-                </and>
-            </or>
-            <then>
-                <!-- German -->
-                <exec dir="${dir.build}" executable="${compiler.cpp}" vmlauncher="false" failonerror="true">
-                    <arg line="/build ReleaseGerman ${dir.src}/clients/reporting/controls/WebControls.vcproj /out ${dir.build}/BuildLog.txt"/>
-                </exec>
-                <!-- Spanish -->
-                <exec dir="${dir.build}" executable="${compiler.cpp}" vmlauncher="false" failonerror="true">
-                    <arg line="/build ReleaseSpanish ${dir.src}/clients/reporting/controls/WebControls.vcproj /out ${dir.build}/BuildLog.txt"/>
-                </exec>
-            </then>
-        </ac:if>
     </target>
 
+    <!-- ================================================================= -->
+    <!-- Sign WebControls.ocx                                              -->
+    <!-- ================================================================= -->
     <target name="sign-WebControls_OCX" depends="propset, make-WebControls_OCX" description="Digitally signs WebControls.ocx to verify its authenticity.">
         <!-- English -->
         <!-- NB: don't forget the ${basedir}! -->
-        <exec dir="${dir.build}" executable="${basedir}/${signtool}" vmlauncher="false" failonerror="true">
+        <exec dir="${dir.build}" executable="${basedir}/${signtool}" vmlauncher="${vmlauncher}" failonerror="true">
             <arg line="sign /a /f ${file.pfx} /p ${signtool.password} /t ${signtool.timestampurl} ${dir.workdir}/agentdesktop/WebControls.ocx"/>
         </exec>
         <ac:if>
@@ -1321,220 +863,31 @@
             <then>
                 <!-- German -->
                 <!-- NB: don't forget the ${basedir}! -->
-                <exec dir="${dir.build}" executable="${basedir}/${signtool}" vmlauncher="false" failonerror="true">
+                <exec dir="${dir.build}" executable="${basedir}/${signtool}" vmlauncher="${vmlauncher}" failonerror="true">
                     <arg line="sign /a /f ${file.pfx} /p ${signtool.password} /t ${signtool.timestampurl} ${dir.src}/clients/reporting/controls/ReleaseGerman/WebControls.ocx"/>
                 </exec>
                 <!-- Spanish -->
                 <!-- NB: don't forget the ${basedir}! -->
-                <exec dir="${dir.build}" executable="${basedir}/${signtool}" vmlauncher="false" failonerror="true">
+                <exec dir="${dir.build}" executable="${basedir}/${signtool}" vmlauncher="${vmlauncher}" failonerror="true">
                     <arg line="sign /a /f ${file.pfx} /p ${signtool.password} /t ${signtool.timestampurl} ${dir.src}/clients/reporting/controls/ReleaseSpanish/WebControls.ocx"/>
                 </exec>
             </then>
         </ac:if>
     </target>
 
-    <!-- ================================================================= -->
-    <!-- Make Shared.Lib                                                   -->
-    <!-- ================================================================= -->
-    <target name="make-Shared_LIB" description="Makes Shared Lib using devenv.exe">
-        <exec dir="${dir.build}" executable="${compiler.cpp}" vmlauncher="false" failonerror="true">
-            <arg line="/build Release ${dir.src}/clients/quality/shared/Shared.vcproj /out ${dir.build}/BuildLog.txt"/>
-        </exec>
-    </target>
 
-    <!-- ================================================================= -->
-    <!-- Make SourceRunnerService.exe                                      -->
-    <!-- ================================================================= -->
-    <target name="make-SourceRunner" depends="make-ContactSourceUtilities_LIB" description="Makes SourceRunnerService.exe using devenv.exe">
-        <exec dir="${dir.build}" executable="${compiler.cpp}" vmlauncher="false" failonerror="true">
-            <arg line="/build Release ${dir.src}/winservices/SourceRunnerService.sln /out ${dir.build}/BuildLog.txt"/>
-        </exec>
-    </target>
 
-    <!-- ================================================================= -->
-    <!-- Make JavaContactSource.dll                                        -->
-    <!-- ================================================================= -->
-    <target name="make-JavaContactSource" description="Makes javacontactsource.dll using devenv.exe">
-        <exec dir="${dir.build}" executable="${compiler.cpp}" vmlauncher="false" failonerror="true">
-            <arg line="/build Release ${dir.src}/contactsources/javacontactsource/JavaContactSource.vcproj /out ${dir.build}/BuildLog.txt"/>
-        </exec>
-    </target>
 
-    <!-- ================================================================= -->
-    <!-- Make NotificationWindow.lib                                       -->
-    <!-- ================================================================= -->
-    <target name="make-NotificationWindow_LIB" description="Makes notificationwindow.lib using devenv.exe">
-        <exec dir="${dir.build}" executable="${compiler.cpp}" vmlauncher="false" failonerror="true">
-            <arg line="/build Release ${dir.src}/clients/quality/notificationwindow/NotificationWindow.vcproj /out ${dir.build}/BuildLog.txt"/>
-        </exec>
-    </target>
 
-    <!-- ================================================================= -->
-    <!-- Make NetMerge.dll                                                 -->
-    <!-- ================================================================= -->
-    <!-- Caution!
-    .
-    This one is not used BUT debug is!! Should this one be in build-cpp?   -->
-    <!--
-    <target name="make-NetMerge" description="Makes NetMerge.dll using devenv.exe">
-        <echo file="${dir.build}\ProjectThatErrored.txt" message="NetMerge.dll"/>
-        <exec dir="${dir.build}" executable="${compiler.cpp}" vmlauncher="false" failonerror="true">
-            <arg line="/build Release ${dir.src}/contactsources/netmerge/NetMerge.vcproj /out ${dir.build}/BuildLog.txt"/>
-        </exec>
-    </target>
-    -->
-    <!--
-    <target name="make-NetMerge_debug" description="Makes NetMerge.dll using devenv.exe">
-        <echo file="${dir.build}\ProjectThatErrored.txt" message="NetMerge.dll"/>
-        <exec dir="${dir.build}" executable="${compiler.cpp}" vmlauncher="false" failonerror="true">
-            <arg line="/build Debug ${dir.src}/contactsources/netmerge/NetMerge.vcproj /out ${dir.build}/BuildLog.txt"/>
-        </exec>
-    </target>
-    -->
 
-    <!-- ================================================================= -->
-    <!-- Make NetMergeLoader.dll                                           -->
-    <!-- ================================================================= -->
-    <!-- Caution!
-    .
-    This one is not used BUT debug is!! Should this one be in build-cpp?   -->
-    <!--
-    <target name="make-NetMergeLoader" description="Makes NetMergeLoader.dll using devenv.exe">
-        <echo file="${dir.build}\ProjectThatErrored.txt" message="NetMergeLoader.dll"/>
-        <exec dir="${dir.build}" executable="${compiler.cpp}" vmlauncher="false" failonerror="true">
-            <arg line="/build Release ${dir.src}/contactsources/netmerge/ctcLoader_6_0/ctcLoader_6_0.vcproj /out ${dir.build}/BuildLog.txt"/>
-        </exec>
-    </target>
-    -->
-    <!--
-    <target name="make-NetMergeLoader_debug" description="Makes NetMergeLoader.dll using devenv.exe">
-        <echo file="${dir.build}\ProjectThatErrored.txt" message="NetMergeLoader.dll"/>
-        <exec dir="${dir.build}" executable="${compiler.cpp}" vmlauncher="false" failonerror="true">
-            <arg line="/build Debug ${dir.src}/contactsources/netmerge/ctcLoader_6_0/ctcLoader_6_0.vcproj /out ${dir.build}/BuildLog.txt"/>
-        </exec>
-    </target>
-    -->
 
-    <!-- ================================================================= -->
-    <!-- Make ContactSourceUtilities.lib                                   -->
-    <!-- ================================================================= -->
-    <target name="make-ContactSourceUtilities_LIB" description="Makes ContactSourceUtils.lib using devenv.exe">
-        <exec dir="${dir.build}" executable="${compiler.cpp}" vmlauncher="false" failonerror="true">
-            <arg line="/build Release ${dir.src}/contactsources/contactsourceutilities/ContactSourceUtils.sln /out ${dir.build}/BuildLog.txt"/>
-        </exec>
-    </target>
 
-    <!-- ================================================================= -->
-    <!-- Make Automated Tagger DLLs                                        -->
-    <!-- ================================================================= -->
-    <!-- VB, but compiled with build-CSharp (go figure) -->
-    <target name="make-AutoTagger" description="Makes Automated Tagger DLLs devenv.exe">
-        <exec dir="${dir.build}" executable="${compiler.cpp}" vmlauncher="false" failonerror="true">
-            <arg line="/build Release ${dir.src}/clients/focus/PSPost.root/AutomatedTagger.sln /out ${dir.build}/BuildLog.txt"/>
-        </exec>
-    </target>
 
-    <!-- ================================================================= -->
-    <!-- Make Serializable                                                 -->
-    <!-- ================================================================= -->
-    <target name="make-Serializable_LIB" description="Makes Serializable.lib using devenv.exe">
-        <exec dir="${dir.build}" executable="${compiler.cpp}" vmlauncher="false" failonerror="true">
-            <arg line="/build Release ${dir.src}/serializable/serializable.vcproj /out ${dir.build}/BuildLog.txt"/>
-        </exec>
-    </target>
 
-    <!-- ================================================================= -->
-    <!-- Make Generated                                                    -->
-    <!-- ================================================================= -->
-    <target name="make-Generated" description="Makes generated devenv.exe">
-        <exec dir="${dir.build}" executable="${compiler.cpp}" vmlauncher="false" failonerror="true">
-            <arg line="/build Release ${dir.src}/generated/generated.vcproj /out ${dir.build}/BuildLog.txt"/>
-        </exec>
-    </target>
 
-    <!-- ================================================================= -->
-    <!-- Make UserTree                                                     -->
-    <!-- ================================================================= -->
-    <target name="make-UserTree_LIB" description="Makes usertree.lib devenv.exe">
-        <exec dir="${dir.build}" executable="${compiler.cpp}" vmlauncher="false" failonerror="true">
-            <arg line="/build Release ${dir.src}/clients/quality/usertree/usertree.vcproj /out ${dir.build}/BuildLog.txt"/>
-        </exec>
-    </target>
 
-    <!-- ================================================================= -->
-    <!-- Make WFM                                                          -->
-    <!-- ================================================================= -->
-    <target name="make-WFM" description="Makes WFM using devenv.exe">
-        <exec dir="${dir.build}" executable="${compiler.cpp}" vmlauncher="false" failonerror="true">
-            <arg line="/build Release ${dir.src}/clients/wfm/wfm.sln /out ${dir.build}/BuildLog.txt"/>
-        </exec>
-    </target>
 
-    <!-- ================================================================= -->
-    <!--  Make Channel Manager                                             -->
-    <!-- ================================================================= -->
-    <!-- TODO break into projects! -timc 5/4/2009 -->
-    <target name="make-ChannelManager" description="Makes channelmanager devenv.exe">
-        <exec dir="${dir.build}" executable="${compiler.cpp}" vmlauncher="false" failonerror="true">
-            <arg line="/build Release ${dir.src}/winservices/ChannelManager.sln /out ${dir.build}/BuildLog.txt"/>
-        </exec>
-    </target>
-    <!--
-    <target name="make-ChannelManager_debug_named" description="Makes channelmanager devenv.exe">
-        <exec dir="${dir.build}" executable="${compiler.cpp}" vmlauncher="false" failonerror="true">
-            <arg line="/build DebugNamed ${dir.src}/winservices/ChannelManager.sln /out ${dir.build}/BuildLog.txt"/>
-        </exec>
-    </target>
-    -->
 
-    <!-- timc: CAUTION this one creates a file of the same name
-    (ChanMgrSvc.exe) as make-ChannelManager.  DO NOT SHIP THIS!!  For the
-    installer, we need to run make-ChannelManager and
-    make-ChannelManager_debug_named, which will need to be created. -->
-    <!--
-    <target name="make-ChannelManager_debug" description="Makes channelmanager devenv.exe">
-        <exec dir="${dir.build}" executable="${compiler.cpp}" vmlauncher="false" failonerror="true">
-            <arg line="/build Debug ${dir.src}/winservices/ChannelManager.sln /out ${dir.build}/BuildLog.txt"/>
-        </exec>
-    </target>
-    -->
 
-    <!-- ================================================================= -->
-    <!-- Make DialogicChannel60                                            -->
-    <!-- ================================================================= -->
-    <!-- TODO why is this a separate vcproj? -timc 5/4/2009 -->
-    <!-- TODO can I remove this from the build list? -timc 1/7/2010 -->
-    <target name="make-DialogicChannel60" description="Makes DialogicChannel60 devenv.exe">
-        <exec dir="${dir.build}" executable="${compiler.cpp}" vmlauncher="false" failonerror="true">
-            <arg line="/build ReleaseSR60 ${dir.src}/winservices/ChannelManager.sln /out ${dir.build}/BuildLog.txt"/>
-        </exec>
-    </target>
-
-    <!-- ================================================================= -->
-    <!-- Make ETService                                                    -->
-    <!-- ================================================================= -->
-    <target name="make-EnvisionService" depends="propset" description="Makes ETService.exe using devenv.exe">
-        <!-- NOTE: I'm not sure exactly what this is doing for us, but the
-        ETService Release configuration occasionally fails with errors about
-        multiply defined libraries.  Running this batch file fixes it.  But it
-        needs to be run in the same environment as ETService.vcproj.  That's
-        why it's not invoked with executable="cmd.exe" and arg
-        line="vsvars.bat" (although that seems to work as well). -->
-        <exec dir="${vscommontools}" executable="cmd.exe">
-            <arg line="vsvars32.bat"/>
-        </exec>
-        <exec dir="${dir.build}" executable="${compiler.cpp}" vmlauncher="false" failonerror="true">
-            <arg line="/build Release ${dir.src}/server/startserverprocess/C2CServerPro.vcproj /out ${dir.build}/BuildLog.txt"/>
-        </exec>
-        <exec dir="${dir.build}" executable="${compiler.cpp}" vmlauncher="false" failonerror="true">
-            <arg line="/build Release ${dir.src}/server/shutdownserverprocess/ShutdownServer.vcproj /out ${dir.build}/BuildLog.txt"/>
-        </exec>
-        <exec dir="${dir.build}" executable="${compiler.cpp}" vmlauncher="false" failonerror="true">
-            <arg line="/build Release ${dir.src}/winservices/etservice/ETService.vcproj /out ${dir.build}/BuildLog.txt"/>
-        </exec>
-        <exec dir="${dir.build}" executable="${compiler.cpp}" vmlauncher="false" failonerror="true">
-            <arg line="/build Release ${dir.src}/winservices/etservice/ETServiceInstall.vcproj /out ${dir.build}/BuildLog.txt"/>
-        </exec>
-    </target>
 </project>
 
