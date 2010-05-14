@@ -3410,13 +3410,29 @@ Complete log here: ${dir.projects.converted}\unittests\${version.product}_verbos
         <property name="url.tag"
             value="${url.tags}/${datestamp}-${version.product}-r${repository.revision}"/>
         <echo message="tag-build: ${url.tag}"/>
-        <svn username="buildmgr" password="buildmgr">
-            <!-- repository.revision should be redundant here, but it doesn't
-            hurt (AFAIK) -->
-            <copy message="00000: Creating tag for build ${version.product}"
-                srcUrl="${url.src}" destUrl="${url.tag}"
-                revision="${repository.revision}"/>
-        </svn>
+        <trycatch>
+            <!-- If this works okay, I'll add the ${MAJOR}.${MINOR} piece in
+            front of it later. -timc 5/14/2010 -->
+            <try>
+                <svn username="buildmgr" password="buildmgr">
+                    <mkdir
+                        message="00000: Creating tags dir for ${MAJOR}.${MINOR}.${RELEASE} builds"
+                        url="${url.tags}"/>
+                </svn>
+            </try>
+
+            <!-- Catch and release.  This is here to prevent the build from
+            failing if svn mkdir fails, which is expected a lot of the time. -->
+            <catch/>
+
+            <finally>
+                <svn username="buildmgr" password="buildmgr">
+                    <copy message="00000: Creating tag for build ${version.product}"
+                        srcUrl="${url.src}" destUrl="${url.tag}"
+                        revision="${repository.revision}"/>
+                </svn>
+            </finally>
+        </trycatch>
     </target>
 
     <!-- ================================================================= -->
