@@ -480,7 +480,8 @@ class BuildProperties(object):
         #
         # os.path.join() uses backslashes on Windows, but that's wrong here!
         if not self.tags_url:
-            tmp = TAGS_BASE + r'/' + self.major + '.' + self.minor + r'/' + triplet
+            tmp = TAGS_BASE + r'/' + self.major + r'/' + \
+                    self.major + '.' + self.minor + r'/' + self.triplet
             self.tags_url = tmp
             print("[default] setting %s=%s" % ('tags_url', self.tags_url))
 
