@@ -46,6 +46,9 @@
         <!-- <antcall target="release-DotNetInstaller"/> -->
         <antcall target="release-CD3"/>
 
+        <!-- target4 -->
+        <antcall target="release-CD4"/>
+
         <!-- TODO if we're doing only 9.6 and later, this is redundant (but
         harmless and informative) -->
         <!-- 9.6.x -->
@@ -409,6 +412,7 @@
         <property name="target1" value="${dir.products}/${version.product}/CD1"/>
         <property name="target2" value="${dir.products}/${version.product}/CD2"/>
         <property name="target3" value="${dir.products}/${version.product}/CD3"/>
+        <property name="target4" value="${dir.products}/${version.product}/CD4"/>
         <property name="dir.utils" value="${target2}/utils"/>
         <property name="dir.nuasis-plugin" value="${target2}/utils/Nuasis"/>
     </target>
@@ -635,6 +639,15 @@
     <target name="release-CD3" depends="prepare">
         <copy todir="${target3}">
             <fileset dir="${uncpath.cd3_sources}"/>
+        </copy>
+    </target>
+
+    <!-- ================================================================= -->
+    <!-- Publish CD4                                                       -->
+    <!-- ================================================================= -->
+    <target name="release-CD4" depends="prepare">
+        <copy todir="${target4}">
+            <fileset dir="${uncpath.cd4_sources}"/>
         </copy>
     </target>
 
