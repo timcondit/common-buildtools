@@ -375,13 +375,16 @@ have comments in-place.
         </then>
     </ac:if>
 
+    <!--
     <ac:if>
         <not>
             <and>
                 <isset property="file.pfx"/>
+    -->
                 <!-- This is only available after we fetch the source.
                 That makes it either a good test, or a bad one.  I'm not
                 sure which. -->
+    <!--
                 <available file="${file.pfx}"/>
             </and>
         </not>
@@ -389,6 +392,7 @@ have comments in-place.
             <fail message="property file.pfx is unset or unavailable"/>
         </then>
     </ac:if>
+    -->
 
     <ac:if>
         <not>
@@ -457,11 +461,13 @@ have comments in-place.
 
     <!-- let's try without create-release-dir -->
     <!-- change-version, create-release-dir, build-jars, -->
+    <!--
     <target name="official-build"
         depends="begin,
         nuke-workdir,
         fetch-source,
         change-version,
+        create-release-dir,
         build-jars,
         compile-genstubskel-jar,
         genstubskel-suite,
@@ -478,6 +484,31 @@ have comments in-place.
         tag-build,
         move-workdir-postbuild,
         end"/>
+    -->
+
+    <target name="official-build">
+        <antcall target="begin"/>
+        <antcall target="nuke-workdir"/>
+        <antcall target="fetch-source"/>
+        <antcall target="change-version"/>
+        <antcall target="create-release-dir"/>
+        <antcall target="build-jars"/>
+        <antcall target="compile-genstubskel-jar"/>
+        <antcall target="genstubskel-suite"/>
+        <antcall target="copy-jar-resources"/>
+        <antcall target="build-jars"/>
+        <antcall target="generate-dbschemas"/>
+        <antcall target="make-CPP"/>
+        <antcall target="sign-EnvisionControls_CAB"/>
+        <antcall target="touch-build"/>
+        <antcall target="setup-installers"/>
+        <antcall target="commit-all"/>
+        <antcall target="publish-unit-test-results"/>
+        <antcall target="email-build-complete"/>
+        <antcall target="tag-build"/>
+        <antcall target="move-workdir-postbuild"/>
+        <antcall target="end"/>
+    </target>
 
     <!-- ================================================================= -->
     <!-- Rebuild Project                                                   -->
@@ -491,6 +522,7 @@ have comments in-place.
         </condition>
     </antcall>
     -->
+    <!--
     <target name="rebuild"
         depends="del-stubskel,
         create-release-dir,
@@ -502,6 +534,20 @@ have comments in-place.
         generate-dbschemas,
         make-CPP,
         sign-EnvisionControls_CAB"/>
+    -->
+
+    <target name="rebuild">
+        <antcall target="del-stubskel"/>
+        <antcall target="create-release-dir"/>
+        <antcall target="build-jars"/>
+        <antcall target="compile-genstubskel-jar"/>
+        <antcall target="genstubskel-suite"/>
+        <antcall target="copy-jar-resources"/>
+        <antcall target="build-jars"/>
+        <antcall target="generate-dbschemas"/>
+        <antcall target="make-CPP"/>
+        <antcall target="sign-EnvisionControls_CAB"/>
+    </target>
 
     <!-- ================================================================= -->
     <!-- </metatargets>                                                     -->
@@ -578,6 +624,21 @@ have comments in-place.
     <!-- Build C#                                                          -->
     <!-- ================================================================= -->
     <target name="build-CSharp">
+
+        <!--
+        An alternative approach that doesn't use antcall (untested)
+        <build-cpp solution.file="${dir.src}/server/server.sln"/>
+        <build-cpp solution.file="${dir.src}/apis/bi/com/et/bi/api/common/APICommon.csproj"/>
+        <build-cpp solution.file="${dir.src}/apis/bi/com/et/bi/api/finder/finder.csproj"/>
+
+        # do this one only for 9.6
+        <build-cpp solution.file="${dir.src}/apis/bi/com/et/bi/api/tagger/wrapperservice/TaggerWrapperService.csproj"/>
+
+        <build-cpp solution.file="${dir.src}/apis/bi/com/et/bi/api/tagger/ETCallTagger.csproj"/>
+        etc.
+        ...
+        -->
+
         <antcall target="make-Server_CS"/>
         <antcall target="make-APICommon_CS"/>
         <antcall target="make-Finder_CS"/>
