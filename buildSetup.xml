@@ -43,11 +43,7 @@
         <antcall target="release-ECC"/>
 
         <!-- target3 -->
-        <!-- <antcall target="release-DotNetInstaller"/> -->
         <antcall target="release-CD3"/>
-
-        <!-- target4 -->
-        <antcall target="release-CD4"/>
 
         <!-- TODO if we're doing only 9.6 and later, this is redundant (but
         harmless and informative) -->
@@ -70,8 +66,29 @@
                 <!-- target2, 9.6.0000.0 and later -->
                 <antcall target="release-Analytics"/>
                 <antcall target="release-Centricity"/>
-                <!-- <antcall target="release-CentricityWebApplications"/> -->
                 <antcall target="release-WMWrapperService"/>
+            </then>
+        </ac:if>
+
+        <!-- CentricityWebApplications was moved to Centricity in 10.1 -->
+        <!-- 9.6.x thru 10.0.x -->
+        <ac:if>
+            <or>
+                <and>
+                    <ac:equals arg1="${MAJOR}" arg2="9"/>
+                    <ac:equals arg1="${MINOR}" arg2="6"/>
+                </and>
+                <and>
+                    <ac:equals arg1="${MAJOR}" arg2="9"/>
+                    <ac:isgreaterthan arg1="${MINOR}" arg2="6"/>
+                </and>
+                <and>
+                    <ac:equals arg1="${MAJOR}" arg2="10"/>
+                    <ac:equals arg1="${MINOR}" arg2="0"/>
+                </and>
+            </or>
+            <then>
+                <antcall target="release-CentricityWebApplications"/>
             </then>
         </ac:if>
 
@@ -103,30 +120,46 @@
         you say "if greater than or equal to 10.0.0100" in Ant. -->
         <ac:if>
             <or>
-                <!-- if greater than 10 -->
                 <and>
                     <ac:isgreaterthan arg1="${MAJOR}" arg2="10"/>
                 </and>
-                <!-- if greater than 10.0 -->
                 <and>
                     <ac:equals arg1="${MAJOR}" arg2="10"/>
                     <ac:isgreaterthan arg1="${MINOR}" arg2="0"/>
                 </and>
-                <!-- if greater than 10.0.0100 -->
-                <and>
-                    <ac:equals arg1="${MAJOR}" arg2="10"/>
-                    <ac:equals arg1="${MINOR}" arg2="0"/>
-                    <ac:isgreaterthan arg1="${RELEASE}" arg2="0100"/>
-                </and>
-                <!-- if equal to 10.0.0100 -->
                 <and>
                     <ac:equals arg1="${MAJOR}" arg2="10"/>
                     <ac:equals arg1="${MINOR}" arg2="0"/>
                     <ac:equals arg1="${RELEASE}" arg2="0100"/>
                 </and>
+                <and>
+                    <ac:equals arg1="${MAJOR}" arg2="10"/>
+                    <ac:equals arg1="${MINOR}" arg2="0"/>
+                    <ac:isgreaterthan arg1="${RELEASE}" arg2="0100"/>
+                </and>
             </or>
             <then>
                 <antcall target="release-CentricityQM"/>
+            </then>
+        </ac:if>
+
+        <!-- target4, 10.1 and later -->
+        <ac:if>
+            <or>
+                <and>
+                    <ac:isgreaterthan arg1="${MAJOR}" arg2="9"/>
+                </and>
+                <and>
+                    <ac:equals arg1="${MAJOR}" arg2="10"/>
+                    <ac:equals arg1="${MINOR}" arg2="1"/>
+                </and>
+                <and>
+                    <ac:equals arg1="${MAJOR}" arg2="10"/>
+                    <ac:isgreaterthan arg1="${MINOR}" arg2="1"/>
+                </and>
+            </or>
+            <then>
+                <antcall target="release-CD4"/>
             </then>
         </ac:if>
     </target>
@@ -763,7 +796,7 @@
     <!-- Make and release CentricityWebApplications                        -->
     <!-- ================================================================= -->
     <!-- PRN22798 - obsolete -timc 4/7/2010 -->
-    <!--
+    <!-- Not so fast.  Still need it for pre-10.1 installs -timc 5/18/2010 -->
     <target name="make-CentricityWebApplications" depends="prepare">
         <build-AI-installer
             product.name="CentricityWebApplications"
@@ -776,7 +809,6 @@
             installer.path="${dir.installs}/CentricityWebApplications"
             product.path="${target2}"/>
     </target>
-    -->
 
     <!-- ================================================================= -->
     <!-- Make and release SpeechServerService                              -->
