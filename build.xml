@@ -83,7 +83,7 @@ have comments in-place.
         <sequential>
             <echo message="Compiling @{configuration} from @{solution.file}"/>
             <exec dir="${dir.build}" executable="${compiler.cpp}" failonerror="true">
-                <arg line="/build @{configuration} @{solution.file} /out ${output.path}"/>
+                <arg line="/build @{configuration} @{solution.file} /out @{output.path}"/>
             </exec>
         </sequential>
     </macrodef>
