@@ -1,0 +1,172 @@
+
+conditions
+==============
+
+::: build.xml :::
+
+if version == 9.6:
+    make-TaggerWrapperService_CS
+    make-EnvisionControls_CAB_EN    (Release)
+
+if version >= 9.7:
+    make-DeployAnalyticsTool
+    sign-AnalyticsResources
+    sign-AnalyticsUtilities
+    make-EnvisionControls_CAB_DE
+    make-EnvisionControls_CAB_ES
+    sign-EnvisionControls_CAB_DE
+    sign-EnvisionControls_CAB_ES
+
+if version >= 9.7 and version < 9.10:
+    make-EnvisionControls_CAB_EN    (ReleaseEnglish)
+
+if version >= 9.8:
+    make-Speech
+    jar-EnvisionPlugin
+
+if version >= 9.10:
+    make-EnvisionControls_CAB_EN    (Release)
+
+
+
+::: buildC#CPP.xml :::
+
+if version == 9.6:
+    <build-cpp
+        solution.file="${dir.src}/clients/quality/sharedresources/SharedResources.vcproj"/>
+
+if version >= 9.7:
+    <build-cpp configuration="ReleaseGerman"
+        solution.file="${dir.src}/clients/AgentSupport.sln"/>
+    <build-cpp configuration="ReleaseSpanish"
+        solution.file="${dir.src}/clients/AgentSupport.sln"/>
+
+    <build-cpp configuration="ReleaseGerman"
+        solution.file="${dir.src}/clients/quality/agentdesktop/AgentX.vcproj"/>
+    <build-cpp configuration="ReleaseSpanish"
+        solution.file="${dir.src}/clients/quality/agentdesktop/AgentX.vcproj"/>
+
+    <build-cpp configuration="ReleaseGerman"
+        solution.file="${dir.src}/clients/reporting/C2CReportingControls/C2CReportingControls.sln"/>
+    <build-cpp configuration="ReleaseSpanish"
+        solution.file="${dir.src}/clients/reporting/C2CReportingControls/C2CReportingControls.sln"/>
+
+    <build-cpp configuration="eLearningReleaseGerman"
+        solution.file="${dir.src}/clients/quality/qm/qm.vcproj"/>
+    <build-cpp configuration="eLearningReleaseSpanish"
+        solution.file="${dir.src}/clients/quality/qm/qm.vcproj"/>
+
+    <build-cpp configuration="ReleaseGerman"
+        solution.file="${dir.src}/clients/quality/qm/qm.vcproj"/>
+    <build-cpp configuration="ReleaseSpanish"
+        solution.file="${dir.src}/clients/quality/qm/qm.vcproj"/>
+
+    <build-cpp configuration="ReleaseGerman"
+        solution.file="${dir.src}/clients/reporting/controls/WebControls.vcproj"/>
+    <build-cpp configuration="ReleaseSpanish"
+        solution.file="${dir.src}/clients/reporting/controls/WebControls.vcproj"/>
+
+    sign German OCX:
+        ${dir.src}/clients/quality/agentdesktop/ReleaseGerman/AgentX.ocx
+    sign Spanish OCX:
+        ${dir.src}/clients/quality/agentdesktop/ReleaseSpanish/AgentX.ocx
+
+    sign German OCX:
+        ${dir.src}/clients/reporting/C2CReportingControls/ReleaseGerman/C2CReportingControls.ocx
+    sign Spanish OCX:
+        ${dir.src}/clients/reporting/C2CReportingControls/ReleaseSpanish/C2CReportingControls.ocx
+
+    sign German OCX:
+        ${dir.src}/clients/reporting/controls/ReleaseGerman/WebControls.ocx
+    sign Spanish OCX:
+        ${dir.src}/clients/reporting/controls/ReleaseSpanish/WebControls.ocx
+
+if version >= 9.7 and version < 9.10:
+    <build-cpp configuration="ReleaseEnglish"       (ReleaseEnglish)
+        solution.file="${dir.src}/clients/quality/sharedresources/SharedResources.vcproj"/>
+    <build-cpp configuration="ReleaseGerman"
+        solution.file="${dir.src}/clients/quality/sharedresources/SharedResources.vcproj"/>
+    <build-cpp configuration="ReleaseSpanish"
+        solution.file="${dir.src}/clients/quality/sharedresources/SharedResources.vcproj"/>
+
+if version >= 9.10:
+    <build-cpp                                      (Release)
+        solution.file="${dir.src}/clients/quality/sharedresources/SharedResources.vcproj"/>
+    <build-cpp configuration="ReleaseGerman"
+        solution.file="${dir.src}/clients/quality/sharedresources/SharedResources.vcproj"/>
+    <build-cpp configuration="ReleaseSpanish"
+        solution.file="${dir.src}/clients/quality/sharedresources/SharedResources.vcproj"/>
+
+
+
+::: buildJars.xml :::
+
+if version >= 9.7:
+    jar-EnvisionPlugin
+
+
+
+::: buildSetup.xml :::
+if version >= 9.6:
+    release-Analytics
+    release-Centricity
+    release-WMWrapperService
+
+if version >= 9.7:
+    unjar ${dir.build}/Documentation/WebHelp/EN/Agent_Desktop_Centricity_Webhelp.zip
+
+if version >= 9.8:
+    release-SpeechServerService
+    release-SpeechProcessingClient
+    release-EnvisionPlugin
+
+if version == 9.10.0200:
+    unjar ${dir.build}/Documentation/WebHelp/DE/Agent_Desktop_Centricity_Webhelp.zip
+    unjar ${dir.build}/Documentation/WebHelp/ES/Agent_Desktop_Centricity_Webhelp.zip
+
+if version >= 9.12:
+    unjar ${dir.sdk}/Nuance/EnvisionEnglishUK.zip
+    unjar ${dir.sdk}/Nuance/EnvisionGerman.zip
+    unzip ${dir.sdk}/Nuance/EnvisionSpanish.zip     (7-zip)
+    unzip ${dir.sdk}/Nuance/EnvisionSpanishLA.zip   (7-zip)
+
+if version >= 10.0.0100:
+    release-CentricityQM
+
+if version >= 9.6 and version < 10.1:
+    release-CentricityWebApplications
+
+if version >= 10.1:
+    release-CD4
+
+@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+
+if version == 9.6:
+if version == 9.6:
+
+if version >= 9.6:
+
+if version >= 9.6 and version < 10.1:
+
+if version >= 9.7:
+if version >= 9.7:
+if version >= 9.7:
+if version >= 9.7:
+
+if version >= 9.7 and version < 9.10:
+if version >= 9.7 and version < 9.10:
+
+if version >= 9.8:
+if version >= 9.8:
+
+if version >= 9.10:
+if version >= 9.10:
+
+if version == 9.10.0200:
+
+if version >= 9.12:
+
+if version >= 10.0.0100:
+
+if version >= 10.1:
+
