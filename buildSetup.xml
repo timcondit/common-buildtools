@@ -147,7 +147,7 @@
         <ac:if>
             <or>
                 <and>
-                    <ac:isgreaterthan arg1="${MAJOR}" arg2="9"/>
+                    <ac:isgreaterthan arg1="${MAJOR}" arg2="10"/>
                 </and>
                 <and>
                     <ac:equals arg1="${MAJOR}" arg2="10"/>
