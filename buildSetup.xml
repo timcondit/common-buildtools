@@ -601,7 +601,59 @@
     unzip-Server-jars_ZIP would otherwise depend on unzip-Envision_JRE.
     (make-Server depends on both of them.) -->
     <target name="unzip-Server-jars_ZIP" depends="propset">
-        <property name="Server-jars_ZIP" value="jar-files-EnvisionServer-9.10.zip"/>
+        <!-- aaaand the ugliness continues.  I've added a new zip file,
+        jar-files-EnvisionServer-9.10SP3, for (9.10SP3 and later), (10.0SP2
+        and later), and (10.1 and later).  The conditional for this is going
+        to be awful. -timc 5/21/2010 -->
+        <!-- Late note: you believe this shit? -timc 5/21/2010 -->
+        <ac:if>
+            <or>
+                <and>
+                    <!-- M > 10 -->
+                    <ac:isgreaterthan arg1="${MAJOR}" arg2="10"/>
+                </and>
+                <and>
+                    <!-- M.m > 10.1 -->
+                    <ac:equals arg1="${MAJOR}" arg2="10"/>
+                    <ac:isgreaterthan arg1="${MINOR}" arg2="1"/>
+                </and>
+                <and>
+                    <!-- M.m == 10.1 -->
+                    <ac:equals arg1="${MAJOR}" arg2="10"/>
+                    <ac:equals arg1="${MINOR}" arg2="1"/>
+                </and>
+                <and>
+                    <!-- M.m.SP > 10.0.0200 -->
+                    <ac:equals arg1="${MAJOR}" arg2="10"/>
+                    <ac:equals arg1="${MINOR}" arg2="0"/>
+                    <ac:isgreaterthan arg1="${RELEASE}" arg2="0200"/>
+                </and>
+                <and>
+                    <!-- M.m.SP == 10.0.0200 -->
+                    <ac:equals arg1="${MAJOR}" arg2="10"/>
+                    <ac:equals arg1="${MINOR}" arg2="0"/>
+                    <ac:equals arg1="${RELEASE}" arg2="0200"/>
+                </and>
+                <and>
+                    <!-- M.m.SP > 9.10.0300 -->
+                    <ac:equals arg1="${MAJOR}" arg2="9"/>
+                    <ac:equals arg1="${MINOR}" arg2="10"/>
+                    <ac:isgreaterthan arg1="${RELEASE}" arg2="0300"/>
+                </and>
+                <and>
+                    <!-- M.m.SP == 9.10.0300 -->
+                    <ac:equals arg1="${MAJOR}" arg2="9"/>
+                    <ac:equals arg1="${MINOR}" arg2="10"/>
+                    <ac:equals arg1="${RELEASE}" arg2="0300"/>
+                </and>
+            </or>
+            <then>
+                <property name="Server-jars_ZIP" value="jar-files-EnvisionServer-9.10SP3.zip"/>
+            </then>
+            <else>
+                <property name="Server-jars_ZIP" value="jar-files-EnvisionServer-9.10.zip"/>
+            </else>
+        </ac:if>
         <unjar
             src="${dir.jre}/${Server-jars_ZIP}"
             dest="${dir.sdk}/java"/>

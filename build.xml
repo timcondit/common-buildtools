@@ -3613,12 +3613,14 @@ Complete log here: ${dir.projects.converted}\unittests\${version.product}_verbos
     (make-Server depends on both of them.) -->
     <!-- TODO this needs to be updated.  At least ActiveMQ is out of date,
     possibly others as well. -timc, Cinco de Mayo 2010 -->
+    <!--
     <target name="unzip-Server-jars_ZIP" depends="propset">
         <property name="Server-jars_ZIP" value="jar-files-EnvisionServer-9.10.zip"/>
         <unjar
             src="${dir.jre}/${Server-jars_ZIP}"
             dest="${dir.sdk}/java"/>
     </target>
+    -->
 
     <!-- ================================================================= -->
     <!-- Unzip WebHelp for the Server installer                            -->
