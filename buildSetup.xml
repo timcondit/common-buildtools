@@ -36,13 +36,6 @@
         <antcall target="release-Server"/>
         <antcall target="release-Documentation-CD2"/>
 
-        <!-- utils -->
-        <antcall target="release-ADIT"/>
-        <antcall target="release-AGMS"/>
-        <antcall target="release-DADI"/>
-        <antcall target="release-DBMigration"/>
-        <antcall target="release-ECC"/>
-
         <!-- target3 -->
         <antcall target="release-CD3"/>
 
@@ -160,9 +153,22 @@
                 </and>
             </or>
             <then>
-                <antcall target="release-Administrator"/> <!-- PRN23176 -->
+                <!-- PRN23176 -->
+                <antcall target="release-Administrator"/>
+
+                <!-- PRN23192. Note: ADIT is deprecated in Viper -->
+                <antcall target="release-Tools"/>
+
                 <antcall target="release-CD4"/>
             </then>
+            <else>
+                <!-- utils -->
+                <antcall target="release-ADIT"/>
+                <antcall target="release-AGMS"/>
+                <antcall target="release-DADI"/>
+                <antcall target="release-DBMigration"/>
+                <antcall target="release-ECC"/>
+            </else>
         </ac:if>
     </target>
 
@@ -1043,6 +1049,22 @@
             product.name="Server"
             installer.path="${dir.installs}/Server"
             product.path="${target2}"/>
+    </target>
+
+    <!-- ================================================================= -->
+    <!-- Make and release Tools                                             -->
+    <!-- ================================================================= -->
+    <target name="make-Tools" depends="prepare">
+        <build-AI-installer
+            product.name="Tools"
+            installer.path="${dir.installs}/Tools"
+            project.file="${dir.installs}/Tools/Tools.aip"/>
+    </target>
+    <target name="release-Tools" depends="make-Tools">
+        <release-AI-installer
+            product.name="Tools"
+            installer.path="${dir.installs}/Tools"
+            product.path="${dir.utils}"/>
     </target>
 
     <!-- ================================================================= -->
