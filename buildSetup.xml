@@ -28,6 +28,7 @@
 
         <!-- target1, all versions -->
         <antcall target="release-AgentSupport"/>
+        <!-- Also see release-Administrator further below -->
         <antcall target="release-PerformanceSuite"/>
         <antcall target="release-Documentation-CD1"/>
 
@@ -159,6 +160,7 @@
                 </and>
             </or>
             <then>
+                <antcall target="release-Administrator"/> <!-- PRN23176 -->
                 <antcall target="release-CD4"/>
             </then>
         </ac:if>
@@ -993,6 +995,25 @@
         <release-AI-installer
             product.name="PerformanceSuite"
             installer.path="${dir.installs}/PerformanceSuite"
+            product.path="${target1}"/>
+    </target>
+
+    <!-- ================================================================= -->
+    <!-- Make and release Administrator                                    -->
+    <!-- ================================================================= -->
+    <!-- For now, this is practically a clone of make-PerformanceSuite.  After
+    Administrator proves itself, PerformanceSuite will go on a major diet. -->
+    <target name="make-Administrator-installer"
+        depends="prepare, unzip-BI_WebHelp, unzip-Envision_JRE, unzip-PerformanceSuite-jars_ZIP">
+        <build-AI-installer
+            product.name="Administrator"
+            installer.path="${dir.installs}/Administrator"
+            project.file="${dir.installs}/Administrator/Administrator.aip"/>
+    </target>
+    <target name="release-Administrator" depends="make-Administrator-installer">
+        <release-AI-installer
+            product.name="Administrator"
+            installer.path="${dir.installs}/Administrator"
             product.path="${target1}"/>
     </target>
 
