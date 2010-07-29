@@ -159,6 +159,9 @@
                 <!-- PRN23192. Note: ADIT is deprecated in Viper -->
                 <antcall target="release-Tools"/>
 
+                <!-- PRN23217 -->
+                <antcall target="release-ChannelManager"/>
+
                 <antcall target="release-CD4"/>
             </then>
             <else>
@@ -850,6 +853,22 @@
             product.name="CentricityQM"
             installer.path="${dir.installs}/CentricityQM"
             product.path="${dir.utils}"/>
+    </target>
+
+    <!-- ================================================================= -->
+    <!-- Make and release ChannelManager                                   -->
+    <!-- ================================================================= -->
+    <target name="make-ChannelManager" depends="prepare">
+        <build-AI-installer
+            product.name="ChannelManager"
+            installer.path="${dir.installs}/ChannelManager"
+            project.file="${dir.installs}/ChannelManager/ChannelManager.aip"/>
+    </target>
+    <target name="release-ChannelManager" depends="make-ChannelManager">
+        <release-AI-installer
+            product.name="ChannelManager"
+            installer.path="${dir.installs}/ChannelManager"
+            product.path="${target2}"/>
     </target>
 
     <!-- ================================================================= -->
