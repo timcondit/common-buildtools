@@ -60,12 +60,16 @@
                 <!-- target2, 9.6.0000.0 and later -->
                 <antcall target="release-Analytics"/>
                 <antcall target="release-Centricity"/>
+                <antcall target="release-CentricityWebApplications"/>
                 <antcall target="release-WMWrapperService"/>
             </then>
         </ac:if>
 
         <!-- CentricityWebApplications was moved to Centricity in 10.1 -->
         <!-- 9.6.x thru 10.0.x -->
+        <!-- ... and then it was moved back out of Centricity before 10.1 was
+        released.  PRN23219 -->
+        <!--
         <ac:if>
             <or>
                 <and>
@@ -85,6 +89,7 @@
                 <antcall target="release-CentricityWebApplications"/>
             </then>
         </ac:if>
+        -->
 
         <!-- 9.8.x -->
         <ac:if>
