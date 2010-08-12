@@ -863,13 +863,14 @@
     <!-- ================================================================= -->
     <!-- Make and release ChannelManager                                   -->
     <!-- ================================================================= -->
-    <target name="make-ChannelManager" depends="prepare">
+    <target name="make-ChannelManager-installer" depends="prepare">
         <build-AI-installer
             product.name="ChannelManager"
             installer.path="${dir.installs}/ChannelManager"
             project.file="${dir.installs}/ChannelManager/ChannelManager.aip"/>
     </target>
-    <target name="release-ChannelManager" depends="make-ChannelManager">
+    <target name="release-ChannelManager"
+        depends="make-ChannelManager-installer">
         <release-AI-installer
             product.name="ChannelManager"
             installer.path="${dir.installs}/ChannelManager"
