@@ -239,11 +239,20 @@
     </target>
 
     <!-- ================================================================= -->
-    <!-- make-DBMigration                                                  -->
+    <!-- Make legacy (v1) DBMigration                                      -->
     <!-- ================================================================= -->
-    <target name="make-DBMigration" description="Makes DBMigrationWizard.exe">
-        <build-cpp solution.file="${dir.src}/tools/DBMigration/DBMIGRATIONWIZARD/DBMigrationWizard.sln"/>
+    <target name="make-DBMigration_v1" description="Makes DBMigrationWizard.exe">
+        <build-cpp solution.file="${dir.src}/tools/DBMigration/v1/DBMIGRATIONWIZARD/DBMigrationWizard.sln"/>
     </target>
+
+    <!-- ================================================================= -->
+    <!-- Make new (v2) DBMigration                                         -->
+    <!-- ================================================================= -->
+    <!--
+    <target name="make-DBMigration_v2" description="Makes DBMigrationWizard.exe">
+        <build-cpp solution.file="${dir.src}/tools/DBMigration/v2/DBMIGRATIONWIZARD/DBMigrationWizard.sln"/>
+    </target>
+    -->
 
     <!-- ================================================================= -->
     <!-- Make DeployAnalyticsTool                                          -->

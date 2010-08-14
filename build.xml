@@ -660,7 +660,8 @@ have comments in-place.
         <antcall target="make-TaggingClient_CS"/>
         <antcall target="make-Portal_CS"/>
         <antcall target="make-ADIT"/>
-        <antcall target="make-DBMigration"/>
+        <antcall target="make-DBMigration_v1"/>
+        <!-- <antcall target="make-DBMigration_v2"/> -->
         <antcall target="make-EvaluationConsistencyCheck"/>
         <antcall target="make-AutoTagger"/>
         <antcall target="make-AGMS"/>
@@ -1978,10 +1979,13 @@ Complete log here: ${dir.projects.converted}\unittests\${version.product}_verbos
         <property name="dir.toCab_EN" value="${dir.build}/setup/Signature/EN/toCab"/>
 
         <!-- these files are common to all CABs -->
+        <!-- PRN23215 - remove WFM ActiveX controls -->
+        <!--
         <copy file="${dir.workdir}/WFM/AgentAdherence.ocx"
             tofile="${dir.toCab_EN}/AgentAdherence.ocx"/>
         <copy file="${dir.workdir}/WFM/AgentSchedule.ocx"
             tofile="${dir.toCab_EN}/AgentSchedule.ocx"/>
+        -->
         <copy file="${dir.build}/setup/Signature/EnvisionControls.inf"
             tofile="${dir.toCab_EN}/EnvisionControls.inf"/>
         <copy file="${dir.sdk}/ISource/_ISource.dll"
@@ -2028,12 +2032,13 @@ Complete log here: ${dir.projects.converted}\unittests\${version.product}_verbos
         </ac:if>
 
         <!-- NB: CabArc.exe must be in the path or this will fail -->
+        <!-- PRN23215 - remove WFM ActiveX controls -->
+        <!-- includes="AgentAdherence.ocx, AgentSchedule.ocx, -->
         <cab cabfile="${dir.build}/setup/Signature/EN/EnvisionControls.cab"
             basedir="${dir.toCab_EN}"
             options="-s 6144"
-            includes="AgentAdherence.ocx, AgentSchedule.ocx, AgentX.ocx,
-            C2CReportingControls.ocx, WebControls.ocx, EnvisionControls.inf,
-            _ISource.dll,mfc80.dll,SharedResources.dll"
+            includes="AgentX.ocx, C2CReportingControls.ocx, WebControls.ocx,
+            EnvisionControls.inf, _ISource.dll, mfc80.dll, SharedResources.dll"
             verbose="yes"/>
     </target>
 
@@ -2043,10 +2048,13 @@ Complete log here: ${dir.projects.converted}\unittests\${version.product}_verbos
         <property name="dir.toCab_DE" value="${dir.build}/setup/Signature/DE/toCab"/>
 
         <!-- these files are common to all CABs -->
+        <!-- PRN23215 - remove WFM ActiveX controls -->
+        <!--
         <copy file="${dir.workdir}/WFM/AgentAdherence.ocx"
             tofile="${dir.toCab_DE}/AgentAdherence.ocx"/>
         <copy file="${dir.workdir}/WFM/AgentSchedule.ocx"
             tofile="${dir.toCab_DE}/AgentSchedule.ocx"/>
+        -->
         <copy file="${dir.build}/setup/Signature/EnvisionControls.inf"
             tofile="${dir.toCab_DE}/EnvisionControls.inf"/>
         <copy file="${dir.sdk}/ISource/_ISource.dll"
@@ -2065,12 +2073,13 @@ Complete log here: ${dir.projects.converted}\unittests\${version.product}_verbos
             tofile="${dir.toCab_DE}/SharedResources.dll"/>
 
         <!-- NB: CabArc.exe must be in the path or this will fail -->
+        <!-- PRN23215 - remove WFM ActiveX controls -->
+        <!-- includes="AgentAdherence.ocx, AgentSchedule.ocx, -->
         <cab cabfile="${dir.build}/setup/Signature/DE/EnvisionControls.cab"
             basedir="${dir.toCab_DE}"
             options="-s 6144"
-            includes="AgentAdherence.ocx, AgentSchedule.ocx, AgentX.ocx,
-            C2CReportingControls.ocx, WebControls.ocx, EnvisionControls.inf,
-            _ISource.dll,mfc80.dll,SharedResources.dll"
+            includes="AgentX.ocx, C2CReportingControls.ocx, WebControls.ocx,
+            EnvisionControls.inf, _ISource.dll, mfc80.dll, SharedResources.dll"
             verbose="yes"/>
     </target>
 
@@ -2080,10 +2089,13 @@ Complete log here: ${dir.projects.converted}\unittests\${version.product}_verbos
         <property name="dir.toCab_ES" value="${dir.build}/setup/Signature/ES/toCab"/>
 
         <!-- these files are common to all CABs -->
+        <!-- PRN23215 - remove WFM ActiveX controls -->
+        <!--
         <copy file="${dir.workdir}/WFM/AgentAdherence.ocx"
             tofile="${dir.toCab_ES}/AgentAdherence.ocx"/>
         <copy file="${dir.workdir}/WFM/AgentSchedule.ocx"
             tofile="${dir.toCab_ES}/AgentSchedule.ocx"/>
+        -->
         <copy file="${dir.build}/setup/Signature/EnvisionControls.inf"
             tofile="${dir.toCab_ES}/EnvisionControls.inf"/>
         <copy file="${dir.sdk}/ISource/_ISource.dll"
@@ -2102,12 +2114,13 @@ Complete log here: ${dir.projects.converted}\unittests\${version.product}_verbos
             tofile="${dir.toCab_ES}/SharedResources.dll"/>
 
         <!-- NB: CabArc.exe must be in the path or this will fail -->
+        <!-- PRN23215 - remove WFM ActiveX controls -->
+        <!-- includes="AgentAdherence.ocx, AgentSchedule.ocx, -->
         <cab cabfile="${dir.build}/setup/Signature/ES/EnvisionControls.cab"
             basedir="${dir.toCab_ES}"
             options="-s 6144"
-            includes="AgentAdherence.ocx, AgentSchedule.ocx, AgentX.ocx,
-            C2CReportingControls.ocx, WebControls.ocx, EnvisionControls.inf,
-            _ISource.dll,mfc80.dll,SharedResources.dll"
+            includes="AgentX.ocx, C2CReportingControls.ocx, WebControls.ocx,
+            EnvisionControls.inf, _ISource.dll, mfc80.dll, SharedResources.dll"
             verbose="yes"/>
     </target>
 

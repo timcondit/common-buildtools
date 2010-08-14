@@ -164,6 +164,10 @@
                 <!-- PRN23192. Note: ADIT is deprecated in Viper -->
                 <antcall target="release-Tools"/>
 
+                <!-- PRN23270: Generate the old DBMigration installer for
+                on-demand use in Viper, but don't include in CD2 -->
+                <antcall target="make-DBMigration"/>
+
                 <!-- PRN23217 -->
                 <antcall target="release-ChannelManager"/>
 
