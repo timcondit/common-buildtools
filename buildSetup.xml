@@ -171,6 +171,9 @@
                 <!-- PRN23217 -->
                 <antcall target="release-ChannelManager"/>
 
+                <!-- PRN23312 -->
+                <antcall target="release-ServerSuite"/>
+
                 <antcall target="release-CD4"/>
             </then>
             <else>
@@ -845,7 +848,7 @@
         <release-AI-installer
             product.name="Centricity"
             installer.path="${dir.installs}/Centricity"
-            product.path="${target2}"/>
+            product.path="${target2}/Retired"/>
     </target>
 
     <!-- ================================================================= -->
@@ -1077,6 +1080,23 @@
         <release-AI-installer
             product.name="Server"
             installer.path="${dir.installs}/Server"
+            product.path="${target2}/Retired"/>
+    </target>
+
+    <!-- ================================================================= -->
+    <!-- Make and release ServerSuite                                      -->
+    <!-- ================================================================= -->
+    <target name="make-ServerSuite"
+        depends="prepare, unzip-WebHelp, unzip-Envision_JRE, unzip-Server-jars_ZIP">
+        <build-AI-installer
+            product.name="ServerSuite"
+            installer.path="${dir.installs}/ServerSuite"
+            project.file="${dir.installs}/ServerSuite/ServerSuite.aip"/>
+    </target>
+    <target name="release-ServerSuite" depends="make-ServerSuite">
+        <release-AI-installer
+            product.name="ServerSuite"
+            installer.path="${dir.installs}/ServerSuite"
             product.path="${target2}"/>
     </target>
 
