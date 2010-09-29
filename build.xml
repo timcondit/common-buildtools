@@ -2667,6 +2667,8 @@ Complete log here: ${dir.projects.converted}\unittests\${version.product}_verbos
         <property name="target1" value="${dir.products}/${version.product}/CD1"/>
         <property name="target2" value="${dir.products}/${version.product}/CD2"/>
         <property name="target3" value="${dir.products}/${version.product}/CD3"/>
+        <property name="target4" value="${dir.products}/${version.product}/CD4"/>
+        <property name="dir.retired" value="${target2}/Retired"/>
         <property name="dir.utils" value="${target2}/utils"/>
         <property name="dir.nuasis-plugin" value="${target2}/utils/Nuasis"/>
     </target>
@@ -2846,7 +2848,7 @@ Complete log here: ${dir.projects.converted}\unittests\${version.product}_verbos
         <release-AI-installer
             product.name="Centricity"
             installer.path="${dir.installs}/Centricity"
-            product.path="${target2}"/>
+            product.path="${dir.retired}"/>
     </target>
 
     <!-- ================================================================= -->
@@ -2967,7 +2969,7 @@ Complete log here: ${dir.projects.converted}\unittests\${version.product}_verbos
         <release-AI-installer
             product.name="Server"
             installer.path="${dir.installs}/Server"
-            product.path="${target2}"/>
+            product.path="${dir.retired}"/>
     </target>
 
     <!-- ================================================================= -->
