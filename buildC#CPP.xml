@@ -208,6 +208,8 @@
             solution.file="${dir.src}/contactsources/tsapi/cstaLoader/cstaLoader.vcproj"/>
         <build-cpp configuration="Release_3_33"
             solution.file="${dir.src}/contactsources/tsapi/cstaLoader/cstaLoader.vcproj"/>
+        <!-- Note the different path.  This is for Alcatel. -timc 9/29/2010 -->
+        <build-cpp configuration="Release_6_4_3" solution.file="${dir.src}/winservices/SourceRunnerService.sln"/>
         <build-cpp configuration="Release_9_1"
             solution.file="${dir.src}/contactsources/tsapi/cstaLoader/cstaLoader.vcproj"/>
         <build-cpp configuration="Release_9_5"
