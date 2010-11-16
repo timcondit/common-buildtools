@@ -1364,6 +1364,8 @@ Log file is here: ${dir.projects.converted}\logs\build_${version.product}.xml
 
 
 Compiled from source revision ${repository.revision}
+        <!-- fixing unit tests is on the backburner -timc 10/8/2010 -->
+        <!--
 
 
 ===========================================================
@@ -1374,6 +1376,7 @@ ${unittest.csharpresults}
 
 Complete log here: ${dir.projects.converted}\unittests\${version.product}_verbose.xml
 ===========================================================
+        -->
             </message>
         </mail>
     </target>
