@@ -499,6 +499,7 @@ have comments in-place.
         <antcall target="build-jars"/>
         <antcall target="generate-dbschemas"/>
         <antcall target="make-CPP"/>
+        <antcall target="make-ServiceMonitor"/>
         <antcall target="sign-EnvisionControls_CAB"/>
         <antcall target="touch-build"/>
         <antcall target="setup-installers"/>
@@ -508,6 +509,7 @@ have comments in-place.
         <antcall target="tag-build"/>
         <antcall target="move-workdir-postbuild"/>
         <antcall target="end"/>
+        <antcall target="run-test-automation"/>
     </target>
 
     <!-- ================================================================= -->
@@ -2371,6 +2373,16 @@ Complete log here: ${dir.projects.converted}\unittests\${version.product}_verbos
         <build-cpp solution.file="${dir.src}/clients/quality/shared/Shared.vcproj"/>
     </target>
 
+    <!-- ================================================================= -->
+    <!-- Make ServiceMonitor (Brian Baxter's VB.Net tool)                  -->
+    <!-- ================================================================= -->
+    <target name="make-ServiceMonitor" description="Compiles ServiceMonitor using MSBuild">
+        <exec dir="${dir.build}" executable="${compiler.msbuild}" vmlauncher="${vmlauncher}" failonerror="true">
+            <arg line="/target:Build ${dir.src}/tools/EnvisionServiceMonitor/EnvisionServiceMonitor.sln /property:Configuration=Release /l:FileLogger,Microsoft.Build.Engine;logfile=${dir.build}/BuildLog.txt;append=true"/>
+        </exec>
+    </target>
+
+
     <!-- @@@ MOVE TO buildC#CPP.xml @@@ -->
     <!-- ================================================================= -->
     <!--  Make SharedResources DLL                                         -->
@@ -2841,6 +2853,11 @@ Complete log here: ${dir.projects.converted}\unittests\${version.product}_verbos
         <copy todir="${target3}">
             <fileset dir="${uncpath.cd3_sources}"/>
         </copy>
+        <!-- Brian'e Envision Service Monitor -->
+        <property name="dir.svcmon"
+            value="${dir.build}/src/tools/EnvisionServiceMonitor/EnvisionServiceMonitor/bin/Release"/>
+        <copy file="${dir.svcmon}/EnvisionServiceMonitor.exe" todir="${target3}/tools"/>
+        <copy file="${dir.svcmon}/EnvisionServiceMonitor.exe.config" todir="${target3}/tools"/>
     </target>
 
     <!-- ================================================================= -->
@@ -3646,5 +3663,16 @@ Complete log here: ${dir.projects.converted}\unittests\${version.product}_verbos
     <target name="unzip-WebHelp"
         depends="unzip-AgentDesktop_WebHelp, unzip-BI_WebHelp,
         unzip-Centricity_WebHelp, unzip-ClassicReports_WebHelp"/>
+
+    <!-- ================================================================= -->
+    <!-- Run BVT test (build verification test test?) automation           -->
+    <!-- ================================================================= -->
+    <target name="run-test-automation">
+        <!-- <exec dir="${dir.bin}" executable="${vs100_mstest}" failonerror="false"> -->
+        <exec dir="${dir.bin}" executable="VMWareTests.exe" failonerror="false">
+            <arg line="-commonDB PE6850_Common -localDB PE6850_Local -aspNETDB PE6850_ASPNET -hostIP 10.1.6.10 -imageIP 10.1.6.106 -serverName WIN2008-64C -site_retries 15 -emailto keith.myers@envisioninc.com"/>
+        </exec>
+    </target>
+
 </project>
 
