@@ -694,16 +694,28 @@ have comments in-place.
         make-TSAPI,
         make-XFloorWnd,
         sign-AgentX_OCX,
-        sign-AgentSchedule_OCX,
-        sign-AgentAdherence_OCX,
         sign-C2CReportingControls_OCX,
         sign-WebControls_OCX,
         make-SmartAgentErrs,
         make-AgentSupport,
         make-Administrator,
         make-eLearning,
-        make-QualityMonitoring,
-        make-WFM"/>
+        make-QualityMonitoring">
+        <!-- Hopefully temporary kludge for PRN23959.  The proper fix is to
+        get the build scripts back into the source. -timc 1/24/2010 -->
+        <ac:if>
+            <or>
+                <ac:equals arg1="${MAJOR}.${MINOR}" arg2="10.1"/>
+                <ac:islessthan arg1="${MAJOR}.${MINOR}" arg2="10.1"/>
+            </or>
+            <then>
+                <antcall target="sign-AgentSchedule_OCX"/>
+                <antcall target="sign-AgentAdherence_OCX"/>
+                <antcall target="make-WFM"/>
+            </then>
+        </ac:if>
+    </target>
+
 
     <!-- ================================================================= -->
     <!-- Build C#                                                          -->
@@ -968,61 +980,69 @@ have comments in-place.
         </exec>
 
         <!-- prn18732 (in 9.0.4) hopefully temporary workaround -->
-        <property name="daisy_version_cs_SERVER"
-            value="${dir.src}/server/com/et/wfm/daisy/DaisyVersion.cs"/>
-        <!-- clients/wfm/WFMClient/com/et/daisy/DaisyVersion.cs -->
-        <exec dir="${dir.bin}" executable="insert.exe" vmlauncher="${vmlauncher}">
-            <arg line="-c30
-                -s:x20MAJOR:x20=:x20${p_MAJOR};
-                -r:x20MAJOR:x20=:x20${MAJOR};
-                -o ${daisy_version_cs_SERVER}"/>
-        </exec>
-        <exec dir="${dir.bin}" executable="insert.exe" vmlauncher="${vmlauncher}">
-            <arg line="-c30
-                -s:x20MINOR:x20=:x20${p_MINOR};
-                -r:x20MINOR:x20=:x20${MINOR};
-                -o ${daisy_version_cs_SERVER}"/>
-        </exec>
-        <exec dir="${dir.bin}" executable="insert.exe" vmlauncher="${vmlauncher}">
-            <arg line="-c30
-                -s:x20RELEASE:x20=:x20${p_RELEASE};
-                -r:x20RELEASE:x20=:x20${RELEASE};
-                -o ${daisy_version_cs_SERVER}"/>
-        </exec>
-        <exec dir="${dir.bin}" executable="insert.exe" vmlauncher="${vmlauncher}">
-            <arg line="-c30
-                -s:x20BUILD:x20=:x20${p_BUILD};
-                -r:x20BUILD:x20=:x20${BUILD};
-                -o ${daisy_version_cs_SERVER}"/>
-        </exec>
+        <ac:if>
+            <or>
+                <ac:equals arg1="${MAJOR}.${MINOR}" arg2="10.1"/>
+                <ac:islessthan arg1="${MAJOR}.${MINOR}" arg2="10.1"/>
+            </or>
+            <then>
+                <property name="daisy_version_cs_SERVER"
+                    value="${dir.src}/server/com/et/wfm/daisy/DaisyVersion.cs"/>
+                <!-- clients/wfm/WFMClient/com/et/daisy/DaisyVersion.cs -->
+                <exec dir="${dir.bin}" executable="insert.exe" vmlauncher="${vmlauncher}">
+                    <arg line="-c30
+                        -s:x20MAJOR:x20=:x20${p_MAJOR};
+                        -r:x20MAJOR:x20=:x20${MAJOR};
+                        -o ${daisy_version_cs_SERVER}"/>
+                </exec>
+                <exec dir="${dir.bin}" executable="insert.exe" vmlauncher="${vmlauncher}">
+                    <arg line="-c30
+                        -s:x20MINOR:x20=:x20${p_MINOR};
+                        -r:x20MINOR:x20=:x20${MINOR};
+                        -o ${daisy_version_cs_SERVER}"/>
+                </exec>
+                <exec dir="${dir.bin}" executable="insert.exe" vmlauncher="${vmlauncher}">
+                    <arg line="-c30
+                        -s:x20RELEASE:x20=:x20${p_RELEASE};
+                        -r:x20RELEASE:x20=:x20${RELEASE};
+                        -o ${daisy_version_cs_SERVER}"/>
+                </exec>
+                <exec dir="${dir.bin}" executable="insert.exe" vmlauncher="${vmlauncher}">
+                    <arg line="-c30
+                        -s:x20BUILD:x20=:x20${p_BUILD};
+                        -r:x20BUILD:x20=:x20${BUILD};
+                        -o ${daisy_version_cs_SERVER}"/>
+                </exec>
 
-        <!-- prn18732 (in 9.0.4) hopefully temporary workaround -->
-        <property name="daisy_version_cs_CLIENT"
-            value="${dir.src}/clients/wfm/WFMClient/com/et/daisy/DaisyVersion.cs"/>
-        <exec dir="${dir.bin}" executable="insert.exe" vmlauncher="${vmlauncher}">
-            <arg line="-c30
-                -s:x20MAJOR:x20=:x20${p_MAJOR};
-                -r:x20MAJOR:x20=:x20${MAJOR};
-                -o ${daisy_version_cs_CLIENT}"/>
-        </exec>
-        <exec dir="${dir.bin}" executable="insert.exe" vmlauncher="${vmlauncher}">
-            <arg line="-c30
-                -s:x20MINOR:x20=:x20${p_MINOR};
-                -r:x20MINOR:x20=:x20${MINOR};
-                -o ${daisy_version_cs_CLIENT}"/>
-        </exec>
-        <exec dir="${dir.bin}" executable="insert.exe" vmlauncher="${vmlauncher}">
-            <arg line="-c30
-                -s:x20RELEASE:x20=:x20${p_RELEASE};
-                -r:x20RELEASE:x20=:x20${RELEASE};
-                -o ${daisy_version_cs_CLIENT}"/>
-        </exec>
-        <exec dir="${dir.bin}" executable="insert.exe" vmlauncher="${vmlauncher}">
-            <arg line="-c30
-                -s:x20BUILD:x20=:x20${p_BUILD};
-                -r:x20BUILD:x20=:x20${BUILD};
-                -o ${daisy_version_cs_CLIENT}"/>
-        </exec>
+                <!-- prn18732 (in 9.0.4) hopefully temporary workaround -->
+                <property name="daisy_version_cs_CLIENT"
+                    value="${dir.src}/clients/wfm/WFMClient/com/et/daisy/DaisyVersion.cs"/>
+                <exec dir="${dir.bin}" executable="insert.exe" vmlauncher="${vmlauncher}">
+                    <arg line="-c30
+                        -s:x20MAJOR:x20=:x20${p_MAJOR};
+                        -r:x20MAJOR:x20=:x20${MAJOR};
+                        -o ${daisy_version_cs_CLIENT}"/>
+                </exec>
+                <exec dir="${dir.bin}" executable="insert.exe" vmlauncher="${vmlauncher}">
+                    <arg line="-c30
+                        -s:x20MINOR:x20=:x20${p_MINOR};
+                        -r:x20MINOR:x20=:x20${MINOR};
+                        -o ${daisy_version_cs_CLIENT}"/>
+                </exec>
+                <exec dir="${dir.bin}" executable="insert.exe" vmlauncher="${vmlauncher}">
+                    <arg line="-c30
+                        -s:x20RELEASE:x20=:x20${p_RELEASE};
+                        -r:x20RELEASE:x20=:x20${RELEASE};
+                        -o ${daisy_version_cs_CLIENT}"/>
+                </exec>
+                <exec dir="${dir.bin}" executable="insert.exe" vmlauncher="${vmlauncher}">
+                    <arg line="-c30
+                        -s:x20BUILD:x20=:x20${p_BUILD};
+                        -r:x20BUILD:x20=:x20${BUILD};
+                        -o ${daisy_version_cs_CLIENT}"/>
+                </exec>
+            </then>
+        </ac:if>
     </target>
 
     <!-- ================================================================= -->
