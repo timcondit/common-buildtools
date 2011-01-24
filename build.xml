@@ -592,7 +592,7 @@ have comments in-place.
         <antcall target="tag-build"/>
         <antcall target="move-workdir-postbuild"/>
         <antcall target="end"/>
-        <antcall target="run-test-automation"/>
+        <!-- <antcall target="run-test-automation"/> -->
     </target>
 
     <!-- ================================================================= -->
