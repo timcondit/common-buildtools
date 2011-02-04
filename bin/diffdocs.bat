@@ -57,6 +57,11 @@ set DIFF=diff --brief
 %DIFF% "%SRC%\DE\Webhelp files\Agent_Desktop_Webhelp.zip"   "%DST%\Webhelp\DE\Agent_Desktop_Webhelp.zip"
 %DIFF% "%SRC%\DE\Webhelp files\Centricity_Webhelp.zip"      "%DST%\Webhelp\DE\Centricity_Webhelp.zip"
 %DIFF% "%SRC%\DE\Webhelp files\Classic_reports_Webhelp.zip" "%DST%\Webhelp\DE\Classic_reports_Webhelp.zip"
+:: DE PDF
+:: TODO Where should these files go?  First figure out what they are.
+%DIFF% "%SRC%\DE\PDF files\admin_pdf.pdf"               "%DST%\UserGuides\DE\administrator.pdf"
+%DIFF% "%SRC%\DE\PDF files\CentricityAgentDT_pdf.pdf"   "%DST%\QuickReference\DE\CentricityAgentDesktop.pdf"
+%DIFF% "%SRC%\DE\PDF files\Centricity_pdf.pdf"          "%DST%\QuickReference\DE\Centricity.pdf"
 
 :: ES CHM
 %DIFF% "%SRC%\ES\CHM files\Administrator_Help.chm"      "%DST%\OnlineHelp\ES\Administrator_Help.chm"
@@ -66,6 +71,11 @@ set DIFF=diff --brief
 %DIFF% "%SRC%\ES\Webhelp files\Agent_Desktop_Webhelp.zip"   "%DST%\Webhelp\ES\Agent_Desktop_Webhelp.zip"
 %DIFF% "%SRC%\ES\Webhelp files\Centricity_Webhelp.zip"      "%DST%\Webhelp\ES\Centricity_Webhelp.zip"
 %DIFF% "%SRC%\ES\Webhelp files\Classic_reports_Webhelp.zip" "%DST%\Webhelp\ES\Classic_reports_Webhelp.zip"
+:: ES PDF
+:: TODO Where should these files go?  First figure out what they are.
+%DIFF% "%SRC%\ES\PDF files\admin_pdf.pdf"               "%DST%\UserGuides\ES\administrator.pdf"
+%DIFF% "%SRC%\ES\PDF files\CentricityAgentDT_pdf.pdf"   "%DST%\QuickReference\ES\CentricityAgentDesktop.pdf"
+%DIFF% "%SRC%\ES\PDF files\Centricity_pdf.pdf"          "%DST%\QuickReference\ES\Centricity.pdf"
 
 
 :: clean up
