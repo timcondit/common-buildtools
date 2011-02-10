@@ -17,7 +17,7 @@ import shutil
 import subprocess
 import sys
 
-os.environ['JAVA_HOME'] = r'C:\Progra~1\Java\jdk1.6.0_14'
+os.environ['JAVA_HOME'] = r'C:\Progra~1\Java\jdk1.6.0_20'
 os.environ['ANT_HOME'] = r'C:\Progra~1\Ant\apache-ant-1.7.1'
 os.environ['ANT_OPTS'] = '-Xmx1024m'
 
