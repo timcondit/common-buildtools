@@ -19,8 +19,7 @@ set DST=%1\documentation
 set DIFF=diff --brief
 
 ::
-:: Copy everything.  Don't get clever, just get the files onto the build
-:: machine.
+:: Copy everything.  Don't get clever, just get the files onto the build machine.
 ::
 
 :: EN CHM
@@ -29,19 +28,15 @@ set DIFF=diff --brief
 %DIFF% "%SRC%\EN\CHM files\EWFM.chm"                    "%DST%\OnlineHelp\EN\EWFM.chm"
 %DIFF% "%SRC%\EN\CHM files\QualityMonitoring_Help.chm"  "%DST%\OnlineHelp\EN\QualityMonitoring_Help.chm"
 :: EN PDF
-:: TODO rename QRS-CentricityAgentDesktop.pdf to "QRS - CentricityAgentDesktop.pdf"?
-%DIFF% "%SRC%\EN\PDF files\QRS-CentricityAgentDesktop.pdf"  "%DST%\QuickReference\QRS - CentricityAgentDesktop.pdf"
 %DIFF% "%SRC%\EN\PDF files\ReleaseNotes.pdf"                "%DST%\ReleaseNotes\ReleaseNotes.pdf"
-:: TODO after 9.8 - uppercase administrator.pdf
-%DIFF% "%SRC%\EN\PDF files\administrator.pdf"               "%DST%\UserGuides\administrator.pdf"
-%DIFF% "%SRC%\EN\PDF files\AgentDesktop.pdf"                "%DST%\UserGuides\AgentDesktop.pdf"
-%DIFF% "%SRC%\EN\PDF files\BizIntelPortal.pdf"              "%DST%\UserGuides\BizIntelPortal.pdf"
-%DIFF% "%SRC%\EN\PDF files\eLearning.pdf"                   "%DST%\UserGuides\eLearning.pdf"
-%DIFF% "%SRC%\EN\PDF files\EnvisionCallTaggingClient.pdf"   "%DST%\UserGuides\EnvisionCallTaggingClient.pdf"
-%DIFF% "%SRC%\EN\PDF files\EWFM.pdf"                        "%DST%\UserGuides\EWFM.pdf"
-%DIFF% "%SRC%\EN\PDF files\QualityMonitoring.pdf"           "%DST%\UserGuides\QualityMonitoring.pdf"
-:: TODO after 9.8 - uppercase reporting.pdf
-%DIFF% "%SRC%\EN\PDF files\reporting.pdf"                   "%DST%\UserGuides\reporting.pdf"
+%DIFF% "%SRC%\EN\PDF files\administrator.pdf"               "%DST%\UserGuides\EN\Administrator.pdf"
+%DIFF% "%SRC%\EN\PDF files\AgentDesktop.pdf"                "%DST%\UserGuides\EN\AgentDesktop.pdf"
+%DIFF% "%SRC%\EN\PDF files\BizIntelPortal.pdf"              "%DST%\UserGuides\EN\BizIntelPortal.pdf"
+%DIFF% "%SRC%\EN\PDF files\eLearning.pdf"                   "%DST%\UserGuides\EN\eLearning.pdf"
+%DIFF% "%SRC%\EN\PDF files\EnvisionCallTaggingClient.pdf"   "%DST%\UserGuides\EN\EnvisionCallTaggingClient.pdf"
+%DIFF% "%SRC%\EN\PDF files\EWFM.pdf"                        "%DST%\UserGuides\EN\EWFM.pdf"
+%DIFF% "%SRC%\EN\PDF files\QualityMonitoring.pdf"           "%DST%\UserGuides\EN\QualityMonitoring.pdf"
+%DIFF% "%SRC%\EN\PDF files\reporting.pdf"                   "%DST%\UserGuides\EN\Reporting.pdf"
 :: EN HTML
 %DIFF% "%SRC%\EN\Webhelp files\Agent_Desktop_Webhelp.zip"               "%DST%\Webhelp\EN\Agent_Desktop_Webhelp.zip"
 %DIFF% "%SRC%\EN\Webhelp files\BI_Webhelp.zip"                          "%DST%\Webhelp\EN\BI_Webhelp.zip"
@@ -53,29 +48,29 @@ set DIFF=diff --brief
 %DIFF% "%SRC%\DE\CHM files\Administrator_Help.chm"      "%DST%\OnlineHelp\DE\Administrator_Help.chm"
 %DIFF% "%SRC%\DE\CHM files\eLearning_Help.chm"          "%DST%\OnlineHelp\DE\eLearning_Help.chm"
 %DIFF% "%SRC%\DE\CHM files\QualityMonitoring_Help.chm"  "%DST%\OnlineHelp\DE\QualityMonitoring_Help.chm"
-:: DE HTML
-%DIFF% "%SRC%\DE\Webhelp files\Agent_Desktop_Webhelp.zip"   "%DST%\Webhelp\DE\Agent_Desktop_Webhelp.zip"
-%DIFF% "%SRC%\DE\Webhelp files\Centricity_Webhelp.zip"      "%DST%\Webhelp\DE\Centricity_Webhelp.zip"
-%DIFF% "%SRC%\DE\Webhelp files\Classic_reports_Webhelp.zip" "%DST%\Webhelp\DE\Classic_reports_Webhelp.zip"
 :: DE PDF
-:: TODO Where should these files go?  First figure out what they are.
-%DIFF% "%SRC%\DE\PDF files\admin_pdf.pdf"               "%DST%\UserGuides\DE\administrator.pdf"
-%DIFF% "%SRC%\DE\PDF files\CentricityAgentDT_pdf.pdf"   "%DST%\QuickReference\DE\CentricityAgentDesktop.pdf"
-%DIFF% "%SRC%\DE\PDF files\Centricity_pdf.pdf"          "%DST%\QuickReference\DE\Centricity.pdf"
+%DIFF% "%SRC%\DE\PDF files\admin_pdf.pdf"               "%DST%\UserGuides\DE\Administrator.pdf"
+%DIFF% "%SRC%\DE\PDF files\CentricityAgentDT_pdf.pdf"   "%DST%\UserGuides\DE\CentricityAgentDesktop.pdf"
+%DIFF% "%SRC%\DE\PDF files\Centricity_pdf.pdf"          "%DST%\UserGuides\DE\Centricity.pdf"
+:: DE HTML
+%DIFF% "%SRC%\DE\Webhelp files\Agent_Desktop_Webhelp.zip"               "%DST%\Webhelp\DE\Agent_Desktop_Webhelp.zip"
+%DIFF% "%SRC%\DE\Webhelp files\Centricity_Webhelp.zip"                  "%DST%\Webhelp\DE\Centricity_Webhelp.zip"
+%DIFF% "%SRC%\DE\Webhelp files\Classic_reports_Webhelp.zip"             "%DST%\Webhelp\DE\Classic_reports_Webhelp.zip"
+%DIFF% "%SRC%\DE\Webhelp files\Agent_Desktop_Centricity_Webhelp.zip"    "%DST%\Webhelp\DE\Agent_Desktop_Centricity_Webhelp.zip"
 
 :: ES CHM
 %DIFF% "%SRC%\ES\CHM files\Administrator_Help.chm"      "%DST%\OnlineHelp\ES\Administrator_Help.chm"
 %DIFF% "%SRC%\ES\CHM files\eLearning_Help.chm"          "%DST%\OnlineHelp\ES\eLearning_Help.chm"
 %DIFF% "%SRC%\ES\CHM files\QualityMonitoring_Help.chm"  "%DST%\OnlineHelp\ES\QualityMonitoring_Help.chm"
-:: ES HTML
-%DIFF% "%SRC%\ES\Webhelp files\Agent_Desktop_Webhelp.zip"   "%DST%\Webhelp\ES\Agent_Desktop_Webhelp.zip"
-%DIFF% "%SRC%\ES\Webhelp files\Centricity_Webhelp.zip"      "%DST%\Webhelp\ES\Centricity_Webhelp.zip"
-%DIFF% "%SRC%\ES\Webhelp files\Classic_reports_Webhelp.zip" "%DST%\Webhelp\ES\Classic_reports_Webhelp.zip"
 :: ES PDF
-:: TODO Where should these files go?  First figure out what they are.
-%DIFF% "%SRC%\ES\PDF files\admin_pdf.pdf"               "%DST%\UserGuides\ES\administrator.pdf"
-%DIFF% "%SRC%\ES\PDF files\CentricityAgentDT_pdf.pdf"   "%DST%\QuickReference\ES\CentricityAgentDesktop.pdf"
-%DIFF% "%SRC%\ES\PDF files\Centricity_pdf.pdf"          "%DST%\QuickReference\ES\Centricity.pdf"
+%DIFF% "%SRC%\ES\PDF files\admin_pdf.pdf"               "%DST%\UserGuides\ES\Administrator.pdf"
+%DIFF% "%SRC%\ES\PDF files\CentricityAgentDT_pdf.pdf"   "%DST%\UserGuides\ES\CentricityAgentDesktop.pdf"
+%DIFF% "%SRC%\ES\PDF files\Centricity_pdf.pdf"          "%DST%\UserGuides\ES\Centricity.pdf"
+:: ES HTML
+%DIFF% "%SRC%\ES\Webhelp files\Agent_Desktop_Webhelp.zip"               "%DST%\Webhelp\ES\Agent_Desktop_Webhelp.zip"
+%DIFF% "%SRC%\ES\Webhelp files\Centricity_Webhelp.zip"                  "%DST%\Webhelp\ES\Centricity_Webhelp.zip"
+%DIFF% "%SRC%\ES\Webhelp files\Classic_reports_Webhelp.zip"             "%DST%\Webhelp\ES\Classic_reports_Webhelp.zip"
+%DIFF% "%SRC%\ES\Webhelp files\Agent_Desktop_Centricity_Webhelp.zip"    "%DST%\Webhelp\ES\Agent_Desktop_Centricity_Webhelp.zip"
 
 
 :: clean up
