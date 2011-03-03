@@ -595,6 +595,37 @@ have comments in-place.
         <!-- <antcall target="run-test-automation"/> -->
     </target>
 
+    <!-- Use this with builds that share a version number, for example
+    ViperGA, AvayaPDS and JTAPI.  One uses lkg.txt, the others may not.  If
+    they do, the build numbers get mixed up.  Of course that means that the
+    other (subordinate) projects build numbers are not being tracked.  Caveat
+    emptor. -->
+    <target name="official-build-skip-lkg">
+        <antcall target="begin"/>
+        <antcall target="nuke-workdir"/>
+        <antcall target="fetch-source"/>
+        <antcall target="change-version"/>
+        <antcall target="create-release-dir"/>
+        <antcall target="build-jars"/>
+        <antcall target="compile-genstubskel-jar"/>
+        <antcall target="genstubskel-suite"/>
+        <antcall target="copy-jar-resources"/>
+        <antcall target="build-jars"/>
+        <antcall target="generate-dbschemas"/>
+        <antcall target="make-CPP"/>
+        <antcall target="make-ServiceMonitor"/>
+        <antcall target="sign-EnvisionControls_CAB"/>
+        <antcall target="touch-build"/>
+        <antcall target="setup-installers"/>
+        <antcall target="commit-all"/>
+        <antcall target="publish-unit-test-results"/>
+        <antcall target="email-build-complete"/>
+        <antcall target="tag-build"/>
+        <antcall target="move-workdir-postbuild"/>
+        <!-- <antcall target="end"/> -->
+        <!-- <antcall target="run-test-automation"/> -->
+    </target>
+
     <!-- ================================================================= -->
     <!-- Rebuild Project                                                   -->
     <!-- ================================================================= -->
@@ -3778,61 +3809,61 @@ Complete log here: ${dir.projects.converted}\unittests\${version.product}_verbos
         </exec>
     </target>
 
-	<!-- ================================================================= -->
-	<!-- Compile the BVTs                                                  -->
-	<!-- ================================================================= -->
-	<!--
-	<target name="make-BVTs">
-			<property name="compiler.cpp" value="${vs100_devenv}"/>
-			<build-cpp solution.file="${dir.src}/tools/testapps/AgentCentricity/AgentCentricity.sln"/>
-			<build-cpp solution.file="${dir.src}/tools/testapps/CentricityBVT/autotest.sln"/>
-			<build-cpp solution.file="${dir.src}/tools/testapps/ReviewAdvocate/ReviewAdvocate.sln"/>
-	</target>
-	-->
+    <!-- ================================================================= -->
+    <!-- Compile the BVTs                                                  -->
+    <!-- ================================================================= -->
+    <!--
+    <target name="make-BVTs">
+        <property name="compiler.cpp" value="${vs100_devenv}"/>
+        <build-cpp solution.file="${dir.src}/tools/testapps/AgentCentricity/AgentCentricity.sln"/>
+        <build-cpp solution.file="${dir.src}/tools/testapps/CentricityBVT/autotest.sln"/>
+        <build-cpp solution.file="${dir.src}/tools/testapps/ReviewAdvocate/ReviewAdvocate.sln"/>
+    </target>
+    -->
 
-	<target name="make-BVTs">
-		<echo message="dir.projects.converted: ${dir.projects.converted}"/>
-		<!-- delete the contents first, directory second -->
-		<delete failonerror="False">
-			<fileset dir="${dir.projects.converted}\BVTs" erroronmissingdir="False"/>
-		</delete>
-		<delete failonerror="False" dir="${dir.projects.converted}\BVTs"/>
-		<antcall target="make-BVT-AgentCentricity"/>
-		<antcall target="make-BVT-CentricityBVT"/>
-		<antcall target="make-BVT-ReviewAdvocate"/>
-	</target>
+    <target name="make-BVTs">
+        <echo message="dir.projects.converted: ${dir.projects.converted}"/>
+        <!-- delete the contents first, directory second -->
+        <delete failonerror="False">
+            <fileset dir="${dir.projects.converted}\BVTs" erroronmissingdir="False"/>
+        </delete>
+        <delete failonerror="False" dir="${dir.projects.converted}\BVTs"/>
+        <antcall target="make-BVT-AgentCentricity"/>
+        <antcall target="make-BVT-CentricityBVT"/>
+        <antcall target="make-BVT-ReviewAdvocate"/>
+    </target>
 
-	<!-- NOTE have to set vs100_devenv here instead of compiler.cpp, since the
-		 properties are immutable. -timc 2/9/2011 -->
-	<target name="make-BVT-AgentCentricity">
-		<exec dir="${dir.build}" executable="${vs100_devenv}" vmlauncher="false" failonerror="false">
-			<arg line="/build Release
-				${dir.src}/tools/testapps/AgentCentricity/AgentCentricity.sln
-				/out ${dir.build}/BuildLog.txt"/>
-		</exec>
-		<copy todir="${dir.projects.converted}\BVTs">
-			<fileset file="${dir.src}/tools/testapps/AgentCentricity/AgentCentricity/bin/Release/AgentCentricity.dll"/>
-		</copy>
-	</target>
-	<target name="make-BVT-CentricityBVT">
-		<exec dir="${dir.build}" executable="${vs100_devenv}" vmlauncher="false" failonerror="false">
-			<arg line="/build Release
-				${dir.src}/tools/testapps/CentricityBVT/autotest.sln
-				/out ${dir.build}/BuildLog.txt"/>
-		</exec>
-		<copy todir="${dir.projects.converted}\BVTs">
-			<fileset file="${dir.src}/tools/testapps/CentricityBVT/autotest/bin/Release/autotest.dll"/>
-		</copy>
-	</target>
-	<target name="make-BVT-ReviewAdvocate">
-		<exec dir="${dir.build}" executable="${vs100_devenv}" vmlauncher="false" failonerror="false">
-			<arg line="/build Release
-				${dir.src}/tools/testapps/ReviewAdvocate/ReviewAdvocate.sln
-				/out ${dir.build}/BuildLog.txt"/>
-		</exec>
-		<copy todir="${dir.projects.converted}\BVTs">
-			<fileset file="${dir.src}/tools/testapps/ReviewAdvocate/ReviewAdvocate/bin/Release/ReviewAdvocate.dll"/>
-		</copy>
-	</target>
+    <!-- NOTE have to set vs100_devenv here instead of compiler.cpp, since the
+    properties are immutable. -timc 2/9/2011 -->
+    <target name="make-BVT-AgentCentricity">
+        <exec dir="${dir.build}" executable="${vs100_devenv}" vmlauncher="false" failonerror="false">
+            <arg line="/build Release
+                ${dir.src}/tools/testapps/AgentCentricity/AgentCentricity.sln
+                /out ${dir.build}/BuildLog.txt"/>
+        </exec>
+        <copy todir="${dir.projects.converted}\BVTs">
+            <fileset file="${dir.src}/tools/testapps/AgentCentricity/AgentCentricity/bin/Release/AgentCentricity.dll"/>
+        </copy>
+    </target>
+    <target name="make-BVT-CentricityBVT">
+        <exec dir="${dir.build}" executable="${vs100_devenv}" vmlauncher="false" failonerror="false">
+            <arg line="/build Release
+                ${dir.src}/tools/testapps/CentricityBVT/autotest.sln
+                /out ${dir.build}/BuildLog.txt"/>
+        </exec>
+        <copy todir="${dir.projects.converted}\BVTs">
+            <fileset file="${dir.src}/tools/testapps/CentricityBVT/autotest/bin/Release/autotest.dll"/>
+        </copy>
+    </target>
+    <target name="make-BVT-ReviewAdvocate">
+        <exec dir="${dir.build}" executable="${vs100_devenv}" vmlauncher="false" failonerror="false">
+            <arg line="/build Release
+                ${dir.src}/tools/testapps/ReviewAdvocate/ReviewAdvocate.sln
+                /out ${dir.build}/BuildLog.txt"/>
+        </exec>
+        <copy todir="${dir.projects.converted}\BVTs">
+            <fileset file="${dir.src}/tools/testapps/ReviewAdvocate/ReviewAdvocate/bin/Release/ReviewAdvocate.dll"/>
+        </copy>
+    </target>
 </project>
 
