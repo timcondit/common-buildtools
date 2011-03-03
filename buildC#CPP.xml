@@ -233,6 +233,13 @@
     </target>
 
     <!-- ================================================================= -->
+    <!--  Make CET Case Submission tool                                    -->
+    <!-- ================================================================= -->
+    <target name="make-CETCaseSubmission">
+        <build-cpp solution.file="src/tools/EnvisionCaseManagement/ECM/CETCaseSubmission.sln"/>
+    </target>
+
+    <!-- ================================================================= -->
     <!-- Make DADI                                                         -->
     <!-- ================================================================= -->
     <!-- It's not in buildtools/branches/9.0/SP4/base/buildC#CPP.xml -->

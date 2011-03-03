@@ -808,6 +808,7 @@ have comments in-place.
                 <antcall target="make-Speech"/>
             </then>
         </ac:if>
+        <antcall target="make-CETCaseSubmission"/>
     </target>
 
     <!-- ================================================================= -->
