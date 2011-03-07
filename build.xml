@@ -100,6 +100,7 @@ have comments in-place.
     <!-- some useful bits in the comments here
     http://blog.andrewbeacock.com/2005/08/pretty-printing-java-classpaths-using.html
     -->
+    <!--
     <macrodef name="build-AI-installer">
         <attribute name="product.name"/>
         <attribute name="installer.path"/>
@@ -115,6 +116,7 @@ have comments in-place.
             </exec>
         </sequential>
     </macrodef>
+    -->
 
     <!-- ================================================================= -->
     <!-- Release AI installers (macro)                                     -->
@@ -839,6 +841,7 @@ have comments in-place.
                 <antcall target="make-Speech"/>
             </then>
         </ac:if>
+        <antcall target="make-CETCaseSubmission"/>
     </target>
 
     <!-- ================================================================= -->
@@ -2385,8 +2388,7 @@ Complete log here: ${dir.projects.converted}\unittests\${version.product}_verbos
     <!-- ================================================================= -->
     <!-- Make PerformanceSuite installer                                   -->
     <!-- ================================================================= -->
-    <target name="make-PerformanceSuite-installer"
-        depends="prepare, unzip-BI_WebHelp, unzip-Envision_JRE, unzip-PerformanceSuite-jars_ZIP">
+    <target name="make-PerformanceSuite-installer">
         <build-AI-installer
             product.name="PerformanceSuite"
             installer.path="${dir.installs}/PerformanceSuite"
@@ -2988,7 +2990,7 @@ Complete log here: ${dir.projects.converted}\unittests\${version.product}_verbos
         <copy todir="${target3}">
             <fileset dir="${uncpath.cd3_sources}"/>
         </copy>
-        <!-- Brian'e Envision Service Monitor -->
+        <!-- Brian's Envision Service Monitor -->
         <property name="dir.svcmon"
             value="${dir.build}/src/tools/EnvisionServiceMonitor/EnvisionServiceMonitor/bin/Release"/>
         <copy file="${dir.svcmon}/EnvisionServiceMonitor.exe" todir="${target3}/tools"/>
@@ -3616,9 +3618,12 @@ Complete log here: ${dir.projects.converted}\unittests\${version.product}_verbos
     <!-- ================================================================= -->
     <!-- Unzip Centricity WebHelp for the Server installer                 -->
     <!-- ================================================================= -->
+    <!--
     <target name="unzip-Centricity_WebHelp" depends="propset">
+        -->
         <!-- Maybe later this will become three separate tasks. -->
         <!-- Centricity documentation for Supervisors -->
+        <!--
         <unjar
             src="${dir.build}/Documentation/WebHelp/EN/Centricity_Webhelp.zip"
             dest="${dir.build}/Documentation/WebHelp/EN/Centricity_Webhelp"/>
@@ -3628,7 +3633,9 @@ Complete log here: ${dir.projects.converted}\unittests\${version.product}_verbos
         <unjar
             src="${dir.build}/Documentation/WebHelp/ES/Centricity_Webhelp.zip"
             dest="${dir.build}/Documentation/WebHelp/ES/Centricity_Webhelp"/>
+        -->
         <!-- Centricity documentation for Agents: 9.8 and later only -->
+        <!--
         <ac:if>
             <or>
                 <and>
@@ -3647,10 +3654,22 @@ Complete log here: ${dir.projects.converted}\unittests\${version.product}_verbos
                 <unjar
                     src="${dir.build}/Documentation/WebHelp/EN/Agent_Desktop_Centricity_Webhelp.zip"
                     dest="${dir.build}/Documentation/WebHelp/EN/Agent_Desktop_Centricity_Webhelp"/>
+                -->
+                <!-- TODO add this here temporarily -timc 3/8/2011 -->
+                <!--
+                <unjar
+                    src="${dir.build}/Documentation/WebHelp/DE/Agent_Desktop_Centricity_Webhelp.zip"
+                    dest="${dir.build}/Documentation/WebHelp/DE/Agent_Desktop_Centricity_Webhelp"/>
+                <unjar
+                    src="${dir.build}/Documentation/WebHelp/ES/Agent_Desktop_Centricity_Webhelp.zip"
+                    dest="${dir.build}/Documentation/WebHelp/ES/Agent_Desktop_Centricity_Webhelp"/>
             </then>
         </ac:if>
+        -->
 
         <!-- localized documentation is currently in 9.10 SP2 only -->
+        <!-- TODO these conditions are no longer up to date -timc 3/8/2011 -->
+        <!--
         <ac:if>
             <or>
                 <and>
@@ -3674,6 +3693,7 @@ Complete log here: ${dir.projects.converted}\unittests\${version.product}_verbos
             </then>
         </ac:if>
     </target>
+    -->
 
     <!-- ================================================================= -->
     <!-- Unzip Classic reporting WebHelp for the Server installer          -->
