@@ -402,13 +402,16 @@
             </then>
         </ac:if>
 
+        <!--
         <ac:if>
             <not>
                 <and>
                     <isset property="file.pfx"/>
+                    -->
                     <!-- This is only available after we fetch the source.
                     That makes it either a good test, or a bad one.  I'm not
                     sure which. -->
+                    <!--
                     <available file="${file.pfx}"/>
                 </and>
             </not>
@@ -416,6 +419,7 @@
                 <fail message="property file.pfx is unset or unavailable"/>
             </then>
         </ac:if>
+        -->
 
         <ac:if>
             <not>
@@ -551,6 +555,15 @@
                 <unjar
                     src="${dir.build}/Documentation/WebHelp/EN/Agent_Desktop_Centricity_Webhelp.zip"
                     dest="${dir.build}/Documentation/WebHelp/EN/Agent_Desktop_Centricity_Webhelp"/>
+                <!-- TODO add this here temporarily -timc 3/8/2011 -->
+                <!--
+                <unjar
+                    src="${dir.build}/Documentation/WebHelp/DE/Agent_Desktop_Centricity_Webhelp.zip"
+                    dest="${dir.build}/Documentation/WebHelp/DE/Agent_Desktop_Centricity_Webhelp"/>
+                <unjar
+                    src="${dir.build}/Documentation/WebHelp/ES/Agent_Desktop_Centricity_Webhelp.zip"
+                    dest="${dir.build}/Documentation/WebHelp/ES/Agent_Desktop_Centricity_Webhelp"/>
+                -->
             </then>
         </ac:if>
 
@@ -566,6 +579,14 @@
                     <ac:equals arg1="${MAJOR}" arg2="9"/>
                     <ac:equals arg1="${MINOR}" arg2="10"/>
                     <ac:isgreaterthan arg1="${RELEASE}" arg2="0200"/>
+                </and>
+                <and>
+                    <ac:equals arg1="${MAJOR}" arg2="10"/>
+                    <ac:equals arg1="${MINOR}" arg2="1"/>
+                </and>
+                <and>
+                    <ac:equals arg1="${MAJOR}" arg2="10"/>
+                    <ac:isgreaterthan arg1="${MINOR}" arg2="1"/>
                 </and>
             </or>
             <then>
@@ -1055,7 +1076,7 @@
     <!-- For now, this is practically a clone of make-PerformanceSuite.  After
     Administrator proves itself, PerformanceSuite will go on a major diet. -->
     <target name="make-Administrator-installer"
-        depends="prepare, unzip-BI_WebHelp, unzip-Envision_JRE, unzip-PerformanceSuite-jars_ZIP">
+        depends="prepare, unzip-Envision_JRE, unzip-PerformanceSuite-jars_ZIP">
         <build-AI-installer
             product.name="Administrator"
             installer.path="${dir.installs}/Administrator"
@@ -1213,7 +1234,7 @@
         <attribute name="installer.path"/>
         <attribute name="project.file"/>
         <sequential>
-            <echo message="Making installer at @{project.file}"/>
+            <echo message="Making installer at @{installer.path}"/>
             <mkdir dir="@{installer.path}/newInstall"/>
             <exec dir="@{installer.path}" executable="${compiler.ai}" failonerror="true">
                 <arg line="/edit @{project.file} /SetVersion ${version.product}"/>
